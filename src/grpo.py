@@ -1,9 +1,7 @@
 import os
 
 os.environ["HF_HOME"] = "/workspace/huggingface/cache/"
-os.environ["HF_TOKEN"] = "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"
 #os.environ["VLLM_MAX_MODEL_LEN"] = "19000"
-os.environ["WANDB_API_KEY"] = "596fb756c1ac87d4847e3dbee56052f37dd7734b"
 os.environ["WANDB_PROJECT"] = "comp-coder"
 
 # Launch script with accelerate instead
