@@ -1,7 +1,7 @@
 import os
 
 #os.environ["VLLM_MAX_MODEL_LEN"] = "19000"
-os.environ["WANDB_PROJECT"] = "comp-coder"
+#os.environ["WANDB_PROJECT"] = "comp-coder"
 
 # Launch script with accelerate instead
 # CUDA_VISIBLE_DEVICES=0,1 accelerate launch grpo-qwen3-8b.py 
