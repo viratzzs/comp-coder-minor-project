@@ -1,6 +1,5 @@
 import os
 
-os.environ["HF_TOKEN"] = "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"
 os.environ["HF_HOME"] = "/workspace/huggingface/cache/"
 
 from rewards import *
