@@ -1,6 +1,5 @@
 import os
 
-os.environ["HF_HOME"] = "/workspace/huggingface/cache/"
 #os.environ["VLLM_MAX_MODEL_LEN"] = "19000"
 os.environ["WANDB_PROJECT"] = "comp-coder"
 
