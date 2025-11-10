@@ -1,5 +1,4 @@
 import os
-os.environ["HF_HOME"] = "/workspace/huggingface/cache/"
 
 import re
 import pandas as pd

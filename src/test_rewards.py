@@ -1,6 +1,5 @@
 import os
 
-os.environ["HF_HOME"] = "/workspace/huggingface/cache/"
 
 from rewards import *
 from utils.content_utils import * 
