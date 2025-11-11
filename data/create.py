@@ -6,7 +6,7 @@ from datasets import Dataset, load_dataset
 
 load_dotenv()
 
-ds = load_dataset("ViratChauhan/comp-coder-rl", split="train")#.select(range(5000))
+ds = load_dataset("open-r1/codeforces", "verifiable-prompts", split="train")#.select(range(5000))
 
 print(f"Sampled {len(ds)} rows from the dataset.")
 

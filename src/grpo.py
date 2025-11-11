@@ -25,22 +25,15 @@ from rewards import *
 
 
 SYSTEM_PROMPT = """
-You are an expert Python developer. Generate correct Python code.
-First, analyze the requirements in <think> tags with your reasoning, design choices, and implementation approach. 
-Afterwards, reason about how to generate the code that passes all given unit tests and compiles successfully.
+You are an expert competitive programmer. You will be given a problem statement, test case constraints and example test inputs and outputs. Please reason step by step about the solution (that must respect memory and time limits), then provide a complete implementation in python3.
+Your solution must read input from standard input and write output to standard output.
+Do not include any debug prints or additional output.
 
-Then provide your solution in <answer> tags using this exact format:
-
-<answer>
-A brief description of your solution. 
-
+Then provide your solution below in this format:
 [code]
-// your code here
+// your python code here
 
-</answer>
-
-## Guidelines:
-- Implement all functionalities by yourself and don't use any external libraries
+Now solve the problem and return the code.
 """
 
 def get_sol_data(split = "train") -> Dataset:

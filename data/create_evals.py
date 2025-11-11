@@ -6,7 +6,7 @@ from datasets import Dataset, load_dataset
 
 load_dotenv()
 
-ds = load_dataset("ViratChauhan/comp-coder-rl", split="train")#.select(range(5000))
+ds = load_dataset("open-r1/codeforces", "verifiable-prompts", split="test")#.select(range(5000))
 
 print(f"Sampled {len(ds)} rows from the dataset.")
 
@@ -22,9 +22,6 @@ def is_valid(sample):
     if len(sample['prompt']) > 4000:
         return False
     
-    #if len(sample['official_tests']) > 1000:
-    #    return False
-
     return True
     
 #print(len(ds[-1]['problem']))
