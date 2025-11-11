@@ -4,7 +4,7 @@ This repository contains the code for training a competitive programming llm usi
 ## TODO 
 ### Training stuff (SFT distillation)
 - Use codeforces-cots dataset.
-- launch training :) 
+- launch training :) (ongoing)
 
 ### Training stuff (RL)
 - Create subset of openr1 dataset with 1000 samples (split of easy-medium-hard: 3-5-2, use dict to maintain range of problem ratings)
@@ -17,7 +17,7 @@ This repository contains the code for training a competitive programming llm usi
 - Patch up training script (2-3 epochs)
 
 ### Evals
-- Setup eval (python only) or any other benchmark which is small and easy for base model and our model
+- Setup eval (python only) or any other benchmark which is small and easy for base model and our model (DONE, though need to setup environment for it to run)
 - Take out 200-500 problems from the dataset for evals
 
 ### UI and API
