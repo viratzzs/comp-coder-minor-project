@@ -1,6 +1,5 @@
 import os
 import torch
-import wandb
 from datasets import load_dataset, Dataset
 from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig, TrainingArguments
 from peft import LoraConfig
@@ -9,13 +8,12 @@ from trl import SFTTrainer
 SYSTEM_PROMPT = """
 You are an expert competitive programmer. You will be given a problem statement, test case constraints and example test inputs and outputs. Please reason step by step about the solution (that must respect memory and time limits), then provide a complete implementation in python3.
 Your solution must read input from standard input and write output to standard output.
-Do not include any debug prints or additional output.
+Do not include any debug prints or additional output./think
 
-Then provide your solution below in this format:
-[code]
-// your python code here
-
-Now solve the problem and return the code./think
+Put your final solution within a single code block:
+```python
+<your code here>
+```
 """
 
 def get_sol_data(split="train") -> Dataset:
