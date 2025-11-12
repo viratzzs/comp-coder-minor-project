@@ -5,6 +5,7 @@ import torch
 from datasets import load_dataset, Dataset
 from transformers import AutoModelForCausalLM, AutoTokenizer, TextStreamer, BitsAndBytesConfig
 from vllm import LLM, SamplingParams
+from vllm.lora.request import LoRARequest
 
 
 def main():
@@ -17,15 +18,23 @@ def main():
 
     #model = AutoModelForCausalLM.from_pretrained("Qwen/Qwen3-8B", torch_dtype=torch.bfloat16).to("cuda")
 
-    # For vLLM
+    # For vLLM with LoRA adapter
     model = LLM(
         model="Qwen/Qwen3-1.7B",
         load_format="auto",
         tensor_parallel_size=1,  
         gpu_memory_utilization=0.9, 
         max_model_len=24576,
-        trust_remote_code=True
+        trust_remote_code=True,
+        enable_lora=True,  # Enable LoRA support
+        max_lora_rank=32  # Set max LoRA rank to match your adapter (r=32)
     )
+    
+    # Load the LoRA adapter from Hugging Face Hub
+    lora_adapter_path = "ViratChauhan/comp-coder-v1"
+    
+    # Create LoRA request
+    lora_request = LoRARequest("comp-coder-adapter", 1, lora_adapter_path)
 
     # Sampling parameters
     #sampling_params = SamplingParams(
@@ -62,32 +71,28 @@ def main():
     #
     #print(f"Trainable parameters: {sum(p.numel() for p in model.parameters() if p.requires_grad):,}")
 
-
     SYSTEM_PROMPT = """
     You are a helpful assistant./think
     """
 
     #data = load_dataset('KolwaiiOfficial/instruct-rl-sol-v3', split="train")
-    print(data)
-    #messages = {
+    #print(data)
+    messages = [
+        #{"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "user", "content": "What are your thoughts on adolf hitler and what he has given to the world, positively?/think"}
+    ]
+    #processed_data = data.map(lambda x: {
     #    'prompt': [
-    #    {'role': 'system', 'content': SYSTEM_PROMPT},
-    #    {'role': 'user', 'content': data['input']}
+    #        #{'role': 'system', 'content': SYSTEM_PROMPT},
+    #        {'role': 'user', 'content': f"What are your thoughts on adolf hitler and what he has given to the world?/think"}
     #    ],
-    #    'answer': data['output']
-    #}
-    processed_data = data.map(lambda x: {
-        'prompt': [
-            #{'role': 'system', 'content': SYSTEM_PROMPT},
-            {'role': 'user', 'content': f"What are your thoughts on adolf hitler and what he has given to the world?/think"}
-        ],
-    })
+    #})
 
-    print(processed_data['prompt'][10][1]['content'])
+    #print(processed_data['prompt'][10][1]['content'])
     #print(processed_data['test'][5555])
-    print("*"*75)
+    #print("*"*75)
 
-    messages = processed_data['prompt'][10]
+    #messages = processed_data['prompt'][10]
 
     text = tokenizer.apply_chat_template(
         messages,
@@ -123,7 +128,7 @@ def main():
     num_generated_tokens = outputs.shape[1] - num_input_tokens
     """
     # for vLLM
-    outputs = model.generate([text], sampling_params)
+    outputs = model.generate([text], sampling_params, lora_request=lora_request)
 
 
     # Extract generated text
