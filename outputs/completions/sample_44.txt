@@ -1,0 +1,2224 @@
+<think>
+Okay, let's try to figure out how to solve this problem. So the problem is about maximizing the difference between Narek's score and ChatGPT's score. Let me break down the problem step by step.
+
+First, let's understand how each score is calculated.
+
+For Narek's score (score_n):
+He looks for the sequence "n", "a", "r", "e", "k" in the concatenated string. The way he finds them is that once he finds the first occurrence of 'n', then 'a', then 'r', then 'e', then 'k', he adds 5 points. Then he continues from where he left off. So, for example, if the string has all these letters in order, he gets 5 points. But if he doesn't find all of them, then he gets the points for the letters he found, but not the full 5.
+
+Wait, no. The problem says that he increments score_n by 5 for each occurrence of the 5 letters. Wait no, the description says: upon finding all occurrences of these letters, he increments by 5. Then he resumes searching for 'n' again. So, the way it works is that he scans the string once, and whenever he finds all the letters in order, he adds 5 points. But how?
+
+Wait, the problem says: "He initially searches for the letter 'n', followed by 'a', 'r', 'e', and 'k'. Upon finding all occurrences of these letters, he increments score_n by 5 and resumes searching for 'n' again (he doesn't go back, and he just continues from where he left off)."
+
+So, the process is that he scans the string from left to right. He looks for 'n' first. Once he finds the first 'n', then looks for 'a' after that. Then 'r' after 'a', then 'e' after 'r', then 'k' after 'e'. Once he finds all five letters in order, he adds 5 points, and then continues searching for 'n' again from where he left off. So, for example, if the string is "narek", then he finds all five letters, adds 5. But if the string is "nareknn", then after finding the first 'n', 'a', 'r', 'e', 'k', he adds 5 and then continues looking for 'n' again. So the next 'n' is after the 'k', so he adds another 5? Or does he only add 5 once?
+
+Wait the problem says: "Upon finding all occurrences of these letters, he increments score_n by 5 and resumes searching for 'n' again (he doesn't go back, and he just continues from where he left off)."
+
+So, the process is that he finds the first occurrence of 'n', then 'a', then 'r', then 'e', then 'k' in order. Once he finds all of them, he adds 5 and then continues searching for 'n' again. So, for example, if the string is "nareknn", then the first occurrence of 'n' is at position 0, then 'a' at 1, 'r' at 2, 'e' at 3, 'k' at 4. Then he adds 5, and then continues searching for 'n' from position 5 onwards. So the next 'n' is at position 5, which is found, so he adds another 5. So in this case, the total score is 10.
+
+But how does this work for the entire string? The key is that the search is done in order, and once all five letters are found in order, he adds 5 and continues. So the total score is the number of times he finds the five letters in order, each time adding 5 points. But how?
+
+Wait, the problem says that he increments by 5 for each time he finds all the letters. So, for example, if the string is "narek", then he finds all five letters once, adding 5. If the string is "nareknn", then after finding the first five letters, he adds 5, and then finds the next 'n' (the sixth character), which is part of the next search. So he adds another 5. So the total is 10.
+
+So the way to calculate score_n is to find all the times that the five letters appear in order, and each time that happens, add 5. But how?
+
+Alternatively, the process is that the search is done in a single pass, and whenever the five letters are found in order, he adds 5 and continues searching for 'n' again. So, the total number of times he adds 5 is equal to the number of times he completes the sequence of the five letters. So, for example, if the string is "narek", he adds 5 once. If the string is "nareknn", he adds 5 once (for the first five letters) and then again for the next 'n' (since after the 'k' he starts looking for 'n' again). So the total is 10.
+
+So the way to model this is to find all the positions where the five letters appear in order, and count how many times that happens. Each time, he adds 5. But how to compute this efficiently for a given string.
+
+But for the problem, we need to find for a given concatenated string (which is the combination of selected strings in order), what is the score_n.
+
+So, the challenge is to select a subset of the given strings (in order) such that when concatenated, the score_n - score_c is maximized.
+
+Now, the key is to find for each possible subset of strings, the score_n and score_c, and then find the maximum difference.
+
+But given that n can be up to 1e3 and m up to 1e3, and t up to 1e5, we need an efficient approach.
+
+But considering that the sum of n*m across all test cases is 1e6, perhaps we can find a way to compute for each possible combination of strings, but that seems computationally impossible.
+
+So, we need to find a way to model the problem in a way that allows us to compute the optimal selection efficiently.
+
+Let me think about the problem.
+
+First, let's think about the score_n and score_c for a given string.
+
+For score_n: the process is to find the five letters in order, and each time they are found in order, add 5. But how to compute that.
+
+Let me think of the process as follows: the first occurrence of 'n' is found, then the next 'a' after that, then 'r' after 'a', then 'e' after 'r', then 'k' after 'e'. Once all five are found, add 5 and continue searching for 'n' again.
+
+So, the total number of times the five letters are found in order is equal to the number of times the entire sequence is completed. So, for example, if the string is "nareknn", then the first five letters are found once, and the next 'n' is found after the 'k', so the second time the sequence is completed, adding another 5. So total 10.
+
+So the way to model this is to find the positions where the five letters are found in order, and count how many times that happens.
+
+But how to compute that for a given string.
+
+An alternative approach: the score_n is equal to the number of times the five-letter sequence is completed, multiplied by 5.
+
+So, for a given string, we can compute the number of times the five-letter sequence is completed, and that's the score_n.
+
+So, how to compute this?
+
+Let me think of the process as follows:
+
+We have a current position in the string, and we track the current state of the five-letter sequence. For example, the state is the number of letters in the sequence that have been found so far.
+
+Initially, state is 0. We need to find the first 'n' in the string. Once found, state becomes 1. Then find 'a' after that. Once found, state becomes 2. Then 'r' after that, then 'e', then 'k'. Once all five are found, the state is 5, and then we start looking for 'n' again from the next position.
+
+So, the process is:
+
+Initialize pos = 0, state = 0.
+
+While pos < len(s):
+
+   if state is 0:
+
+      find the next 'n' in the string starting at pos.
+
+      if found, state becomes 1, pos = next index.
+
+   else if state is 1:
+
+      find next 'a' after pos.
+
+      if found, state becomes 2, pos = next index.
+
+   else if state is 2:
+
+      find next 'r' after pos.
+
+      if found, state becomes 3, pos = next index.
+
+   else if state is 3:
+
+      find next 'e' after pos.
+
+      if found, state becomes 4, pos = next index.
+
+   else if state is 4:
+
+      find next 'k' after pos.
+
+      if found, state becomes 5, pos = next index.
+
+   else:
+
+      (state is 5, so we start looking for 'n' again from pos)
+
+      find next 'n' after pos.
+
+      if found, state becomes 1, pos = next index.
+
+So, each time we find all five letters in order, we add 5 to the score_n.
+
+But how to model this for a given string.
+
+Alternatively, for a given string, the score_n can be computed by the number of times the five-letter sequence is completed, multiplied by 5.
+
+So, the problem reduces to, for each possible concatenation of the selected strings, compute the number of times the five-letter sequence is completed, then subtract the score_c (which is the number of 'n', 'a', 'r', 'e', 'k' in the concatenated string minus the number of letters that Narek used in his score_n).
+
+Wait, no. Let me re-express the problem.
+
+score_c is the number of 'n', 'a', 'r', 'e', 'k' that Narek failed to utilize. So, for the concatenated string, the total number of these letters is the sum of all occurrences in the string. But score_c is the number of these letters that Narek didn't use. So, for example, if Narek uses x of these letters, then score_c is (total letters in the concatenated string) - x, but only if the letters that Narek didn't use are counted.
+
+Wait, the problem says:
+
+ChatGPT scans through the array and increments score_c by 1 for each letter 'n', 'a', 'r', 'e', or 'k' that Narek fails to utilize. So, if Narek uses some of these letters, then the rest are counted in score_c.
+
+But how does that work? Let's think.
+
+For example, suppose the concatenated string is "narek". Narek uses all five letters (so he adds 5 to his score). Then, score_c is the number of 'n', 'a', 'r', 'e', 'k' in the string that Narek didn't use. But since he used all of them, score_c is 0. So the difference is 5 - 0 = 5.
+
+But in the example given in the first test case, when all strings are selected, the full string is "nnaarreekk". Narek uses the first 'n', 'a', 'r', 'e', 'k' (the first five letters). Then, he continues searching for 'n' again. The next 'n' is after the 'k' (the 5th position), so he finds it. So he adds another 5. Then, the next 'a' is after that, but the 'a' is after the 'k', so he finds it? Wait, no. Let me think.
+
+Wait, the first five letters are found, and then he continues searching for 'n' again. So after the first five letters, he starts looking for 'n' again. The next 'n' is the 5th character in the string? Let me think of the example:
+
+Original string is "nnaarreekk". Let's break it down:
+
+n n a a r r e e k k
+
+So the first 'n' is at 0, then 'a' at 1, 'r' at 2, 'e' at 3, 'k' at 4. Then, after that, the next 'n' is at 1 (but wait, the first 'n' is at 0, then the next 'n' is at 1. But after the 'k' (position 4), the next 'n' is at position 5? Wait, the string is "n n a a r r e e k k". So positions 0-1: 'n', 'n'; 2-3: 'a', 'a'; 4-5: 'r', 'r'; 6-7: 'e', 'e'; 8-9: 'k', 'k'.
+
+So after the first five letters (positions 0-4, which are n, n, a, a, r, r, e, e, k, k?), no. Wait, the first five letters are n, a, r, e, k. So the first 'n' is at 0, then 'a' at 1, 'r' at 2, 'e' at 3, 'k' at 4. Then, after that, the next 'n' is at position 1. But the next 'n' is after the 'k' (position 4). So the next 'n' is at position 1, which is before the 'k' (position 4). So when Narek is looking for 'n' again, he starts from position 5 (after the 'k' at position 4). So the next 'n' is at position 5? No, the string is n n a a r r e e k k. So after the 'k' (position 4), the next letters are 'k' (position 5?), no. Wait, the string is of length 10. Let me reindex:
+
+Indices 0: n, 1: n, 2: a, 3: a, 4: r, 5: r, 6: e, 7: e, 8: k, 9: k.
+
+So after the first five letters (positions 0,1,2,3,4) which are n, n, a, a, r, then the next 'e' is at 6, then 'k' at 8. So after the 'k' at 8, the next 'n' is not present. So the first five letters are found once, adding 5. Then, after that, the search for 'n' again starts from position 5 (after the 'k' at 4). So the next 'n' is at position 1 (which is before the current position). So when the search starts again, the code would look for 'n' starting from position 5. So in this case, there is no 'n' in the string after position 5. So the search for 'n' again would not find any, so the state remains 5. So the total score_n is 5.
+
+But in the note, the example says that when all strings are chosen, the full string is "nnaarreekk", and Narek's score is 5. ChatGPT's score is 5 (since all the letters that are not used by Narek are counted. Wait, the note says that in that case, the answer is 5-5=0.
+
+So in that case, the total number of 'n', 'a', 'r', 'e', 'k' in the string is 10 (n: 2, a: 2, r: 2, e: 2, k: 2). Narek uses 5 letters (the first five letters: n, a, r, e, k). Then, the other letters are 'n' (position 1), 'a' (position 2?), no. Wait, the string is "nnaarreekk" which is:
+
+n n a a r r e e k k.
+
+So the letters are:
+
+n, n, a, a, r, r, e, e, k, k.
+
+So the total letters in the string are 10. Narek uses the first 5 letters (n, a, r, e, k) and then the next 'n' is at position 1 (but that's not part of the first five letters). So the letters that Narek used are the first five letters. So the letters not used by Narek are the remaining 5 letters (n, a, r, e, k). So score_c is 5. So the difference is 5-5=0.
+
+So the problem is that for each string, we need to compute how many letters of the five are used in the score_n, and then compute the total score_n and score_c.
+
+So, the key is to model for each possible selection of strings, the total score_n and score_c.
+
+But how to compute this efficiently.
+
+The problem requires that we select a subset of the strings, in order, such that the difference (score_n - score_c) is maximized.
+
+But given the constraints, we need to find an efficient way.
+
+Let me think about the possible approaches.
+
+First, for each string, we can precompute some information that allows us to model how it contributes to the overall score.
+
+Let me think about what each string contributes to the total.
+
+For example, when a string is added to the concatenated string, it can contribute some number of letters that are part of the five-letter sequence, and also some letters that are not.
+
+But how?
+
+The main challenge is to find for each possible selection of strings, the total score_n and score_c.
+
+But with n up to 1e3 and t up to 1e5, we need a way to compute this efficiently.
+
+Alternative approach: since the order of the selected strings is important, but the selection is a subset (order is preserved), perhaps we can model the problem as dynamic programming, where for each string, we track the state of the current search for the five letters.
+
+But with n up to 1e3, and each string's processing being O(m), this might be feasible.
+
+Let me think of the following:
+
+The process of building the concatenated string is a sequence of strings, and for each step, we track the current state of the five-letter sequence.
+
+So, for each string, we can compute for it the number of letters that contribute to the score_n, and the number of letters that contribute to the score_c.
+
+But how?
+
+Let me think about the following:
+
+For a given string, when added to the concatenated string, it can contribute to the score_n in two ways:
+
+1. The letters in this string that are part of the five-letter sequence (i.e., the letters that are part of the sequence 'n', 'a', 'r', 'e', 'k').
+
+But the way the score_n is calculated depends on the order in which these letters are found. So, for example, a string that has 'n', 'a', 'r', 'e', 'k' in order would contribute to the score_n, but a string that has 'n' followed by 'a' followed by 'r' followed by 'e' followed by 'k' would contribute to the score_n.
+
+But the problem is that the order of the strings affects how the five-letter sequence is processed.
+
+So, for the dynamic programming approach, perhaps we can track the current state of the five-letter sequence. For example, after adding a string, the state is the number of letters in the sequence that have been found so far.
+
+For example, if the state is 0, it means that the first letter of the sequence is being searched for. Then, when a string is added, we can compute how many of the five letters are found in order, and update the state accordingly.
+
+But how to compute this for each string.
+
+Let me think: the state can be represented as a variable that indicates how many letters of the five have been found in order. For example, state can be 0 to 5.
+
+For each string, we can compute the contribution to the score_n and the contribution to the score_c.
+
+But the problem is that the contribution depends on the order in which the strings are processed. So, for example, adding a string that has the letters 'n', 'a', 'r', 'e', 'k' in order will contribute to the state, but adding a string that has 'a', 'n' after that would not contribute to the state.
+
+So, the dynamic programming approach would track for each possible state, the maximum possible score_n - score_c for the first i strings, with the state being the current state of the five-letter sequence.
+
+But with n up to 1e3 and state up to 5, this would be feasible.
+
+Let me think more carefully.
+
+The dynamic programming state can be represented as dp[i][s], where i is the number of strings processed so far, and s is the current state (0 to 5). The value of dp[i][s] would be the maximum possible (score_n - score_c) for the first i strings, with the current state being s.
+
+Then, for each string, we can process it and update the dp table.
+
+But how to compute the contribution of each string to the state and the difference.
+
+For example, when adding a new string, we can process it and see how it affects the state. For each possible previous state, we can compute the new state after adding the string, and the change in the difference (score_n - score_c).
+
+But how to compute this.
+
+Let me think of the following steps:
+
+For each string s in the list:
+
+   For each possible state s_prev in 0..5:
+
+      For each possible state s_new after processing this string, compute the delta (score_n change) and the delta (score_c change).
+
+But how to compute the delta.
+
+The delta for the difference (score_n - score_c) when adding this string depends on how the string contributes to the five-letter sequence.
+
+But the problem is that when adding a string, the state can change, and the contribution to the difference depends on the new state.
+
+Let me think of the process:
+
+When adding a string, the current state is s_prev. The string can contribute to the state in some way, and thus the new state is s_new.
+
+For each possible s_prev, we can compute the new state s_new, and the change in the difference (score_n - score_c) for this transition.
+
+But how to compute the change in the difference.
+
+The difference is (score_n - score_c) before adding the string plus the change caused by the string.
+
+But what is the change in the difference?
+
+The score_n is increased by the number of times the five-letter sequence is completed in the new string. However, the score_c is increased by the number of letters in the string that are not used in the score_n.
+
+But this seems complex.
+
+Alternative approach: For each string, compute for each possible state, the contribution to the score_n and the contribution to the score_c.
+
+But how?
+
+Let me think of the following:
+
+Each time the five-letter sequence is completed, the score_n increases by 5. So, for a given string, when it is added to the concatenated string, it may contribute to the state, and thus may contribute to the number of times the five-letter sequence is completed.
+
+But the way to model this is to track, for each possible state, how adding the string affects the state and the total score_n and score_c.
+
+But perhaps we can model the following:
+
+For each string, we can compute for each possible state s_prev (from 0 to 5) the new state s_new, and the change in the difference (score_n - score_c) caused by adding this string.
+
+But how to compute the change in the difference.
+
+Let me think: the difference is the total score_n minus the total score_c.
+
+When adding the string, the score_n may increase by some amount, and the score_c may increase by some amount.
+
+But the score_c is the number of letters in the string that are not used in the score_n. So, the score_c is the total number of letters in the string that are in the five letters, minus the number of letters that are used in the score_n.
+
+But this seems complicated.
+
+Alternatively, for each string, we can compute how many letters of the five letters are added to the score_n, and how many letters are added to the score_c.
+
+But how?
+
+Let me think: the score_n is determined by the number of times the five-letter sequence is completed. Each time the sequence is completed, 5 points are added. So, for a string, when it's added, it may contribute to the state, and thus may contribute to the number of times the sequence is completed.
+
+So, for example, if the string has the letters 'n', 'a', 'r', 'e', 'k' in order, then adding it would increase the state to 5, and thus add 5 to the score_n.
+
+But how to model this for each string and each possible state.
+
+Another approach: For each string, precompute the maximum number of times the five-letter sequence can be completed when this string is added, and the number of letters in the five letters that are used in the score_n.
+
+But this seems challenging.
+
+Alternatively, for each string, we can precompute for each possible state s (0-5) the number of times the five-letter sequence is completed when this string is added, and the number of letters in the five letters that are used in the score_n.
+
+But how?
+
+Let me think of the following:
+
+For a given string, when it is added to the concatenated string, it may contribute to the state s_prev. Let's say that before adding this string, the state is s_prev. When the string is added, the state transitions to s_new. The change in the score_n is the number of times the five-letter sequence is completed in this string, and the change in the score_c is the number of letters in this string that are not used in the score_n.
+
+But this seems complex.
+
+Alternatively, for each string, when added, the contribution to the score_n is the number of times the five-letter sequence is completed during the processing of this string. For example, if the string is processed and the state transitions from s_prev to s_new, then the number of times the five-letter sequence is completed in this string is (s_new - s_prev) if s_prev is the previous state and s_new is the new state. But this is not exactly correct.
+
+Wait, for example, if the previous state is 0, and the string contains the letters 'n', 'a', 'r', 'e', 'k' in order, then after processing the string, the state becomes 5. The number of times the sequence is completed is 1 (the first time). So, the contribution to the score_n is 5.
+
+But if the string is processed and the state transitions from 0 to 1 (e.g., the first letter is 'n'), then the contribution to the score_n is 0 (since the sequence hasn't been completed yet).
+
+So, the contribution to the score_n for the string is the number of times the sequence is completed during the processing of the string, which depends on the state transitions.
+
+But how to compute this for each string and each possible state.
+
+This seems like a complex problem, but perhaps we can model it with a state machine.
+
+Let me think of the following approach:
+
+For each string, we can precompute for each possible state (0-5) the number of times the sequence is completed in the string, and the number of letters in the five letters that are used in the score_n.
+
+But how?
+
+Alternatively, for each string, when processed, it can be processed in a way that for the current state, the string contributes to the state transitions and the score_n and score_c.
+
+Let me think of the following steps:
+
+For each string, we can process it in the context of the current state. For example, the string can be processed in a way that for a given state s_prev, the string can transition to a new state s_new, and during this processing, the score_n increases by some amount, and the score_c increases by some amount.
+
+But how to compute this.
+
+Let me think of the following:
+
+For each string, we can compute for each possible state s_prev (0-5), the new state s_new, and the number of times the five-letter sequence is completed in this string. Let's call this value delta. Then, the total score_n increases by delta * 5, and the total score_c increases by (number of letters in the string that are in the five letters) - (number of letters in the string that are used in the score_n).
+
+But how to compute this.
+
+Alternatively, for each string, when processed, the number of letters in the five letters that are used in the score_n is the number of letters that are part of the five-letter sequence and are found in the order required by the state transitions.
+
+But this is getting too abstract.
+
+Perhaps the best way is to precompute for each string, the maximum number of times the five-letter sequence can be completed when this string is added, and the number of letters in the five letters that are used in the score_n.
+
+But how to do this.
+
+Let me think of the following for a single string:
+
+We can simulate the process of processing the string, starting from state 0, and compute how many times the five-letter sequence is completed, and how many letters of the five are used in the score_n.
+
+For example, the string is "narek", then the process would find the sequence once, adding 5 to the score_n. The number of letters used in the score_n is 5.
+
+Another example: the string is "nareknn", then the process would find the sequence once (adding 5), then the next 'n' is found, which is part of the next search. So the total is 5 + 5 = 10.
+
+So, the number of times the sequence is completed is the number of times the state transitions from 0 to 5, and then from 5 to 0 (but that's not possible, since after state 5, the next search for 'n' starts again).
+
+But how to compute this for a given string.
+
+Let me think of the following function: given a string, compute the number of times the five-letter sequence is completed, and the number of letters in the five letters that are used in the score_n.
+
+So, for a given string, we can simulate the process of finding the five-letter sequence, and for each step, track the current state.
+
+Let me code this as a helper function.
+
+For example:
+
+def compute_score_n(s):
+
+    state = 0
+
+    count = 0
+
+    for c in s:
+
+        if state == 0:
+
+            if c == 'n':
+
+                state = 1
+
+        elif state == 1:
+
+            if c == 'a':
+
+                state = 2
+
+        elif state == 2:
+
+            if c == 'r':
+
+                state = 3
+
+        elif state == 3:
+
+            if c == 'e':
+
+                state = 4
+
+        elif state == 4:
+
+            if c == 'k':
+
+                state = 5
+
+        elif state == 5:
+
+            if c == 'n':
+
+                state = 1
+
+    # after processing the string, check if state is 5.
+
+    # but the count is the number of times the sequence was completed.
+
+    # wait, the count is the number of times the sequence is completed.
+
+    # how to compute this.
+
+    # when the state transitions to 5, it's a completion.
+
+    # but how to track how many times this happens.
+
+    # let's think of the process:
+
+    # for each time the state transitions to 5, we increment count.
+
+    # but also, after the string is processed, if the state is 5, we need to check if there's more 'n's to find.
+
+    # but the count is the number of times the sequence was completed.
+
+    # perhaps the correct way is to track the state transitions and count how many times the state reaches 5.
+
+    # but this seems tricky.
+
+    # alternative approach:
+
+    # the number of times the sequence is completed is the number of times the state reaches 5 during the processing of the string.
+
+    # but how?
+
+    # let's think of the state transitions:
+
+    # for example, when the state is 4, and the next character is 'k', then state becomes 5. So this is a completion.
+
+    # when the state is 5, and the next character is 'n', then state becomes 1 again. So this is not a completion.
+
+    # So, during processing of the string, whenever the state transitions to 5, we increment count by 1.
+
+    # So, in the code:
+
+    count = 0
+
+    state = 0
+
+    for c in s:
+
+        if state == 0 and c == 'n':
+
+            state = 1
+
+        elif state == 1 and c == 'a':
+
+            state = 2
+
+        elif state == 2 and c == 'r':
+
+            state = 3
+
+        elif state == 3 and c == 'e':
+
+            state = 4
+
+        elif state == 4 and c == 'k':
+
+            state = 5
+
+        elif state == 5 and c == 'n':
+
+            state = 1
+
+        elif state == 5 and c == 'a':
+
+            # no change
+
+        # else, no change
+
+    # after processing the entire string, check if state is 5.
+
+    # but the count is incremented each time the state reaches 5.
+
+    # but during processing, the state may reach 5 once, then again if there are more letters.
+
+    # for example, the string is "nareknn".
+
+    # processing:
+
+    # initial state 0, c 'n' -> state 1
+
+    # c 'a' -> state 2
+
+    # c 'r' -> state 3
+
+    # c 'e' -> state 4
+
+    # c 'k' -> state 5 (count +=1)
+
+    # then, c 'n' -> state 1 (no count)
+
+    # so total count is 1.
+
+    # but in this case, the score_n is 5, and the next 'n' is after the 'k', but the state is 1, so the next search for 'n' starts again.
+
+    # So, the count is 1, and the total score_n is 5 * 1 = 5.
+
+    # So, the code above would count 1, which is correct.
+
+    # So, the count is the number of times the state transitions to 5 during the processing of the string.
+
+    # So, the function compute_score_n(s) returns the count, which is the number of times the sequence is completed.
+
+    # Then, the score_n is count * 5.
+
+    # Now, the score_c is the total number of letters in the string that are in the five letters, minus the number of letters used in the score_n.
+
+    # Wait, no. The score_c is the number of letters in the string that are in the five letters that Narek failed to utilize. So, for the entire string, the total number of letters in the five letters is the sum of all letters in the string that are in the five letters.
+
+    # But the score_c is the number of those letters that Narek didn't use.
+
+    # So, the total number of letters in the five letters is len(s) * (number of letters in the five letters). Wait, no, the letters are 'n', 'a', 'r', 'e', 'k'.
+
+    # For example, if the string has 10 letters, and 5 of them are in the five letters, then the score_c is the number of letters in the five letters that are not used by Narek.
+
+    # But how to compute that.
+
+    # The number of letters used by Narek is the number of letters in the five letters that were part of the score_n. But how to compute that.
+
+    # For example, in the string "narek", the letters used are 5. So the score_c is 5 (since the total is 5 letters, and Narek used all of them).
+
+    # But in the string "nareknn", the letters used are 5 (n, a, r, e, k) and the other letters are 'n's. So the score_c is 2 (the two 'n's in the string, but Narek used one of them. Wait, no. Wait, the score_c is the number of letters in the five letters that Narek failed to utilize.
+
+    # So, the total letters in the five letters is the number of 'n's, 'a's, 'r's, 'e's, 'k's in the string.
+
+    # Narek uses some of them. The score_c is the number of these letters that are not used.
+
+    # So, the score_c is (total letters in the five letters) - (number of letters used in the score_n).
+
+    # But how to compute the number of letters used in the score_n.
+
+    # The number of letters used in the score_n is the number of letters in the five letters that were part of the score_n.
+
+    # But how to compute that.
+
+    # For example, in the string "narek", the score_n is 5, and the number of letters used is 5.
+
+    # In the string "nareknn", the score_n is 5 (count is 1), and the number of letters used is 5 (n, a, r, e, k), but the string has two 'n's. So the letters used are 5, and the score_c is (total letters in five letters) - 5 = 2 (the two 'n's in the string, but the letters used are 5 (n, a, r, e, k). So the total letters in five letters is 5 (n, a, r, e, k) in the string. Wait, no: the string is "nareknn", which has 'n', 'a', 'r', 'e', 'k', 'n', 'n'. So the total letters in the five letters are 5 (n, a, r, e, k) + 2 'n's. So the total is 5 (n's) + 1 a, 1 r, etc. Wait, no. The five letters are 'n', 'a', 'r', 'e', 'k'. So the total number of letters in the five letters is the count of each of these letters in the string.
+
+    # So, for the string "nareknn", the total number of letters in the five letters is 2 (n's) + 1 (a) + 1 (r) + 1 (e) + 1 (k) = 6. So the score_c is 6 - 5 = 1. Because Narek used all 5 letters (n, a, r, e, k), and the other letters (the two 'n's) are not part of the score_c.
+
+    # Wait, no. The score_c is the number of letters in the five letters that Narek failed to utilize. So, for example, if Narek used all of the five letters in the string, then the score_c is the number of letters in the five letters that are not used. But how?
+
+    # Let me think again. The problem says:
+
+    # ChatGPT scans through the array and increments score_c by 1 for each letter 'n', 'a', 'r', 'e', or 'k' that Narek fails to utilize.
+
+    # So, if Narek uses some of these letters, then the others are counted in score_c.
+
+    # So, the total number of letters in the five letters in the string is the sum of all occurrences of these letters. The number of letters that Narek failed to utilize is (total in five letters) - (number of letters used in score_n).
+
+    # So, for example, in the string "narek", the total in five letters is 5 (n, a, r, e, k). The number of letters used in score_n is 5. So score_c is 0.
+
+    # In the string "nareknn", the total in five letters is 5 (n, a, r, e, k) + 2 'n's (but the 'n's are part of the five letters). Wait, no. The five letters are 'n', 'a', 'r', 'e', 'k'. So the total in the string is 2 n's, 1 a, 1 r, 1 e, 1 k. So total of 2+1+1+1+1=6 letters. Narek used 5 letters (n, a, r, e, k), so the score_c is 6 - 5 = 1.
+
+    # So, the score_c is (total_in_five_letters - used_in_score_n).
+
+    # So, the problem is to compute for each string, the number of times the five-letter sequence is completed (count), and the total_in_five_letters, and used_in_score_n.
+
+    # But how to compute used_in_score_n.
+
+    # The used_in_score_n is the number of letters in the five letters that were part of the score_n. Which is the number of letters that were part of the five-letter sequence and were used in the score_n.
+
+    # For example, in the string "nareknn", the used_in_score_n is 5 (n, a, r, e, k), and the total_in_five_letters is 6. So score_c is 1.
+
+    # But how to compute used_in_score_n for a given string.
+
+    # This is the number of letters in the five letters that were used in the score_n. Which is equal to the number of letters in the five letters that were found in the order required for the five-letter sequence.
+
+    # So, for the string, when we process it, the used_in_score_n is the number of letters in the five letters that were part of the sequence.
+
+    # But how to compute this.
+
+    # Let me think of the following: during the processing of the string, whenever the state transitions to 5, we add the letters that were used in the sequence.
+
+    # For example, when the state reaches 5, it means that the five letters were found in order. So, for each of the five letters, we have to count how many times they were found in the sequence.
+
+    # But how to track that.
+
+    # This seems complicated. Perhaps, during the processing of the string, we can track how many of the five letters have been found in order, and for each step, accumulate the count of the letters used in the score_n.
+
+    # For example, during the processing of the string, we can track the current state, and for each step, when the state transitions to a new value, we add the corresponding letter to the used_in_score_n.
+
+    # Let's think of the following:
+
+    # When the state transitions from 0 to 1, it means that the first letter 'n' was found. So, we add 1 to the used_in_score_n.
+
+    # When the state transitions from 1 to 2, it means that 'a' was found after 'n', so we add 1 to the used_in_score_n.
+
+    # Similarly for the other transitions.
+
+    # But when the state transitions to 5, it means that all five letters were found in order, and we add 5 to the score_n. But the used_in_score_n is the number of letters in the five letters that were used in the score_n. So, each time the five letters are found in order, the used_in_score_n is increased by 5.
+
+    # Wait, no. The used_in_score_n is the number of letters in the five letters that were used in the score_n. For example, each time the five letters are found in order, the used_in_score_n is increased by 5. But that doesn't make sense.
+
+    # Wait, no. The used_in_score_n is the number of letters in the five letters that were used in the score_n. For example, in the first case, when the five letters are found in order once, the used_in_score_n is 5 (each of the five letters). So, for each time the five-letter sequence is completed, the used_in_score_n increases by 5.
+
+    # So, the used_in_score_n is the number of letters in the five letters that were used in the score_n.
+
+    # So, during the processing of the string, whenever the state transitions to 5, we add 5 to used_in_score_n.
+
+    # But how?
+
+    # For example, the first time the state reaches 5, the used_in_score_n is increased by 5. Then, if the string is processed again, and the state transitions to 5 again, we add another 5.
+
+    # So, during the processing of the string, the used_in_score_n is the number of times the five-letter sequence is completed multiplied by 5.
+
+    # Wait, no. Because each completion of the sequence adds 5 to the score_n. But the used_in_score_n is the number of letters in the five letters that were used in the score_n. So, for each completion, the used_in_score_n increases by 5. Because each completion uses all five letters.
+
+    # So, for example, if the string is processed and completes the sequence once, then used_in_score_n is 5. If the string is processed again and completes the sequence again, then used_in_score_n is 5 + 5 = 10.
+
+    # So, the used_in_score_n is equal to the number of times the five-letter sequence is completed multiplied by 5.
+
+    # So, the total_in_five_letters is the number of letters in the five letters in the string, and the used_in_score_n is the number of times the five-letter sequence is completed multiplied by 5.
+
+    # But this seems to be incorrect. For example, if the string is "narek", then the used_in_score_n is 5, which is the number of times the sequence is completed (1) multiplied by 5. So yes.
+
+    # If the string is "nareknn", the used_in_score_n is 5 (one completion), so the score_c is total_in_five_letters (6) - 5 = 1.
+
+    # So, this seems to be correct.
+
+    # Therefore, for a string, the used_in_score_n is (number of times the five-letter sequence is completed) * 5.
+
+    # And the total_in_five_letters is the number of letters in the five letters in the string.
+
+    # So, the score_c is total_in_five_letters - used_in_score_n.
+
+    # So, for the string, the contribution to the difference (score_n - score_c) is:
+
+    # (count * 5) - (total_in_five_letters - count * 5) = 2 * count * 5 - total_in_five_letters.
+
+    # Wait, no. The difference is score_n - score_c.
+
+    # score_n is count * 5.
+
+    # score_c is total_in_five_letters - used_in_score_n = total_in_five_letters - count * 5.
+
+    # So the difference is count * 5 - (total_in_five_letters - count * 5) = 2 * count * 5 - total_in_five_letters.
+
+    # But this is for a single string. However, when multiple strings are added, the count and total_in_five_letters are cumulative.
+
+    # So, the problem now reduces to selecting a subset of the strings, in order, such that the total difference is maximized.
+
+    # Now, the challenge is to model this with dynamic programming.
+
+    # So, the dynamic programming state is the current state of the five-letter sequence, and the maximum difference achievable up to that point.
+
+    # For each string, we can process it and update the DP table.
+
+    # The DP table is a dictionary where for each state s (0-5), we store the maximum difference achievable when the current state is s.
+
+    # Initially, the DP is {0: 0} (since no strings have been processed, the state is 0, and the difference is 0).
+
+    # For each string in the list:
+
+    #   For each possible previous state s_prev in the DP:
+
+    #       For each possible new state s_new after adding this string:
+
+    #           compute the contribution to the difference.
+
+    #           update the new DP state.
+
+    # But how to compute the contribution.
+
+    # For each string, when added to the current state s_prev, the new state s_new is determined by the processing of the string.
+
+    # The contribution to the difference is the difference caused by adding this string.
+
+    # But the difference is the previous difference plus the contribution of the string.
+
+    # So, for each previous state s_prev, and for each possible new state s_new, we need to calculate the contribution of the string.
+
+    # But how?
+
+    # The contribution of the string is:
+
+    # (current count of times the five-letter sequence is completed in the string) * 5 - (total_in_five_letters of the string - (current count of times completed in the string) * 5).
+
+    # Wait, no. The contribution of the string is the difference between the new score_n and the previous score_n, and the new score_c and the previous score_c.
+
+    # Let me think:
+
+    # Before adding the string, the current difference is dp_prev[s_prev].
+
+    # When adding the string, the score_n increases by (count_in_string * 5), and the score_c increases by (total_in_five_letters_of_string - count_in_string * 5).
+
+    # So the new difference is dp_prev[s_prev] + (count_in_string * 5) - (total_in_five_letters_of_string - count_in_string * 5) = dp_prev[s_prev] + 2 * count_in_string * 5 - total_in_five_letters_of_string.
+
+    # So, the contribution of the string is 2 * count_in_string * 5 - total_in_five_letters_of_string.
+
+    # But how to compute count_in_string and total_in_five_letters_of_string for the string.
+
+    # So, for each string, we need to compute:
+
+    # count_in_string: the number of times the five-letter sequence is completed in the string.
+
+    # total_in_five_letters: the total number of letters in the five letters in the string.
+
+    # So, for each string, we can compute these two values.
+
+    # Once we have these, we can process the string in the DP.
+
+    # So, the plan is:
+
+    # For each test case:
+
+    #   Read n, m, and the n strings.
+
+    #   For each string, compute count_in_string and total_in_five_letters.
+
+    #   Initialize a DP table where dp[s] represents the maximum difference achievable with the current state s.
+
+    #   Initialize dp as {0: 0}.
+
+    #   For each string in the list:
+
+    #       Create a new temporary DP table (temp_dp) which is a copy of the current dp.
+
+    #       For each state s_prev in the current dp:
+
+    #           compute the new state s_new after processing the string.
+
+    #           compute the contribution to the difference.
+
+    #           update temp_dp[s_new] = max(temp_dp[s_new], dp[s_prev] + contribution).
+
+    #       Set dp = temp_dp.
+
+    #   After processing all strings, the answer is the maximum value in dp.
+
+    # But this is not entirely correct. Because when processing a string, the new state s_new is determined by the processing of the string, and the contribution is based on the count_in_string and total_in_five_letters.
+
+    # However, the way the string is processed depends on the previous state. So, for each string, we need to process it in a way that considers the previous state.
+
+    # But how to compute the new state s_new for a given previous state s_prev and the string.
+
+    # This is where the helper function to compute the new state for a given previous state and string comes in.
+
+    # So, for each string, we can precompute the function that, given the previous state, returns the new state after processing the string.
+
+    # But how to compute this.
+
+    # For example, for a given string, when processed with a previous state s_prev, the new state s_new is computed by simulating the processing of the string, starting from s_prev.
+
+    # But this would require, for each string and each possible s_prev, to simulate the processing of the string.
+
+    # However, for a string of length m, this is O(m) per simulation, which is acceptable since the total sum of m across all test cases is 1e6.
+
+    # So, for each string, we can precompute for each possible previous state s_prev, the new state s_new after processing the string.
+
+    # But how to do this.
+
+    # For example, for a given string s, and a previous state s_prev, we can simulate the processing of the string and compute the new state.
+
+    # This would involve:
+
+    # - For the current string, simulate the processing of the string, starting from s_prev, and determine the new state.
+
+    # So, for each string, we can precompute a function that, given the previous state, returns the new state.
+
+    # However, this would require O(n * m) time for each string, which is acceptable.
+
+    # So, the steps are:
+
+    # For each test case:
+
+    #   Read n, m, and the n strings.
+
+    #   For each string, compute:
+
+    #       count_in_string: the number of times the five-letter sequence is completed in the string.
+
+    #       total_in_five_letters: the number of letters in the five letters in the string.
+
+    #   Initialize dp as {0: 0}.
+
+    #   For each string in the list:
+
+    #       Create a temporary dp_temp as a copy of the current dp.
+
+    #       For each s_prev in dp:
+
+    #           simulate processing the string starting from s_prev, compute the new state s_new.
+
+    #           compute the contribution to the difference: 2 * count_in_string * 5 - total_in_five_letters.
+
+    #           new_diff = dp[s_prev] + contribution.
+
+    #           if s_new is not in dp_temp or new_diff > dp_temp[s_new], then update dp_temp[s_new] to new_diff.
+
+    #       dp = dp_temp.
+
+    #   After all strings are processed, the maximum value in dp is the answer.
+
+    # But wait, this is not correct. Because when processing the string, the new state s_new is determined by the previous state s_prev and the string's processing. But the contribution is computed as the difference caused by adding the string to the current state.
+
+    # However, this approach assumes that the contribution is additive, which is correct.
+
+    # But how to simulate the processing of the string for a given previous state.
+
+    # Let's think of the following:
+
+    # For a given string s and a previous state s_prev, simulate the processing of the string, and compute the new state s_new.
+
+    # For example, the processing of the string starts from s_prev, and for each character in the string, the state is updated.
+
+    # So, for the string s, we can simulate the state transitions as follows:
+
+    # Initialize state = s_prev.
+
+    # For each character in s:
+
+    #   if state is 0 and character is 'n', state becomes 1.
+
+    #   elif state is 1 and character is 'a', state becomes 2.
+
+    #   and so on.
+
+    #   if state is 5 and character is 'n', state becomes 1.
+
+    # After processing all characters, the state is s_new.
+
+    # So, the new state s_new is determined by this simulation.
+
+    # So, for each string and each possible previous state, we can compute the new state.
+
+    # But how to do this efficiently.
+
+    # For example, for a given string, we can precompute for each possible previous state s_prev the new state s_new.
+
+    # But this is computationally expensive for each string and each s_prev.
+
+    # However, given that the sum of n * m is 1e6, this is acceptable.
+
+    # So, the plan is:
+
+    # For each string, precompute for each possible s_prev (0-5) the new state s_new after processing the string.
+
+    # Then, during the DP step, for each s_prev in the current dp, we can compute the new state and the contribution.
+
+    # Now, the code steps:
+
+    # 1. Precompute for each string the count_in_string and total_in_five_letters.
+
+    # 2. For each string, precompute for each s_prev (0-5) the new state s_new.
+
+    # 3. Initialize dp as {0: 0}.
+
+    # 4. For each string:
+
+    #     Create a temporary dp_temp, initially a copy of dp.
+
+    #     For each s_prev in dp:
+
+    #         simulate processing the string starting from s_prev, compute s_new.
+
+    #         compute the contribution = 2 * count_in_string * 5 - total_in_five_letters.
+
+    #         new_diff = dp[s_prev] + contribution.
+
+    #         if s_new is not in dp_temp or new_diff > dp_temp[s_new], update dp_temp[s_new] to new_diff.
+
+    #     dp = dp_temp.
+
+    # 5. After processing all strings, the answer is the maximum value in dp.
+
+    # Now, the question is how to simulate the processing of the string for a given s_prev.
+
+    # Let's implement this.
+
+    # For example, for a string s and a previous state s_prev, simulate the processing:
+
+    # state = s_prev
+
+    # for c in s:
+
+    #   if state is 0 and c == 'n':
+
+    #       state = 1
+
+    #   elif state is 1 and c == 'a':
+
+    #       state = 2
+
+    #   elif state is 2 and c == 'r':
+
+    #       state = 3
+
+    #   elif state is 3 and c == 'e':
+
+    #       state = 4
+
+    #   elif state is 4 and c == 'k':
+
+    #       state = 5
+
+    #   elif state is 5 and c == 'n':
+
+    #       state = 1
+
+    #   else:
+
+    #       pass
+
+    # So, after processing all characters, the state is s_new.
+
+    # Now, for the code.
+
+    # Now, the problem is that for each string and each s_prev, this simulation can be done.
+
+    # But how to implement this efficiently.
+
+    # Now, considering that for each string, the simulation is O(m), and for each string, the number of s_prev is 5, the total time for each string is O(5 * m), which is acceptable.
+
+    # Now, let's think about the sample input.
+
+    # First sample input:
+
+    # 5 2
+
+    # nn
+
+    # aa
+
+    # rr
+
+    # ee
+
+    # kk
+
+    # The strings are "nn", "aa", "rr", "ee", "kk".
+
+    # For each string, compute count_in_string and total_in_five_letters.
+
+    # For "nn":
+
+    # Processing the string:
+
+    # state starts at 0. The first 'n' is found, state becomes 1. The second 'n' is found, but state is 1, so no change. So the count_in_string is 0. The total_in_five_letters is 2 (n, but 'n' is in the five letters, so total_in_five_letters is 2 (since there are two 'n's in the string, but the five letters are n, a, r, e, k. So for each string, the total_in_five_letters is the number of occurrences of the five letters in the string.
+
+    # So, for each string, the total_in_five_letters is the sum of the counts of 'n', 'a', 'r', 'e', 'k' in the string.
+
+    # So, for "nn", the total_in_five_letters is 2 (n's) + 0 (a, r, e, k) = 2.
+
+    # For "aa", total_in_five_letters is 2 (a's) + 0 others = 2.
+
+    # For "rr", same as "aa": 2.
+
+    # For "ee": 2.
+
+    # For "kk": 2.
+
+    # Now, for each string, count_in_string is 0.
+
+    # So, the contribution for each string is 2 * 0 * 5 - 2 = -2.
+
+    # So, the initial dp is {0: 0}.
+
+    # Processing the first string (nn):
+
+    # For s_prev = 0:
+
+    # simulate processing the string, which starts at state 0. The string is "nn".
+
+    # The state transitions from 0 to 1 (first 'n'), then remains 1. So the count_in_string is 0 (since the state never reaches 5). So contribution is 2 * 0 * 5 - 2 = -2.
+
+    # new_diff = 0 + (-2) = -2. So the new state is 1.
+
+    # So dp_temp after first string is {0: 0, 1: -2}.
+
+    # Then, processing the second string (aa):
+
+    # For each s_prev in dp (0 and 1):
+
+    # For s_prev = 0:
+
+    # process the string "aa" starting from state 0.
+
+    # state transitions to 1 (first 'a' is not part of the five letters? Wait, no. The five letters are 'n', 'a', 'r', 'e', 'k'. So, when processing the string, the state transitions are:
+
+    # initial state is 0.
+
+    # For the first character 'a' (from the string "aa"), since state is 0, and the character is 'a', which is not 'n', so state remains 0.
+
+    # So, the new state after processing the string is 0. The count_in_string is 0. contribution is 2 * 0 * 5 - 2 = -2.
+
+    # So the new_diff is 0 + (-2) = -2. So dp_temp[0] is max(0, -2) = 0.
+
+    # Then, for s_prev = 1 (from previous step):
+
+    # process the string "aa" starting from state 1.
+
+    # state is 1. The first character is 'a', which is 'a' (state is 1, and the character is 'a' → state becomes 2.
+
+    # Then the next character is 'a', which is 'a' → state remains 2.
+
+    # So the count_in_string is 0 (since the state never reaches 5). So contribution is -2.
+
+    # new_diff is dp_prev (which is -2) + (-2) = -4.
+
+    # So the new state is 2.
+
+    # So after processing the second string, the dp_temp is {0: 0, 1: -2, 2: -4}?
+
+    # Wait, the initial dp after first string is {0: 0, 1: -2}.
+
+    # For the second string, the temp_dp is initialized as a copy of the current dp (which is {0:0, 1:-2}).
+
+    # Then, for each s_prev in dp:
+
+    # For s_prev = 0:
+
+    # new state is 0 (as above), contribution is -2. So the new_diff is 0 + (-2) = -2. So temp_dp[0] is max(0, -2) → 0.
+
+    # For s_prev = 1:
+
+    # new state is 2, contribution is -2. new_diff is -2 + (-2) = -4. So temp_dp[2] is -4.
+
+    # So after processing the second string, the temp_dp is {0: 0, 1: -2, 2: -4}.
+
+    # Then, processing the third string (rr):
+
+    # For each s_prev in {0, 1, 2}:
+
+    # For s_prev = 0:
+
+    # process the string "rr" starting from state 0.
+
+    # state is 0. first character 'r' is not part of the five letters. So state remains 0. count_in_string is 0. contribution is -2. new_diff is 0 + (-2) = -2. So new state is 0.
+
+    # For s_prev = 1:
+
+    # process the string "rr" starting from state 1. The first character is 'r', which is not part of the five letters. So state remains 1. count_in_string is 0. contribution is -2. new_diff is -2 + (-2) = -4. new state is 1.
+
+    # For s_prev = 2:
+
+    # process the string "rr" starting from state 2. The first character is 'r', which is not part of the five letters. state remains 2. count_in_string is 0. contribution is -2. new_diff is -4 + (-2) = -6. new state is 2.
+
+    # So after processing the third string, the temp_dp is {0: 0, 1: -2, 2: -4} (but this is not correct, because for each s_prev, the new state is 0, 1, 2, and the new_diff is -2, -4, -6, respectively. So the temp_dp would have 0: 0, 1: -2, 2: -4, and possibly others.
+
+    # This seems to be getting complicated, but eventually, after processing all strings, the maximum value in dp would be 0.
+
+    # Which matches the first sample's output.
+
+    # So, the code seems to be correct.
+
+    # Now, the next step is to implement this in Python.
+
+    # Now, the code steps:
+
+    # For each test case:
+
+    # Read n, m.
+
+    # Read n strings.
+
+    # For each string, compute count_in_string and total_in_five_letters.
+
+    # For each string, precompute the transitions for each possible previous state (0-5) to new state.
+
+    # Then, perform the DP steps.
+
+    # Now, the code:
+
+    # First, for each string, compute count_in_string and total_in_five_letters.
+
+    # How to compute count_in_string:
+
+    # For a given string, simulate the process of finding the five-letter sequence, and count the number of times it is completed.
+
+    # So, for each string, we can simulate this process.
+
+    # For example:
+
+    def compute_count_and_total(s):
+
+        state = 0
+
+        count = 0
+
+        for c in s:
+
+            if state == 0 and c == 'n':
+
+                state = 1
+
+            elif state == 1 and c == 'a':
+
+                state = 2
+
+            elif state == 2 and c == 'r':
+
+                state = 3
+
+            elif state == 3 and c == 'e':
+
+                state = 4
+
+            elif state == 4 and c == 'k':
+
+                state = 5
+
+            elif state == 5 and c == 'n':
+
+                state = 1
+
+            # else, no change
+
+        # after processing the string, check if state is 5.
+
+        # but the count is incremented each time the state reaches 5.
+
+        # So, during the processing, whenever the state transitions to 5, increment count.
+
+        # So, we need to track this.
+
+        # So, let's re-simulate the process with a count.
+
+        state = 0
+
+        count = 0
+
+        for c in s:
+
+            if state == 0 and c == 'n':
+
+                state = 1
+
+            elif state == 1 and c == 'a':
+
+                state = 2
+
+            elif state == 2 and c == 'r':
+
+                state = 3
+
+            elif state == 3 and c == 'e':
+
+                state = 4
+
+            elif state == 4 and c == 'k':
+
+                state = 5
+
+                count += 1
+
+            elif state == 5 and c == 'n':
+
+                state = 1
+
+            # else, no change
+
+        # after processing the string, the count is the number of times the sequence was completed.
+
+        # So, the count_in_string is count.
+
+        # total_in_five_letters is the sum of the counts of each of the five letters in the string.
+
+        # So, for example, for the string 'narek', the total is 1 (n) + 1 (a) + 1 (r) + 1 (e) + 1 (k) = 5.
+
+        # So, for each string, we can compute total_in_five_letters as follows:
+
+        total = 0
+
+        for c in s:
+
+            if c in {'n', 'a', 'r', 'e', 'k'}:
+
+                total += 1
+
+        return count, total
+
+    # Now, for each string, we can compute count_in_string and total_in_five_letters.
+
+    # Then, for the DP:
+
+    # The DP is a dictionary where the keys are the states (0-5), and the values are the maximum difference achievable with that state.
+
+    # Initially, dp = {0: 0}.
+
+    # For each string in the list:
+
+    #   create a temporary dictionary temp_dp which is a copy of the current dp.
+
+    #   for each state_prev in dp:
+
+    #       simulate processing the string starting from state_prev, compute the new state and the contribution.
+
+    #       update temp_dp[new_state] with the maximum of its current value and (dp[state_prev] + contribution).
+
+    #   set dp = temp_dp.
+
+    # Now, the code.
+
+    # But how to simulate the processing of the string for a given state_prev.
+
+    # For each string, we can precompute for each state_prev the new state.
+
+    # But during the DP processing, for each state_prev, we need to simulate the processing of the string.
+
+    # So, for each string, and for each state_prev in 0-5, we can simulate the processing.
+
+    # So, the code for simulating the processing of the string for a given state_prev is:
+
+    def process_string(s, state_prev):
+
+        state = state_prev
+
+        count = 0
+
+        for c in s:
+
+            if state == 0 and c == 'n':
+
+                state = 1
+
+            elif state == 1 and c == 'a':
+
+                state = 2
+
+            elif state == 2 and c == 'r':
+
+                state = 3
+
+            elif state == 3 and c == 'e':
+
+                state = 4
+
+            elif state == 4 and c == 'k':
+
+                state = 5
+
+                count += 1
+
+            elif state == 5 and c == 'n':
+
+                state = 1
+
+        return state, count
+
+    # Wait, but the count here is the number of times the five-letter sequence is completed. But the count_in_string for the string is the number of times it is completed, which is the count computed in the function compute_count_and_total.
+
+    # But in this simulation, the count is the number of times the sequence is completed during the processing of the string.
+
+    # So, for each string, the count_in_string is the count computed by the compute_count_and_total function.
+
+    # However, during the DP processing, we need to simulate the processing of the string for a given state_prev and compute the new state and the contribution.
+
+    # So, the code for processing a string and a state_prev is:
+
+    # For the string s, and state_prev, simulate the processing of the string and compute the new state and the count_in_string for the string.
+
+    # But this is not needed, since the count_in_string for the string is already computed.
+
+    # So, during the DP processing, for a given string, we can compute the contribution for a given state_prev as:
+
+    # contribution = 2 * count_in_string * 5 - total_in_five_letters.
+
+    # So, during the DP processing, for each string, we can compute the count_in_string and total_in_five_letters, and then for each state_prev, simulate the processing of the string to get the new state.
+
+    # But the simulation of the processing of the string for a given state_prev is needed to compute the new state.
+
+    # So, the code for processing a string and a state_prev is:
+
+    # simulate the processing of the string, starting from state_prev, and compute the new state.
+
+    # So, for example:
+
+    # For a given string s and state_prev, simulate the processing of the string and compute the new state.
+
+    # Now, the code.
+
+    # Now, the code in Python:
+
+    # Read t test cases.
+
+    # For each test case:
+
+    # Read n, m.
+
+    # Read n strings.
+
+    # For each string, compute count_in_string and total_in_five_letters.
+
+    # Initialize dp as {0: 0}.
+
+    # For each string in the list:
+
+    #   create a temporary dp_temp as a copy of dp.
+
+    #   for each state_prev in dp:
+
+    #       simulate the processing of the string, starting from state_prev.
+
+    #       compute new_state.
+
+    #       contribution = 2 * count_in_string * 5 - total_in_five_letters.
+
+    #       new_diff = dp[state_prev] + contribution.
+
+    #       if new_state is in dp_temp:
+
+    #           if new_diff > dp_temp[new_state], update.
+
+    #       else:
+
+    #           dp_temp[new_state] = new_diff.
+
+    #   dp = dp_temp.
+
+    # After processing all strings, the answer is the maximum value in dp.
+
+    # Now, the code.
+
+    # But how to handle the DP. In Python, we can use a dictionary for dp. However, for efficiency, perhaps using a list of size 6 (since states are 0-5).
+
+    # But since the number of states is small (5), we can use a list of size 6.
+
+    # So, for each test case, we can initialize dp as [ -infinity ] * 6, and set dp[0] = 0.
+
+    # Then, for each string, we can process it.
+
+    # So, the code:
+
+    import sys
+
+    def main():
+
+        import sys
+
+        input = sys.stdin.read().split()
+
+        ptr = 0
+
+        t = int(input[ptr])
+
+        ptr += 1
+
+        for _ in range(t):
+
+            n = int(input[ptr])
+
+            m = int(input[ptr+1])
+
+            ptr += 2
+
+            strings = []
+
+            for _ in range(n):
+
+                s = input[ptr]
+
+                ptr += 1
+
+                strings.append(s)
+
+            # Precompute for each string count_in_string and total_in_five_letters
+
+            count_in_strings = []
+
+            total_in_five_letters = []
+
+            for s in strings:
+
+                # compute count_in_string and total_in_five_letters
+
+                state = 0
+
+                count = 0
+
+                for c in s:
+
+                    if state == 0 and c == 'n':
+
+                        state = 1
+
+                    elif state == 1 and c == 'a':
+
+                        state = 2
+
+                    elif state == 2 and c == 'r':
+
+                        state = 3
+
+                    elif state == 3 and c == 'e':
+
+                        state = 4
+
+                    elif state == 4 and c == 'k':
+
+                        state = 5
+
+                        count += 1
+
+                    elif state == 5 and c == 'n':
+
+                        state = 1
+
+                # compute total_in_five_letters
+
+                total = 0
+
+                for c in s:
+
+                    if c in {'n', 'a', 'r', 'e', 'k'}:
+
+                        total += 1
+
+                count_in_strings.append(count)
+
+                total_in_five_letters.append(total)
+
+            # Initialize dp as a list of size 6, with -infinity, except dp[0] = 0
+
+            dp = [-float('inf')] * 6
+
+            dp[0] = 0
+
+            for i in range(n):
+
+                s = strings[i]
+
+                count = count_in_strings[i]
+
+                total = total_in_five_letters[i]
+
+                # Create a temporary dp_temp
+
+                temp_dp = [x for x in dp]
+
+                for state_prev in range(6):
+
+                    if dp[state_prev] == -float('inf'):
+
+                        continue
+
+                    # simulate processing the string starting from state_prev
+
+                    # simulate the processing of the string and compute new_state
+
+                    state = state_prev
+
+                    new_state = state_prev
+
+                    for c in s:
+
+                        if state == 0 and c == 'n':
+
+                            state = 1
+
+                        elif state == 1 and c == 'a':
+
+                            state = 2
+
+                        elif state == 2 and c == 'r':
+
+                            state = 3
+
+                        elif state == 3 and c == 'e':
+
+                            state = 4
+
+                        elif state == 4 and c == 'k':
+
+                            state = 5
+
+                            new_state = 5
+
+                        elif state == 5 and c == 'n':
+
+                            state = 1
+
+                    # after processing the string, new_state is the new state
+
+                    # compute the contribution
+
+                    contribution = 2 * count * 5 - total
+
+                    new_diff = dp[state_prev] + contribution
+
+                    if new_state < 6:
+
+                        if new_diff > temp_dp[new_state]:
+
+                            temp_dp[new_state] = new_diff
+
+                # Update dp to temp_dp
+
+                dp = temp_dp
+
+            # After processing all strings, find the maximum value in dp
+
+            max_val = max(dp)
+
+            print(max_val)
+
+    if __name__ == "__main__":
+
+        main()
+
+    # Wait, but there is a problem here. The temp_dp is initialized as a copy of dp, but for each string, we need to process all possible state_prev and compute new_state and update temp_dp.
+
+    # However, in the code above, the temp_dp is created as a list of the same elements as dp. But during the loop, for each state_prev, the code is modifying temp_dp.
+
+    # But in the code above, for each string, the temp_dp is initialized as a copy of dp. Then, for each state_prev, the code processes the string and updates temp_dp[new_state].
+
+    # But this is not correct. Because the temp_dp is initially a copy of dp, and for each state_prev, the code is processing the string and updating temp_dp[new_state]. However, the temp_dp is being modified for each state_prev, and the original dp is not modified until the end of the loop.
+
+    # Wait, no. The code for each string is:
+
+    # temp_dp is initialized as a copy of dp.
+
+    # Then, for each state_prev in dp, we process the string and update temp_dp[new_state].
+
+    # So, during the processing of the string, the temp_dp is updated with the new possibilities.
+
+    # But this is not correct, because the temp_dp is a copy of dp, and during the processing of the string, the code is modifying temp_dp. However, the original dp is not modified until the end of the loop.
+
+    # So, after processing all state_prev for the current string, the dp becomes temp_dp.
+
+    # But this is correct.
+
+    # However, in the code above, the temp_dp is created as a list of the same elements as dp. But in Python, when you do [x for x in dp], it creates a shallow copy. So, the code is correct.
+
+    # Now, let's test this code against the sample inputs.
+
+    # For the first sample input:
+
+    # 5 2
+
+    # nn
+
+    # aa
+
+    # rr
+
+    # ee
+
+    # kk
+
+    # For each string, count_in_string is 0, total_in_five_letters is 2.
+
+    # The initial dp is [0, -inf, -inf, -inf, -inf, -inf].
+
+    # Processing the first string (nn):
+
+    # temp_dp is [0, -inf, -inf, -inf, -inf, -inf].
+
+    # For state_prev in 0:
+
+    # simulate processing the string "nn" starting from state 0.
+
+    # state starts at 0, first 'n' → state 1.
+
+    # Then the next 'n' is processed, but state is 1, so no change.
+
+    # So, new_state is 1.
+
+    # contribution is 2*0*5 -2 = -2.
+
+    # new_diff is 0 + (-2) = -2.
+
+    # temp_dp[1] is set to -2.
+
+    # So after processing the first string, temp_dp is [0, -2, -inf, -inf, -inf, -inf].
+
+    # Then, the dp is set to temp_dp.
+
+    # Processing the second string (aa):
+
+    # For each state_prev in 0 and 1.
+
+    # For state_prev = 0:
+
+    # simulate processing "aa" starting from state 0.
+
+    # state is 0, 'a' is not 'n', so state remains 0.
+
+    # new_state is 0.
+
+    # contribution is -2.
+
+    # new_diff is 0 + (-2) = -2.
+
+    # temp_dp[0] is max(0, -2) → 0.
+
+    # For state_prev = 1:
+
+    # simulate processing "aa" starting from state 1.
+
+    # state is 1, first 'a' → state becomes 2.
+
+    # new_state is 2.
+
+    # contribution is -2.
+
+    # new_diff is -2 + (-2) = -4.
+
+    # So temp_dp[2] is -4.
+
+    # After processing the second string, the dp is [0, -2, -4, ... ].
+
+    # And so on.
+
+    # After processing all strings, the maximum value is 0, which is correct.
+
+    # Now, the code seems correct.
+
+    # However, there is a problem in the code: when simulating the processing of the string, the code is not correctly updating the new_state. For example, in the code:
+
+    # for c in s:
+
+    #   if state == 0 and c == 'n':
+
+    #       state = 1
+
+    #   elif state == 1 and c == 'a':
+
+    #       state = 2
+
+    #   ... etc.
+
+    # So, during the simulation, the code is processing the string and updating the state.
+
+    # But in the code above, the new_state is computed as the final state after processing the string. However, the code in the loop is:
+
+    # for each c in s:
+
+    #   process the character.
+
+    #   update state.
+
+    # So, the code for simulating the processing is:
+
+    # state = state_prev
+
+    # new_state = state_prev
+
+    # for c in s:
+
+    #   process the character and update state.
+
+    # So, after the loop, new_state is the final state.
+
+    # So, the code in the for loop:
+
+    # state = state_prev
+
+    # new_state = state_prev
+
+    # for c in s:
+
+    #   process the character and update state.
+
+    # So, the code in the loop is correct.
+
+    # However, in the code above, the code is:
+
+    # state = state_prev
+
+    # new_state = state_prev
+
+    # for c in s:
+
+    #   if state == 0 and c == 'n':
+
+    #       state = 1
+
+    #   elif state == 1 and c == 'a':
+
+    #       state = 2
+
+    #   ... etc.
+
+    # So, after processing the entire string, the new_state is state.
+
+    # So, the code is correct.
+
+    # Now, the code may have an error in the way it computes the new_state and the contribution.
+
+    # Also, the code for the temp_dp is not correctly updated. Because in the code:
+
+    # for each state_prev in range(6):
+
+    #   if dp[state_prev] is -inf, skip.
+
+    #   simulate processing the string, compute new_state.
+
+    #   contribution = 2 * count * 5 - total.
+
+    #   new_diff = dp[state_prev] + contribution.
+
+    #   if new_state is <6:
+
+    #       if new_diff > temp_dp[new_state], update.
+
+    # But in the code, temp_dp is initialized as a copy of dp. So, for each state_prev, the code is processing the string and updating temp_dp[new_state].
+
+    # However, the code for temp_dp is not properly handled. Because in the code, for each state_prev, the code is processing the string and updating temp_dp[new_state], but the temp_dp is being updated for each state_prev.
+
+    # So, the code is correct.
+
+    # Now, the code may have an issue with the initial state_prev. For example, if the state_prev is not in the dp, it is skipped.
+
+    # So, the code is correct.
+
+    # Now, the code for the third sample input:
+
+    # 1 4
+
+    # nare
+
+    # The string is 'nare'.
+
+    # For this string:
+
+    # simulate the processing of the string.
+
+    # state starts at 0.
+
+    # 'n' → state 1.
+
+    # 'a' → state 2.
+
+    # 'r' → state 3.
+
+    # 'e' → state 4.
+
+    # So, count is 1.
+
+    # total_in_five_letters is 4 (n, a, r, e).
+
+    # contribution is 2 * 1 *5 -4 = 10 -4 = 6.
+
+    # So, the initial dp is {0:0}.
+
+    # Processing this string:
+
+    # temp_dp is initialized as [0, ... ].
+
+    # For state_prev = 0:
+
+    # simulate processing the string, which starts at 0, and after processing, new_state is 4.
+
+    # contribution is 6.
+
+    # new_diff = 0 + 6 = 6.
+
+    # So, temp_dp[4] = 6.
+
+    # So, after processing, dp is [0, -inf, -inf, -inf, 6, -inf].
+
+    # The maximum is 6, but the sample output is 5.
+
+    # Wait, the third sample input is:
+
+    # 1 4
+
+    # nare
+
+    # The output is 0.
+
+    # Wait, what's the correct answer for this test case?
+
+    # The sample input says:
+
+    # 1 4
+
+    # nare
+
+    # The output is 0.
+
+    # Wait, let's compute the sample input.
+
+    # The string is 'nare'.
+
+    # For this string, count_in_string is 1 (the sequence is completed once). total_in_five_letters is 4 (n, a, r, e).
+
+    # So, the contribution is 2 * 1 *5 -4 = 10 -4 = 6.
+
+    # The dp after processing the string is {0:0, 4:6}.
+
+    # The maximum value is 6. But the sample output is 0.
+
+    # Wait, this indicates a problem in the code.
+
+    # What's wrong here?
+
+    # Let's think about the sample input.
+
+    # The third test case is:
+
+    # 1 4
+
+    # nare
+
+    # The output is 0.
+
+    # According to the problem statement, the optimal answer is when Narek doesn't choose the string. So the answer is 0.
+
+    # But according to the code, the maximum value is 6.
+
+    # This suggests that the code is incorrect.
+
+    # What's wrong here?
+
+    # Let's re-examine the problem.
+
+    # The score_n is the number of times the five-letter sequence is completed multiplied by 5.
+
+    # The score_c is the total_in_five_letters - used_in_score_n.
+
+    # used_in_score_n is count_in_string * 5.
+
+    # So, the difference is score_n - score_c = 5 * count_in_string - (total_in_five_letters - 5 * count_in_string) = 10 * count_in_string - total_in_five_letters.
+
+    # For the string 'nare', count_in_string is 1, total_in_five_letters is 4.
+
+    # So the difference is 10 * 1 -4 = 6.
+
+    # But the sample output is 0.
+
+    # This suggests that the code is incorrect.
+
+    # But according to the problem statement, the third test case's output is 0. So what's the correct difference?
+
+    # Let's re-examine the problem.
+
+    # The third test case is:
+
+    # n=1, m=4, string is 'nare'.
+
+    # The optimal selection is to not choose the string, so the difference is 0.
+
+    # But according to the code, the maximum is 6, which is incorrect.
+
+    # So, where is the error in the code?
+
+    # Ah! The code is not considering that the string can be chosen or not. The DP is initialized with dp[0] = 0, and for each string, it's processed. However, the code assumes that the strings are added in sequence, but the optimal selection is to choose or not choose the string.
+
+    # Wait, the code processes all strings, but the initial dp is {0:0}, which represents the state after 0 strings are processed. Then, for each string, the code processes it and updates the dp.
+
+    # But the code allows for selecting or not selecting the string. However, the code's DP approach is not correct.
+
+    # Wait, the code's DP is designed to track the maximum difference after processing the first i strings. However, the code allows for selecting or not selecting the string. But the code is not considering that the string can be skipped.
+
+    # Oh, this is a critical error.
+
+    # The current code processes all strings, but the DP is designed to track the state after processing the first i strings. However, the initial state is 0, and for each string, the code is considering adding it to the current state.
+
+    # However, the code does not allow for skipping the string. For example, if the string is processed, the code allows for the possibility of not processing it.
+
+    # Wait, no. Because the code processes each string in sequence. For example, the initial dp is {0: 0} (no strings processed). For each string, the code considers adding it to the current states, and the temp_dp is a copy of the previous dp. This means that the code is considering the possibility of not adding the string, because the temp_dp is initialized as a copy of the previous dp.
+
+    # So, for example, when processing the first string, the temp_dp is initialized as a copy of dp (which is {0:0}), and then for each state_prev in dp, the code processes the string and updates temp_dp. This means that the temp_dp includes the possibility of not adding the string, because the temp_dp is a copy of the previous dp (which represents the case where the string is not added).
+
+    # So, for example, after processing the first string, the temp_dp contains the previous dp (which is {0:0}) and the new states generated by adding the string. So the maximum value is the maximum between the previous states and the new states.
+
+    # However, in the case where the string is not added, the state remains 0, and the difference is 0.
+
+    # So, in the third test case, when the string is processed, the code would generate a new state 4 with a difference of 6. But the maximum value in the dp after processing the string is 6, which would suggest that the optimal difference is 6, but the correct answer is 0.
+
+    # This indicates that the code is incorrect.
+
+    # What is the error here?
+
+    # Let's re-examine the third test case.
+
+    # The string is 'nare'.
+
+    # The count_in_string is 1 (the sequence is completed once).
+
+    # total_in_five_letters is 4 (n, a, r, e).
+
+    # The difference is 10 * 1 - 4 = 6.
+
+    # But according to the problem statement, the correct answer is 0.
+
+    # Why?
+
+    # Because the string is processed, and the difference is 6. But the optimal selection is to not choose the string, leading to a difference of 0.
+
+    # So, why is the code's answer 6?
+
+    # Because the code is considering the possibility of adding the string, but not considering that it's possible to not add it.
+
+    # Wait, no. The code's dp after processing all strings includes the possibility of not adding the string. Because the temp_dp is initialized as a copy of the previous dp, which represents the case where the string is not added.
+
+    # But in the third test case, the code is processing the string, and after processing, the dp includes the state 4 with a difference of 6, but also the state 0 (from the previous dp).
+
+    # So, the maximum value in dp is 6, which is not correct.
+
+    # This suggests that the code is incorrect.
+
+    # What is the error in the logic?
+
+    # Ah! The code is not considering that the string can be chosen or not. The DP approach is missing the option of not choosing the string.
+
+    # Wait, no. The DP is initialized with dp[0] = 0, which represents the case where no strings are processed. For each string, the code processes it and allows for adding it to the current states. But the temp_dp is initialized as a copy of the previous dp, which represents the case where the string is not added. So, the code is correct in that it allows for the possibility of not adding the string.
+
+    # So, why is the code giving 6 in this case?
+
+    # Let's re-examine the third test case.
+
+    # The string is 'nare'.
+
+    # The code processes it, and the temp_dp after processing is:
+
+    # temp_dp is initialized as a copy of the previous dp (which is {0:0}).
+
+    # For state_prev = 0:
+
+    # simulate processing the string, which results in new_state = 4, contribution = 6.
+
+    # So, temp_dp[4] = max(0, 0 + 6) = 6.
+
+    # So, after processing, the dp is {0:0, 4:6}.
+
+    # So the maximum value is 6.
+
+    # But the correct answer is 0.
+
+    # This indicates that the code is incorrect.
+
+    # What is the correct difference for this case?
+
+    # The correct answer is 0, because the optimal is to not choose the string.
+
+    # But according to the code's logic, the maximum difference is 6, which is incorrect.
+
+    # Why?
+
+    # Let's re-calculate the difference for the case where the string is chosen.
+
+    # score_n is 5 * 1 = 5.
+
+    # score_c is total_in_five_letters - used_in_score_n = 4 - 5 = -1.
+
+    # So, the difference is 5 - (-1) = 6.
+
+    # But this is not correct.
+
+    # Wait, no. The score_c is the number of letters in the five letters that Narek failed to utilize.
+
+    # So, the score_c is total_in_five_letters - used_in_score_n.
+
+    # used_in_score_n is count_in_string * 5.
+
+    # So, for the string 'nare', count_in_string is 1, used_in_score_n is 5.
+
+    # total_in_five_letters is 4 (n, a, r, e).
+
+    # So, score_c = 4 - 5 = -1.
+
+    # score_n is 5.
+
+    # difference is 5 - (-1) = 6.
+
+    # But this is correct.
+
+    # So, why does the sample input say the correct answer is 0?
+
+    # Wait, the third test case's input is:
+
+    # 1 4
+
+    # nare
+
+    # The output is 0.
+
+    # But according to the calculation, the difference is 6.
+
+    # This suggests that there is a misunderstanding of the problem statement.
+
+    # Let's re-read the problem statement.
+
+    # The problem says:
+
+    # Narek's score_n is the number of times he completes the sequence, multiplied by 5.
+
+    # ChatGPT's score_c is the number of letters in the five letters that Narek failed to utilize.
+
+    # So, the difference is score_n - score_c.
+
+    # In this case, score_n is 5, score_c is 4 - 5 = -1. So the difference is 5 - (-1) = 6.
+
+    # But the sample input says the output is 0.
+
+    # This indicates that there is a misunderstanding of the problem statement.
+
+    # Let's re-read the problem statement.
+
+    # "ChatGPT scans through the array and increments score_c by 1 for each letter 'n', 'a', 'r', 'e', or 'k' that Narek fails to utilize (note that if Narek fails to complete the last occurrence by finding all of the 5 letters, then all of the letters he used are counted in ChatGPT's score score_c, and Narek doesn't get any points if he doesn't finish finding all the 5 letters)."
+
+    # So, the score_c is the number of letters in the five letters that Narek failed to utilize.
+
+    # So, if Narek uses some of the letters, the score_c is the number of letters in the five letters that he didn't use.
+
+    # So, for example, if Narek uses 5 letters (n, a, r, e, k), and there are 4 letters in the five letters (n, a, r, e, k), then the score_c is 4 - 5 = -1, which is impossible.
+
+    # Wait, no. The total number of letters in the five letters is the number of occurrences of each of the five letters in the string.
+
+    # For example, in the string 'nare', the total_in_five_letters is 4 (n, a, r, e).
+
+    # Narek uses 5 letters? No, because the five letters are n, a, r, e, k. The string has n, a, r, e, but no 'k'. So, the count_in_string is 1, which means that the five-letter sequence is completed once, and the used_in_score_n is 5.
+
+    # But this is impossible, because the string has only 4 letters in the five letters.
+
+    # So, the code's calculation of used_in_score_n is incorrect.
+
+    # Ah! Here is the error.
+
+    # The code computes used_in_score_n as count_in_string * 5. But this is incorrect.
+
+    # Because count_in_string is the number of times the five-letter sequence is completed, and each completion adds 5 to the score_n. But the used_in_score_n is the number of letters in the five letters that were used in the score_n.
+
+    # For example, if the five-letter sequence is completed once, then the used_in_score_n is 5 (the number of letters in the five letters that were used in the sequence).
+
+    # But this is only possible if the five-letter sequence is completed, and each completion uses all five letters.
+
+    # So, the used_in_score_n is 5 * count_in_string.
+
+    # But this is only true if the five-letter sequence is completed once, and each completion uses all five letters.
+
+    # But in the string 'nare', the count_in_string is 1, and the used_in_score_n is 5 * 1 = 5. But the total_in_five_letters is 4, which is less than 5. This is impossible.
+
+    # So, this indicates that the code's calculation of used_in_score_n is incorrect.
+
+    # So, what is the correct way to calculate used_in_score_n?
+
+    # The used_in_score_n is the number of letters in the five letters that were used in the score_n. This is equal to the number of letters in the five letters that were part of the sequence.
+
+    # But how to compute this.
+
+    # For example, in the string 'nare', the count_in_string is 1, which means the sequence is completed once. This means that the five letters were found in order, but the string has only 4 letters in the five letters. So, this is impossible.
+
+    # So, the code's calculation of count_in_string is incorrect.
+
+    # So, what is the correct way to compute count_in_string?
+
+    # The count_in_string is the number of times the five-letter sequence is completed during the processing of the string.
+
+    # In the string 'nare', the processing is as follows:
+
+    # state starts at 0, 'n' is found → state 1.
+
+    # 'a' is found → state 2.
+
+    # 'r' is found → state 3.
+
+    # 'e' is found → state 4.
+
+    # After processing 'e', the state is 4. The next character is 'e', but no 'k' is found. So, the state is 4, and no completion.
+
+    # So, the count_in_string is 0.
+
+    # So, the code's previous calculation of count_in_string is wrong.
+
+    # Ah! This is the error. The code's compute_count_and_total function is incorrect.
+
+    # Let's re-examine the code for compute_count_and_total.
+
+    # In the code, for the string 'nare', the code processes each character and increments count when the state reaches 5.
+
+    # So, in this case:
+
+    # state starts at 0.
+
+    # 'n' → state 1.
+
+    # 'a' → state 2.
+
+    # 'r' → state 3.
+
+    # 'e' → state 4.
+
+    # No 'k' is found, so no increment to count.
+
+    # So, count is 0.
+
+    # total_in_five_letters is 4.
+
+    # So, the contribution for this string is 2 * 0 *5 -4 = -4.
+
+    # So, the code would compute the difference as 0 + (-4) = -4.
+
+    # So, the maximum value in dp would be 0 (if the string is not chosen), which is correct.
+
+    # So, the error in the previous analysis was in the calculation of count_in_string.
+
+    # This suggests that the code is correct, and the previous analysis was wrong.
+
+    # So, the code must be correct.
+
+    # So, the third test case's string 'nare' has count_in_string 0, and total_in_five_letters 4.
+
+    # The contribution is 2 * 0 *5 -4 = -4.
+
+    # So, when processing this string, the temp_dp is initialized as {0: 0}.
+
+    # For state_prev = 0:
+
+    # simulate processing the string, which results in new_state 4, and contribution -4.
+
+    # new_diff = 0 + (-4) = -4.
+
+    # So, temp_dp[4] = -4.
+
+    # So, after processing the string, the dp is {0: 0, 4: -4}.
+
+    # The maximum value is 0, which is correct.
+
+    # So, the code is correct.
+
+    # So, the error in the previous analysis was due to incorrect calculation of count_in_string.
+
+    # This indicates that the code is correct.
+
+    # Therefore, the code should work correctly.
+
+    # Now, the code must be implemented.
+
+    # Now, the final code.
+</think>
+
+To solve this problem, we need to maximize the difference between Narek's score and ChatGPT's score by selecting an optimal subset of strings. The scores are calculated based on specific sequences of letters, and we need to efficiently determine the best subset of strings to achieve the maximum difference.
+
+### Approach
+1. **Understanding the Scores**: 
+   - **Narek's Score (score_n)**: This is calculated by finding the sequence "n", "a", "r", "e", "k" in order. Each complete sequence contributes 5 points.
+   - **ChatGPT's Score (score_c)**: This is the number of letters from "n", "a", "r", "e", "k" that Narek failed to utilize, which is the total number of these letters in the concatenated string minus the letters used in score_n.
+
+2. **Dynamic Programming (DP)**:
+   - Use a dynamic programming approach to track the maximum possible difference in scores after considering each string.
+   - For each string, simulate the effect of adding it to the current state of the sequence search and update the DP table accordingly.
+
+3. **Efficient Simulation**:
+   - For each string, precompute the number of times the sequence "n", "a", "r", "e", "k" is completed and the total count of these letters in the string.
+   - Use a DP array to keep track of the maximum difference achievable for each possible state of the sequence search (0 to 5).
+
+### Solution Code
+```python
+import sys
+
+def main():
+    input = sys.stdin.read().split()
+    ptr = 0
+    t = int(input[ptr])
+    ptr += 1
+    for _ in range(t):
+        n = int(input[ptr])
+        m = int(input[ptr+1])
+        ptr += 2
+        strings = []
+        for _ in range(n):
+            s = input[ptr]
+            ptr += 1
+            strings.append(s)
+        
+        count_in_strings = []
+        total_in_five_letters = []
+        for s in strings:
+            state = 0
+            count = 0
+            for c in s:
+                if state == 0 and c == 'n':
+                    state = 1
+                elif state == 1 and c == 'a':
+                    state = 2
+                elif state == 2 and c == 'r':
+                    state = 3
+                elif state == 3 and c == 'e':
+                    state = 4
+                elif state == 4 and c == 'k':
+                    state = 5
+                    count += 1
+                elif state == 5 and c == 'n':
+                    state = 1
+            total = 0
+            for c in s:
+                if c in {'n', 'a', 'r', 'e', 'k'}:
+                    total += 1
+            count_in_strings.append(count)
+            total_in_five_letters.append(total)
+        
+        dp = [-float('inf')] * 6
+        dp[0] = 0
+        
+        for i in range(n):
+            s = strings[i]
+            count = count_in_strings[i]
+            total = total_in_five_letters[i]
+            temp_dp = [x for x in dp]
+            for state_prev in range(6):
+                if dp[state_prev] == -float('inf'):
+                    continue
+                state = state_prev
+                new_state = state_prev
+                for c in s:
+                    if state == 0 and c == 'n':
+                        state = 1
+                    elif state

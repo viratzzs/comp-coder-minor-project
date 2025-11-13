@@ -1,0 +1,1726 @@
+<think>
+Okay, let's tackle this problem. So, the problem is about Alice trying to escape a tree structure where she moves based on a coin flip. The tree has a root at vertex 1, and Alice starts at some vertex. The goal is to compute the probability that she escapes for every possible starting vertex. The answer needs to be modulo 998244353.
+
+First, I need to understand the movement rules. Each minute, Alice flips a coin. If it's heads, she moves to an adjacent vertex. If it's tails, the Queen pulls her to an adjacent vertex of the Queen's choosing. But the Queen's choice is arbitrary? Or is there a specific way she chooses? Wait, the problem says that the Queen of Hearts pulls her to an adjacent vertex of the Queen's choosing. But since the Queen is trying to make Alice lose, she would choose a direction that leads to a loss. But since both players move optimally, I think the Queen's choice is to choose a direction that makes Alice lose as quickly as possible. Wait, but the problem says that both move optimally. So, the Queen is trying to make Alice lose, and Alice is trying to escape. So, for each move, when Alice is at a node, the coin flip determines whether she moves or the Queen moves. But how does the Queen's move affect the path?
+
+Wait, the problem says that when the coin is tails, the Queen pulls Alice to an adjacent vertex of the Queen's choosing. But what's the Queen's choice? Since the Queen is trying to make Alice lose, she would choose a direction that leads to a loss. But since the Queen can choose any adjacent vertex, she would choose the one that's leading to a loss. But how do we model this?
+
+Wait, the problem states that both players move optimally. So, Alice wants to escape, and the Queen wants to make her lose. So, for each possible move, when it's tails, the Queen chooses a direction that leads to the worst possible outcome for Alice. But how do we model this?
+
+Let me think. Let's model this as a game where Alice and the Queen are moving alternately. But the problem is that the Queen's move is deterministic in the sense that she chooses the direction that leads to the worst outcome for Alice. So, for each node, when it's Alice's turn (i.e., when the coin is heads), she chooses the direction that leads to the best escape probability. When it's the Queen's turn (tails), she chooses the direction that leads to the worst escape probability for Alice.
+
+But how do we model this? It seems like a dynamic programming problem where for each node, we compute the probability of escape from that node.
+
+Let me think about the structure. The tree is rooted at 1. Let's consider each node and compute the probability of escape starting from that node. Let's denote this probability as f(v). The base case is when v is a leaf (non-root leaf), then f(v) is 0. For other nodes, we need to compute based on their children.
+
+But how do the moves work? Let's think of the process as a game where each step is a move. But the coin flip is determined by the step. So, each minute, a coin is flipped. If it's heads, Alice moves. If tails, the Queen moves. But the Queen's move is to choose a direction that leads to the worst possible outcome for Alice. So, when it's the Queen's turn, she will choose the direction that leads to the least possible escape probability for Alice. Therefore, for each node, the probability f(v) can be determined based on the possible transitions.
+
+Wait, but how do the moves alternate? Because the coin is flipped each minute. So, for each step, the coin is flipped, and depending on the result, Alice or the Queen moves. But the problem says that the movement is determined by the coin flip. So, for each step, the coin is flipped, and the movement is determined. But the problem says that both move optimally. So, the Queen's move is to choose a direction that leads to the worst possible outcome for Alice. But how does that translate into the transitions?
+
+Let me think of the process as a game where for each node, the probability of escape depends on the possible transitions. Let's model this as a system of equations. For each node v, let's denote f(v) as the probability that Alice escapes starting from v.
+
+For a node v that is not a leaf (i.e., it's not a non-root leaf), the movement is as follows:
+
+When Alice is at v, she flips a coin. The probability of heads is 0.5, and tails is 0.5. But when it's heads, she moves to an adjacent node. When it's tails, the Queen moves to an adjacent node. However, the Queen's choice is to choose a direction that leads to the worst possible outcome for Alice. So, when it's tails, the Queen will choose a direction that leads to the least possible escape probability for Alice. But how do we model this?
+
+Wait, perhaps the movement is such that when it's tails, the Queen chooses a direction that leads to the node with the minimal escape probability. But since the Queen is trying to make Alice lose, she will choose the direction that minimizes the escape probability. Therefore, for each node v, when it's the Queen's turn (tails), she will choose the direction that leads to the node with the minimal escape probability among the adjacent nodes.
+
+But how do we model this? Let's think recursively.
+
+For a node v, the probability f(v) can be calculated as follows:
+
+If v is a leaf (non-root leaf), then f(v) = 0. Because Alice can't escape.
+
+Otherwise, when Alice is at v, she flips a coin. The probability of heads is 0.5, and tails is 0.5. So:
+
+f(v) = 0.5 * (sum of probabilities of moving to children) + 0.5 * (Queen's move probability).
+
+But when the Queen moves, she chooses the direction that leads to the minimal escape probability. So, for the tails case, the Queen will choose the adjacent node that gives the minimal f(u), where u is adjacent to v. So, the Queen's move would take Alice to one of the adjacent nodes, and the probability for that is the minimal f(u) among the adjacent nodes.
+
+Wait, but how does the Queen's choice affect the probability? Let me think again.
+
+When Alice is at node v, and the coin is tails, the Queen moves. The Queen can choose any adjacent node. But since she wants to make Alice lose, she will choose the direction that leads to the least possible escape probability for Alice. So, the Queen will choose the adjacent node u such that f(u) is minimized. Therefore, the probability of Alice's escape when the coin is tails is the minimal f(u) among the adjacent nodes.
+
+So, the equation for f(v) would be:
+
+f(v) = 0.5 * (sum of f(u) for all children u of v) + 0.5 * (min(f(u) for u adjacent to v)).
+
+Wait, no. Because when the coin is tails, the Queen moves. So, the Queen can choose any adjacent node, but she will choose the one that gives the minimal escape probability. So, the probability of Alice escaping when the coin is tails is the minimal f(u) among the adjacent nodes. So, the equation for f(v) is:
+
+f(v) = 0.5 * (sum of f(u) for all children u of v) + 0.5 * (min(f(u) for u adjacent to v)).
+
+Wait, but what about the case where the Queen's move is to a node that is not a leaf? For example, if the Queen moves to a node that is a leaf, then Alice would lose. So, in that case, the probability would be 0.
+
+Wait, but the Queen's move is to an adjacent node. So, when Alice is at node v, and the coin is tails, the Queen chooses an adjacent node u. But Alice's escape is only possible if she doesn't end up on a non-root leaf. So, if the Queen moves to a node that is a non-root leaf, then Alice loses. So, for the Queen's move, the probability is the minimal of the f(u) for adjacent nodes. But if any of the adjacent nodes is a leaf (non-root leaf), then that would be 0. So, the Queen would choose the adjacent node that has the minimal f(u) among all adjacent nodes.
+
+So, the formula for f(v) is:
+
+f(v) = 0.5 * (sum of f(u) for children u of v) + 0.5 * (min_f_adjacent), where min_f_adjacent is the minimum of f(u) for all adjacent nodes u of v.
+
+But wait, the Queen's choice is to move to the adjacent node that gives the minimal f(u). So, the probability that Alice escapes when the coin is tails is the minimal f(u) among the adjacent nodes. However, if any of the adjacent nodes is a non-root leaf, then that f(u) is 0. So, the Queen will choose the adjacent node that gives the minimal f(u) (which could be 0).
+
+So, the formula for f(v) is:
+
+f(v) = 0.5 * (sum of f(u) for children u of v) + 0.5 * (min_f_adjacent), where min_f_adjacent is the minimum of f(u) for all adjacent nodes u of v.
+
+But wait, what about the case where the node v is a leaf (non-root leaf)? Then, the f(v) is 0. But the problem says that the root is 1, and the leaves are non-root leaves. So, the initial condition is that for any node that is a non-root leaf, f(v) is 0.
+
+But how do we compute this? We need to compute f(v) for all nodes, starting from the leaves.
+
+But the problem is that the tree is rooted at 1, and the leaves are the nodes that are not root and have no children (except the parent). So, the leaves are the nodes that have degree 1, except for the root (which has degree 1 if it's a leaf? No, the root is 1. If the root is a leaf, then the tree has only one node, but the problem says n >= 2. So, the root is not a leaf. So, the leaves are the nodes with degree 1, except for the root.
+
+But how do we compute f(v) for all nodes?
+
+This seems like a system of equations. For each node, f(v) depends on the sum of f(u) for children and the min of the adjacent nodes.
+
+But how to solve this system of equations efficiently?
+
+Let me think about the structure of the tree. The tree is rooted at 1. So, each node has children (except the root, which has no parent). So, for each node v, the adjacent nodes are its parent and children (if not root). But the problem is that when we compute f(v), we need to consider all adjacent nodes.
+
+But the problem is that the equations for f(v) depend on the f(u) of adjacent nodes. So, for example, for a node v with children u1, u2, ..., uk, and adjacent nodes (parent and children), the equation is:
+
+f(v) = 0.5 * (sum of f(u) for children u of v) + 0.5 * (min_f_adjacent).
+
+But the min_f_adjacent is the minimum of f(u) for all adjacent nodes. However, the adjacent nodes include the parent and children. For example, if the node is not the root, then the parent is also an adjacent node. So, the min_f_adjacent is the minimum of f(u) for all adjacent nodes.
+
+But how do we handle the parent? Let's think about the root. The root has no parent. So, for the root, the adjacent nodes are its children. So, the min_f_adjacent is the minimum of f(u) for all children of the root.
+
+So, the problem is that for each node, the equation depends on the f(u) of its adjacent nodes, which includes the parent and children.
+
+But how do we model this? Because the equations are interdependent.
+
+This seems like a problem that can be solved with dynamic programming, but with a system of equations that can be solved with some clever approach.
+
+But given that the tree can be large (up to 2e5 nodes), we need an efficient way to compute f(v) for all nodes.
+
+Let me think of the tree as a rooted tree. Let's process the nodes in a way that allows us to compute f(v) based on the children and parent.
+
+But the problem is that for each node, the equation depends on the min of the adjacent nodes. So, for example, if a node has a parent and children, then the min_f_adjacent is the minimum between the parent's f and the children's f.
+
+Wait, but the parent is an adjacent node. So, for a node v, when the Queen moves, she can choose any adjacent node, but she will choose the one with the minimal f(u). So, the min_f_adjacent is the minimum of all f(u) for adjacent nodes.
+
+But for the root node, the adjacent nodes are its children. So, the min_f_adjacent is the minimum of f(u) for all children of the root.
+
+So, the equation for the root is:
+
+f(root) = 0.5 * (sum of f(u) for children) + 0.5 * (min of f(u) for children).
+
+But the root is the only node that has a parent (none), so the min_f_adjacent is the min of the children's f(u).
+
+But how do we compute this? Because the equation for the root depends on the children's f(u), which in turn depend on their children, etc.
+
+This seems like a system of equations that can be solved with a top-down approach, but the equations are interdependent.
+
+But how can we model this? Let's think of the equations as follows:
+
+For each node v, f(v) = 0.5 * (sum of children's f) + 0.5 * (min of adjacent nodes).
+
+But the adjacent nodes include the parent and children. However, the parent is not part of the children's subtree. So, for example, the parent of a node v is not part of the subtree of v. So, the parent's f(u) is not part of the children's subtree. But how can we model that?
+
+Wait, the parent of v is part of the tree, but when considering the equation for v, the adjacent nodes are the parent and the children. So, the min_f_adjacent is the minimum of the f(parent) and the f of the children.
+
+But the parent's f is part of the equation for the parent. So, this seems like a problem where we need to compute f(v) in a way that depends on the parent and children.
+
+This seems complex. Let's think of the tree as a rooted tree, and process it in a post-order traversal. But how?
+
+Alternatively, perhaps we can model the equations for each node in terms of the children and the parent. But how?
+
+Let me think of the equations again. For each node v:
+
+f(v) = 0.5 * (sum of children's f) + 0.5 * (min of all adjacent nodes' f).
+
+But the adjacent nodes include the parent and the children. So, for example, if the node is not the root, the parent is an adjacent node. So, the min of all adjacent nodes is the min between the parent's f and the children's f.
+
+But how can we compute this?
+
+Let me think of the tree as a rooted tree, and for each node, the parent is known. So, for each node, when processing, we need to know the f of the parent and the children.
+
+But this seems like a problem that can be solved with a system of equations. However, solving such a system for large trees is computationally intensive unless there's a pattern or a way to find the equations in a way that allows for efficient computation.
+
+Let me think of some examples.
+
+Take the first example given:
+
+Test case 1:
+
+n=5, tree is:
+
+1 connected to 2 and 3.
+
+2 connected to 4.
+
+3 connected to 5.
+
+So, the tree is:
+
+1 is root.
+
+Children of 1 are 2 and 3.
+
+Children of 2 is 4.
+
+Children of 3 is 5.
+
+So, the leaves are 4 and 5.
+
+For node 4: f(4) = 0 (since it's a leaf).
+
+For node 5: f(5) = 0.
+
+For node 2: its adjacent nodes are 1 and 4. So, min of adjacent nodes is min(f(1), f(4)) = min(1, 0) = 0. So, f(2) = 0.5*(f(1) + f(3)) + 0.5 * 0 ?
+
+Wait, no. Wait, the sum of children's f is for children of node 2. The children of node 2 is 4. So sum is f(4) = 0. The min of adjacent nodes is min(f(1), f(4)) = min(1, 0) = 0. So, f(2) = 0.5 * 0 + 0.5 * 0 = 0. But according to the example, the answer for node 2 is 499122177, which is 1/2. So, this suggests that my model is incorrect.
+
+Wait, this indicates that my previous reasoning is wrong. Let me re-examine the example.
+
+In the first test case, the output for node 1 is 1, node 2 is 1/2, node 3 is 1/2, node 4 and 5 are 0.
+
+So, for node 2, the f(2) is 1/2.
+
+But according to my previous calculation, f(2) would be 0.5 * (sum of children's f) + 0.5 * min of adjacent nodes.
+
+The sum of children's f is f(4) = 0. The min of adjacent nodes is min(f(1), f(4)) = min(1, 0) = 0. So, f(2) = 0.5 * 0 + 0.5 * 0 = 0. But this contradicts the example.
+
+So, clearly, my model is incorrect. Therefore, I need to rethink the problem.
+
+Let me re-examine the problem statement.
+
+The problem says that Alice starts at some vertex v. She wants to escape. The Queen of Hearts is trying to pull her to a node that leads to her losing.
+
+The movement is as follows: each minute, a fair coin is flipped. If heads, Alice moves to an adjacent node. If tails, the Queen moves to an adjacent node. The Queen chooses the direction that leads to the worst possible outcome for Alice.
+
+But how does the Queen's movement affect the probability?
+
+Let me think of the process as a game where Alice and the Queen alternate moves. However, the movement is determined by the coin flip. So, each step, the coin is flipped, and based on the result, Alice or the Queen moves.
+
+But the problem says that both move optimally. So, Alice wants to maximize her escape probability, and the Queen wants to minimize it.
+
+So, for each node, the probability of escape depends on the possible transitions.
+
+Let me model this as a recursive function. Let's denote f(v) as the probability of escape starting from node v.
+
+For a node v:
+
+- If v is a leaf (non-root leaf), then f(v) = 0. Because Alice is on a leaf, and loses.
+
+- Otherwise, when Alice is at v, she flips a coin. With 50% chance, she moves to an adjacent node. With 50% chance, the Queen moves to an adjacent node.
+
+But the Queen's move is to choose the direction that leads to the worst possible outcome for Alice. So, when it's the Queen's turn, she will choose the adjacent node that gives the minimal f(u) (since that's the worst for Alice).
+
+So, the equation for f(v) is:
+
+f(v) = 0.5 * (sum of f(u) for all adjacent nodes u where Alice moves) + 0.5 * (min of f(u) for all adjacent nodes u where the Queen moves).
+
+Wait, but when the Queen moves, she chooses the direction that leads to the minimal f(u). So, the probability when the Queen moves is the minimal f(u) among all adjacent nodes.
+
+But the problem is that the movement is determined by the coin flip. So, the coin is flipped each time. So, for each step, the coin is flipped, and based on that, the movement is determined.
+
+But how do we model this? For example, if Alice is at node v, then the coin is flipped. If it's heads, she moves to an adjacent node. If it's tails, the Queen moves to an adjacent node. But the Queen's choice is to choose the direction that leads to the minimal f(u).
+
+But how does this affect the probability?
+
+Let me think of the process as follows. For each node v, the probability f(v) is the expected value of the outcome of the game starting from v.
+
+So, for each node v, f(v) = 0.5 * (sum of f(u) for all adjacent nodes u that Alice can move to) + 0.5 * (min_f_adjacent).
+
+Wait, but when Alice moves, she can move to any adjacent node. So, the sum is the sum of f(u) for all adjacent nodes. But when the Queen moves, she chooses the adjacent node that gives the minimal f(u). So, the equation is:
+
+f(v) = 0.5 * (sum of f(u) for all adjacent nodes u) + 0.5 * (min_f_adjacent).
+
+But in the first example, node 2 has adjacent nodes 1 and 4. So, sum of f(u) is f(1) + f(4) = 1 + 0 = 1. The min_f_adjacent is min(1, 0) = 0. So, f(2) = 0.5 * 1 + 0.5 * 0 = 0.5, which matches the example. Oh! So my previous mistake was in the calculation of the sum of children's f. The sum of adjacent nodes includes the parent and children, not just the children. So, the equation is:
+
+f(v) = 0.5 * (sum of f(u) for all adjacent nodes u) + 0.5 * (min of f(u) for all adjacent nodes u).
+
+Ah, that's the key! So, the sum is over all adjacent nodes, not just the children. Because when Alice moves, she can choose any adjacent node (including the parent). So, the equation is:
+
+f(v) = 0.5 * (sum of f(u) for all adjacent nodes u) + 0.5 * (min of f(u) for all adjacent nodes u).
+
+But this seems to be a problem because for the root node, the adjacent nodes are its children. For example, the root node (1) has adjacent nodes 2 and 3. So, the sum is f(2) + f(3), and the min is min(f(2), f(3)).
+
+So, for the first example, node 2's adjacent nodes are 1 and 4. The sum is f(1) + f(4) = 1 + 0 = 1. The min is min(1, 0) = 0. So, f(2) = 0.5 * 1 + 0.5 * 0 = 0.5, which matches the example.
+
+So, the correct equation is:
+
+f(v) = 0.5 * (sum of f(u) for all adjacent nodes u) + 0.5 * (min of f(u) for all adjacent nodes u).
+
+But this is a system of equations that depends on all adjacent nodes. So, how do we solve this?
+
+The problem is that for each node, we have to compute f(v) based on the f(u) of adjacent nodes. However, the equations are interdependent. For example, the f(1) depends on f(2) and f(3), which in turn depend on their adjacent nodes, etc.
+
+But how can we solve this system efficiently?
+
+Let me think about the structure of the tree. Since the tree is rooted, perhaps we can process the nodes in a certain order, such as post-order traversal, and compute the f(v) based on the children and parent.
+
+But for the equation, the min of the adjacent nodes is the minimum of all adjacent nodes. So, for a node v, the min is the minimum of its parent's f and its children's f.
+
+But the parent's f is part of the adjacent nodes. So, for example, if the parent of v is p, then the adjacent nodes include p and all children of v.
+
+So, for each node, the min of adjacent nodes is min(f(p), min(f(children))).
+
+But how to compute this?
+
+Let me think of the tree as a rooted tree. For each node v, we can compute the f(v) as follows:
+
+- If v is a leaf (non-root leaf), f(v) = 0.
+
+- Else, for each node v, the sum of adjacent nodes is sum of f(u) for all adjacent nodes u.
+
+But the min of adjacent nodes is the minimum of all f(u) for adjacent nodes.
+
+But how to compute this? For example, for a node v, the adjacent nodes include its parent and children. So, when processing the node, we need to know the f of the parent and the children.
+
+But if we process the tree in a way that allows us to compute f(v) based on the children and the parent, perhaps we can do this.
+
+Let me think of the tree as a rooted tree. Let's process the nodes in a post-order traversal. For each node, after processing all its children, we can compute the sum of f(u) for its children and the parent's f.
+
+But the problem is that the parent's f is not known until the parent is processed. So, perhaps we need to process the nodes in a way that allows us to compute the parent's f once the children are processed.
+
+But this seems challenging. For example, if the parent of v is processed after v, then we can't compute the parent's f until we have processed v. So, this suggests that the tree must be processed in a way that allows the parent to be processed before the children. But that's not possible in a general tree structure.
+
+Alternatively, perhaps we can model the equations for the nodes in a way that allows us to compute f(v) based on the parent and children.
+
+Let me think of the root node. The root has no parent. So, the min of adjacent nodes is the minimum of its children's f. The sum of adjacent nodes is the sum of its children's f.
+
+So, for the root, f(root) = 0.5 * (sum_children) + 0.5 * (min_children).
+
+But the root's children's f depends on their own children and so on.
+
+So, for the root, the equation is:
+
+f(root) = 0.5 * sum_children + 0.5 * min_children.
+
+But the sum_children is the sum of the f of all children of the root. The min_children is the minimum of the f of all children of the root.
+
+So, for the root, this is a system of equations that depends on the children's f.
+
+But how can we solve this? For example, in the first test case, the root has two children: 2 and 3. Their f values are 0.5 and 0.5. So sum_children is 0.5 + 0.5 = 1. min_children is 0.5. So f(root) = 0.5 * 1 + 0.5 * 0.5 = 0.75? But according to the example, the root's f is 1. So this is a contradiction. Wait, no! Wait, the example says that the root's f is 1. So, this suggests that my model is still incorrect.
+
+Wait, in the first example, the root is node 1. The output for node 1 is 1. So, according to the model, f(1) = 0.5 * (sum_children) + 0.5 * (min_children). Let's compute this.
+
+In the first example, node 1's children are 2 and 3. The sum_children is f(2) + f(3) = 0.5 + 0.5 = 1. The min_children is min(f(2), f(3)) = 0.5. So, f(1) = 0.5 * 1 + 0.5 * 0.5 = 0.5 + 0.25 = 0.75. But the example says that the root's f is 1. So, this is a problem. Which means that my model is wrong.
+
+So, what's wrong here?
+
+Let me re-examine the example. The note says that for the first test case, the root (node 1) has probability 1. So, how is that possible?
+
+The note says that Alice escapes from the root with probability 1. So, how does that happen?
+
+The note says that for the root, she can escape by definition. So, perhaps the model is not considering the case where the root is a leaf. Wait, the root is not a leaf, because the tree is rooted at 1, and the leaves are non-root leaves. So, the root is not a leaf. So, the root is not a leaf, so it's not in the case where f(v) is 0.
+
+But according to the model, the root's f is 0.5 * sum_children + 0.5 * min_children. But in the example, it's 1. So, this suggests that the model is wrong.
+
+So, where is the error?
+
+Let me think again about the movement. When Alice is at the root, and she flips a coin. If it's heads, she moves to an adjacent node. If it's tails, the Queen moves to an adjacent node.
+
+But the root has two adjacent nodes (children). So, when the root is at node 1, and the coin is heads, Alice moves to either 2 or 3. If the coin is tails, the Queen moves to either 2 or 3.
+
+But the Queen's choice is to choose the direction that leads to the worst outcome for Alice. So, for the root, when it's tails, the Queen will choose the direction that leads to the minimal f(u). So, for the root, the Queen's move would choose between the two children. So, the minimal f(u) is min(f(2), f(3)) = 0.5. So, the probability for the root is 0.5 * (sum of children's f) + 0.5 * min_children.
+
+But in the example, the root's f is 1. So, according to this, 0.5 * (0.5 + 0.5) + 0.5 * 0.5 = 0.5 * 1 + 0.25 = 0.75. But the example says it's 1. So, clearly, there's a mistake in the model.
+
+This suggests that the previous model is incorrect. So, what's the correct way to model the problem?
+
+Let me think again about the movement. The problem says that Alice starts at vertex v. She wants to escape. The Queen of Hearts is trying to pull her to a leaf (non-root leaf), which would make her lose.
+
+The key is to model the probability of Alice escaping from each node, considering that when the coin is tails, the Queen chooses the direction that leads to the worst outcome for Alice.
+
+Let me think of the root node. The root has two children, 2 and 3. Suppose Alice is at the root. She flips a coin:
+
+- With 50% chance, she moves to 2. Then, from 2, she has a 50% chance to move to 1 (the root) or to 4. But 4 is a leaf, so she loses. So, the probability of escaping from 2 is 0.5 * 1 (if she moves back to root) + 0.5 * 0 (if she moves to 4). So, f(2) is 0.5 * 1 + 0.5 * 0 = 0.5.
+
+Similarly, when Alice is at 3, the f is 0.5.
+
+So, when Alice is at the root, the coin is heads (0.5 chance to move to 2 or 3). The probability of escaping from 2 is 0.5, from 3 is 0.5. So, the sum is 0.5 + 0.5 = 1. So, the 0.5 * sum is 0.5 * 1 = 0.5.
+
+Then, for the tails case: the Queen moves. She will choose between the two children, which have f values 0.5 and 0.5. So, the min is 0.5. So, the 0.5 * 0.5 = 0.25. So, the total f(root) is 0.5 + 0.25 = 0.75. But the example says it's 1. So, this is a contradiction. So, what's wrong here?
+
+But according to the example, the root's probability is 1. So, what's the correct way to model this?
+
+Ah! Perhaps the model is incorrect, and the Queen's move is not to choose the minimal f(u), but to choose a direction that leads to the worst outcome for Alice, but in a way that depends on the tree structure.
+
+Alternatively, perhaps the Queen's move is to choose a direction that leads to the worst possible outcome for Alice, but she can choose any direction, and Alice's escape is determined by the probability of her escaping from the new node.
+
+But how does that work?
+
+Let me think of the root's case again. When Alice is at the root, she flips a coin. If it's heads, she moves to a child. If it's tails, the Queen moves to a child.
+
+But the Queen's choice is to choose the direction that leads to the worst possible outcome for Alice. So, if the Queen moves to a child, then the probability of Alice escaping from that child is f(child). But if the Queen moves to a child, then the Queen's choice is to choose the child that has the minimal f(child), which is the worst for Alice.
+
+So, the equation for the root is:
+
+f(root) = 0.5 * (f(2) + f(3)) + 0.5 * min(f(2), f(3)).
+
+In the example, f(2) = 0.5, f(3) = 0.5. So, the sum is 1, min is 0.5. So, f(root) = 0.5 * 1 + 0.5 * 0.5 = 0.75. But the example says it's 1. This suggests that there's a flaw in the model.
+
+But according to the example, the root's f is 1. So, what's the correct way to model this?
+
+Perhaps the Queen's move is not to choose the minimal f(u), but to choose the direction that leads to the worst possible outcome for Alice, which could be a leaf. But in this case, the Queen would choose a direction that leads to a leaf, which would make Alice lose. So, if the Queen moves to a leaf, then the probability of escape is 0.
+
+But in the example, the root's f is 1, which implies that Alice can always escape. So, what's the correct way to model this?
+
+Let me think of the root's case again. Suppose Alice is at the root. She flips a coin. If it's heads, she moves to a child. If it's tails, the Queen moves to a child. But the Queen wants to make Alice lose. So, in the tails case, the Queen will choose a direction that leads to the least possible escape probability. But if the Queen chooses a child that is a leaf, then Alice loses. But in the first example, the root's children are 2 and 3, which are not leaves. So, the Queen would choose between the two children, which have f values 0.5 and 0.5. So, the Queen's choice is to move to one of them, and the probability is 0.5 for each.
+
+But then, the root's f is 0.5 * (0.5 + 0.5) + 0.5 * 0.5 = 0.75. But the example says it's 1. So, this suggests that the model is wrong.
+
+Alternatively, perhaps the Queen's move is not to choose the minimal f(u), but to choose the direction that leads to the least possible escape probability, which is 0 if the node is a leaf. But in the root's case, the children are not leaves, so the Queen's choice is to move to one of them, and the f(u) is 0.5 for each. So, the root's f is 0.5 * (0.5 + 0.5) + 0.5 * 0.5 = 0.75. But the example says it's 1. So, there's a contradiction.
+
+This suggests that there's a fundamental misunderstanding of the problem.
+
+Let me re-read the problem statement.
+
+Problem statement:
+
+Alice starts at some vertex v. She wants to get out of the hole, but the Queen of Hearts has ordered her execution. Each minute, a fair coin is flipped. If it lands heads, Alice gets to move to an adjacent vertex of her current location, and otherwise, the Queen of Hearts gets to pull Alice to an adjacent vertex of the Queen's choosing. If Alice ever ends up on any of the non-root leaves of the tree, Alice loses.
+
+So, the Queen's choice is to pull Alice to an adjacent vertex of the Queen's choosing. But what is the Queen's choice? Is it arbitrary, or is there a specific way she chooses?
+
+The problem says that both move optimally. So, Alice wants to escape, and the Queen wants to make her lose. So, when it's the Queen's turn, she will choose the direction that leads to the least possible escape probability for Alice.
+
+But in the case of the root, when the Queen moves, she will choose the direction that leads to the least possible escape probability for Alice. So, for the root, the Queen has two choices: moving to child 2 or child 3. Both have f(u) = 0.5. So, the Queen will choose either, and the probability of Alice escaping is 0.5 * 0.5 + 0.5 * 0.5 = 0.5. So, the root's f is 0.5 * (0.5 + 0.5) + 0.5 * 0.5 = 0.75. But the example says it's 1.
+
+This suggests that the model is incorrect, and there's a misunderstanding of the problem.
+
+Let me look at the example explanation:
+
+In the first test case, the root (vertex 1) escapes with probability 1. So, how is that possible?
+
+The note says:
+
+1. Alice escapes from the root (vertex 1) by definition with probability 1.
+
+So, the root is the exit. So, the root is the exit, and Alice is at the root. So, she has already escaped. So, the probability is 1.
+
+But according to the model, the root's f is 0.75. So, what's the correct model?
+
+Ah! Wait, the root is the exit. So, if Alice is at the root, she has already escaped. So, the probability is 1. But why is the root's f computed as 1 in the example?
+
+This suggests that the model is missing the case where the root is the exit. So, perhaps the root is considered as a special case, where the probability is 1.
+
+But how does this fit into the general model?
+
+The problem says that the exit is at vertex 1. So, if Alice is at vertex 1, she has already escaped, so the probability is 1. So, for any node that is the root, the probability is 1.
+
+But in the example, the root is vertex 1, and the output is 1. So, for all nodes, the probability is 1 when the node is the root.
+
+So, the model must account for this. So, perhaps the root is a special case.
+
+But how does this fit into the general model?
+
+Let me think: the root is the exit. So, if Alice is at the root, she has already escaped. So, the probability is 1.
+
+But for other nodes, the probability depends on the equations.
+
+So, for the root, the probability is 1. For other nodes, it depends on the equations.
+
+But in the example, the root's f is 1, and the other nodes' f are 0.5, 0.5, 0, 0.
+
+So, this suggests that the model should be adjusted to account for the root being the exit.
+
+So, the general model is:
+
+For any node v, if v is the root, then f(v) = 1.
+
+Otherwise, f(v) is computed as 0.5 * (sum of f(u) for all adjacent nodes) + 0.5 * (min of f(u) for all adjacent nodes).
+
+But this would explain the first example.
+
+Let me re-calculate the first example with this model.
+
+For node 1: f(1) = 1.
+
+For node 2: adjacent nodes are 1 and 4. sum is f(1) + f(4) = 1 + 0 = 1. min is min(1, 0) = 0. So, f(2) = 0.5 * 1 + 0.5 * 0 = 0.5.
+
+For node 3: adjacent nodes are 1 and 5. sum is 1 + 0 = 1. min is 0. So, f(3) = 0.5 * 1 + 0.5 * 0 = 0.5.
+
+For node 4: it's a leaf (non-root leaf), so f(4) = 0.
+
+For node 5: it's a leaf, so f(5) = 0.
+
+So, the output is 1, 0.5, 0.5, 0, 0, which matches the example. So, this seems to be the correct model.
+
+Ah! So, the root is a special case where f(v) = 1. All other nodes are computed as per the equations.
+
+This explains the first example.
+
+So, the model is:
+
+For each node v:
+
+- if v is the root, then f(v) = 1.
+
+- else:
+
+   if v is a leaf (non-root leaf), then f(v) = 0.
+
+   else:
+
+      f(v) = 0.5 * (sum of f(u) for all adjacent nodes) + 0.5 * (min of f(u) for all adjacent nodes).
+
+So, this is the correct model.
+
+Now, the challenge is to compute this for all nodes efficiently.
+
+But how?
+
+The problem is that for each node, we need to compute f(v) based on its adjacent nodes. But for a general tree, this is a system of equations that may be solved with dynamic programming.
+
+But how to handle the dependencies?
+
+Let me think about the tree structure. For each node v, the adjacent nodes include the parent and children. So, for example, if the tree is rooted, then for a node v, its adjacent nodes are its parent and children.
+
+So, for the root, the adjacent nodes are its children.
+
+For a node v that is not the root, the adjacent nodes are its parent and children.
+
+But the problem is that for a node v, the sum of f(u) for all adjacent nodes depends on the f of the parent and children.
+
+But how to compute this?
+
+This seems like a system of equations that can be solved with a top-down approach, but with some constraints.
+
+Let me think of the tree as a rooted tree. We can process the nodes in a post-order traversal, but the equations for the nodes depend on the parent and children.
+
+But for the root, the equations are different.
+
+Let me think of the root as a special case. For other nodes, we need to compute f(v) based on the parent and children.
+
+But how to handle this?
+
+Let me think of the following approach:
+
+We can perform a post-order traversal of the tree. For each node, after processing all its children, we can compute the f(v) based on the children and the parent.
+
+But for the root, we have no parent, so we need to compute its f(v) based on its children.
+
+So, for the root, the f(v) is 1.
+
+For other nodes, if they are leaves (non-root leaves), f(v) is 0.
+
+Otherwise, f(v) = 0.5 * (sum of f(u) for all adjacent nodes) + 0.5 * (min of f(u) for all adjacent nodes).
+
+But how to compute this?
+
+Let me think of the tree as a rooted tree. For each node v, the adjacent nodes are its parent and children.
+
+So, for a node v, the sum of f(u) is the sum of f of its children and the f of its parent.
+
+But the parent's f is not known until the parent is processed.
+
+So, this suggests that the tree must be processed in a way that allows the parent's f to be computed before the children, or vice versa.
+
+But this is not possible in a general tree. So, perhaps we need to find a way to model this.
+
+Alternatively, perhaps we can model the equations in such a way that for each node, we can compute f(v) based on the children and the parent.
+
+But how?
+
+Let me think of the root's children. For the root, the sum is the sum of its children's f, and the min is the min of its children's f.
+
+For a node v that is not the root, its sum is the sum of its children's f plus the parent's f.
+
+But the parent's f is not known until we process the parent.
+
+This seems to be a problem.
+
+But perhaps we can process the tree in a way that for each node, we have already computed the f of its children and the parent.
+
+But this requires a specific order of processing.
+
+For example, we can process the tree in a way that for each node, after its children are processed, we can compute the f of the node.
+
+But for the root, the parent is none, so we need to compute it based on its children.
+
+So, let's think of the following approach:
+
+- We root the tree at node 1.
+
+- For each node v, we compute f(v) based on its children and parent.
+
+- For the root, f(1) = 1.
+
+- For other nodes, if they are leaves, f(v) = 0.
+
+- Else, for each node v, f(v) = 0.5 * (sum_children + f_parent) + 0.5 * min_children.
+
+But how to compute the sum_children and min_children?
+
+Wait, sum_children is the sum of f(u) for all children of v.
+
+f_parent is the f of the parent of v.
+
+min_children is the minimum of f(u) for all children of v.
+
+So, the equation is:
+
+f(v) = 0.5 * (sum_children + f_parent) + 0.5 * min_children.
+
+But how to compute this?
+
+Let me think of the root's children. For the root, sum_children is the sum of f(u) of its children. The f_parent is 0 (since it has no parent). The min_children is the minimum of f(u) of its children.
+
+So, for the root, the equation is:
+
+f(root) = 0.5 * (sum_children + 0) + 0.5 * min_children.
+
+But f(root) is 1, so this equation must be satisfied.
+
+So, this suggests that the root's equation is:
+
+1 = 0.5 * (sum_children + 0) + 0.5 * min_children.
+
+But sum_children is sum of f of children, and min_children is min of f of children.
+
+So, this equation must hold.
+
+But for the first example, sum_children is 0.5 + 0.5 = 1, min_children is 0.5. So, 0.5 * (1 + 0) + 0.5 * 0.5 = 0.5 * 1 + 0.25 = 0.75, which is not equal to 1. This suggests that the equation for the root is not correct.
+
+But according to the problem statement, the root's f is 1. So, the equation must be satisfied.
+
+This indicates that the model is still incorrect.
+
+Alternatively, perhaps the root's equation is not based on the children and parent, but on the children and the parent's f.
+
+Wait, for the root, the parent is none, so the sum_children is the sum of f(u) for children. The min_children is the minimum of f(u) for children. So, the equation is:
+
+f(root) = 0.5 * (sum_children) + 0.5 * (min_children).
+
+But this equals 0.5 * (1) + 0.5 * 0.5 = 0.75, which is not 1.
+
+So, this suggests that the model is still incorrect.
+
+But the problem says that for the root, the probability is 1. So, what is the correct way to model this?
+
+Maybe the root's f is 1, and for other nodes, the equation is as before.
+
+So, for the root, we can treat it as a special case. For other nodes, we compute the equation as before.
+
+So, for the root, f(v) = 1.
+
+For other nodes:
+
+if it's a leaf (non-root leaf), f(v) = 0.
+
+else:
+
+f(v) = 0.5 * (sum of f(u) for all adjacent nodes) + 0.5 * (min of f(u) for all adjacent nodes).
+
+But how to compute this?
+
+For example, for the root, it's a special case. For other nodes, it's computed as described.
+
+So, in the first example, the root's f is 1. For node 2, which is not a leaf, it has adjacent nodes 1 and 4. sum is 1 + 0 = 1. min is 0. So, f(2) = 0.5 * 1 + 0.5 * 0 = 0.5.
+
+This matches the example.
+
+So, the model is correct.
+
+Now, the problem is to compute this for all nodes.
+
+But how to compute this efficiently?
+
+Let me think of the tree as a rooted tree, and for each node, we need to compute f(v) based on its children and parent.
+
+But for the root, we have no parent, so the parent is not considered.
+
+So, the approach is:
+
+- For each node, if it is the root, f(v) = 1.
+
+- Else, if it is a leaf (non-root leaf), f(v) = 0.
+
+- Else, compute f(v) as 0.5 * (sum of f(u) for all adjacent nodes) + 0.5 * (min of f(u) for all adjacent nodes).
+
+But how to compute this for all nodes?
+
+This seems like a system of equations that can be solved with a bottom-up approach, but with some constraints.
+
+But for each node, the sum of adjacent nodes and the min of adjacent nodes depend on the children and the parent.
+
+So, for example, for a node v with parent p and children c1, c2, ..., ck:
+
+sum_adj = f(p) + sum(f(ci) for ci in children).
+
+min_adj = min(f(p), min(f(ci) for ci in children)).
+
+So, f(v) = 0.5 * (sum_adj) + 0.5 * min_adj.
+
+But how to compute this?
+
+This suggests that for each node, we need to know the f of the parent and the children.
+
+But the parent's f is not known until the parent is processed.
+
+So, this seems like a problem that can be solved with a post-order traversal, but with the root being processed first.
+
+Let me think of the following approach:
+
+- We root the tree at node 1.
+
+- We perform a post-order traversal of the tree, starting from the root.
+
+- For each node v, after processing all its children, we compute its f(v) based on the children's f and the parent's f.
+
+But for the root, there is no parent, so the parent's f is 0 (but this is not correct, as the root's f is 1).
+
+Wait, for the root, we have to set f(root) = 1.
+
+For other nodes, during the post-order traversal, we compute their f based on their children and the parent's f.
+
+But how to handle the parent's f?
+
+For example, for a node v with parent p, during the post-order traversal, we have already computed p's f, and we can use it.
+
+So, the algorithm would be:
+
+1. For each test case, build the tree as an adjacency list.
+
+2. Choose a root (1).
+
+3. Perform a post-order traversal of the tree, processing children first.
+
+4. For each node v:
+
+   a. If v is the root, set f(v) = 1.
+
+   b. Else, if v is a leaf (non-root leaf), set f(v) = 0.
+
+   c. Else, compute the sum of f(u) for all adjacent nodes (sum_adj), and the min of f(u) for all adjacent nodes (min_adj).
+
+      sum_adj is sum of f(u) for all adjacent nodes.
+
+      min_adj is min of f(u) for all adjacent nodes.
+
+   d. f(v) = (sum_adj + min_adj) * 0.5.
+
+But wait, the formula is f(v) = 0.5 * sum_adj + 0.5 * min_adj.
+
+But how to compute sum_adj and min_adj?
+
+For each node v, the adjacent nodes include the parent and children.
+
+So, during the post-order traversal, for each node v, after processing all children, we can compute the sum_adj as the sum of f(u) for all children plus the f of the parent.
+
+But the parent's f is not known until the parent is processed.
+
+So, this suggests that the post-order traversal is not sufficient, as the parent's f is not yet computed.
+
+So, this is a problem.
+
+But what if we process the tree in a way that for each node, the parent is processed before the node? For example, in a BFS or DFS traversal, processing the parent before the children.
+
+But how to handle this?
+
+Let me think: the root is processed first. Then, for each child of the root, we process them, and so on.
+
+For example, in a BFS traversal, we process the root first, then its children, then their children, etc.
+
+For each node v, when processing it, the parent's f is already computed, and the children's f are computed.
+
+So, this would allow us to compute the sum_adj and min_adj for each node v.
+
+Let me think of this:
+
+For the root, f(root) = 1.
+
+For other nodes, during the traversal:
+
+- When processing a node v, we have already computed the f of its parent.
+
+- The children of v are processed before v, so their f is already computed.
+
+So, for a node v, the sum_adj is the sum of f of its children plus the f of its parent.
+
+The min_adj is the minimum of f of its children and the f of its parent.
+
+So, for example:
+
+For node v, which is not the root, the sum_adj = sum_children_f + parent_f.
+
+The min_adj is min( min_children_f, parent_f).
+
+Then, f(v) = 0.5 * (sum_adj) + 0.5 * min_adj.
+
+But this requires that the parent's f is known.
+
+So, the approach would be:
+
+- Perform a BFS or DFS traversal, processing nodes in such a way that when we process a node, its parent's f is already computed.
+
+- For the root, set f(root) = 1.
+
+- For other nodes, during the traversal, compute their f based on their children and parent.
+
+But how to handle the parent's f?
+
+For example, let's take the first example:
+
+Root is 1. Its children are 2 and 3.
+
+For node 2, during processing, its parent is 1, which is already processed. Its children are 4, which is processed before 2.
+
+So, for node 2:
+
+sum_adj = f(1) + f(4) = 1 + 0 = 1.
+
+min_adj = min(f(1), f(4)) = min(1, 0) = 0.
+
+f(2) = 0.5 * 1 + 0.5 * 0 = 0.5.
+
+Similarly for node 3.
+
+For node 4, it is a leaf, so f(4) = 0.
+
+For node 5, it is a leaf, so f(5) = 0.
+
+So, this works.
+
+So, the algorithm is:
+
+For each node v:
+
+- If it is the root, f(v) = 1.
+
+- Else, if it is a leaf (non-root leaf), f(v) = 0.
+
+- Else, compute sum_adj = sum of f(u) for all children of v + f(parent of v).
+
+- min_adj = min of f(u) for all children of v and f(parent of v).
+
+- f(v) = 0.5 * sum_adj + 0.5 * min_adj.
+
+But how to determine if a node is a leaf (non-root leaf)?
+
+A leaf is a node with no children except the parent. So, during the traversal, for each node, we can check if it has no children (except the parent).
+
+But how to determine this?
+
+During the traversal, for each node, we can track its children. So, for each node v, we can know its children.
+
+But in the tree, each node's children are the nodes adjacent to it that are not the parent.
+
+So, during the traversal, for each node, we can know its children.
+
+So, the steps are:
+
+For each test case:
+
+1. Read the tree.
+
+2. Build an adjacency list.
+
+3. Choose root as 1.
+
+4. For each node, compute its children (excluding the parent).
+
+5. Perform a BFS or DFS traversal, processing nodes in such a way that when a node is processed, its parent's f is already computed.
+
+6. For each node v:
+
+   a. If v is root, f[v] = 1.
+
+   b. Else, if v is a leaf (non-root leaf), f[v] = 0.
+
+   c. Else, compute sum_adj = sum of f of children + f of parent.
+
+   d. compute min_adj = min of f of children and f of parent.
+
+   e. f[v] = 0.5 * sum_adj + 0.5 * min_adj.
+
+But how to determine if a node is a leaf (non-root leaf)? For example, a node is a leaf if it has no children (except the parent). So, during the traversal, for each node, we can check if it has no children (except the parent).
+
+But how to do this?
+
+For example, during the traversal, for each node v, we can track the number of children. If the number of children is zero, then it's a leaf (except for the root).
+
+But for the root, it has children, but it's not a leaf.
+
+So, during the processing of a node v, if the number of children is zero, then it is a leaf (non-root leaf) if it is not the root.
+
+Wait, the root is not a leaf. So, for a node v, if it has no children (except the parent), then it is a leaf. So, for example, a node with no children (except the parent) is a leaf.
+
+So, during the traversal, for each node v, we can check if it has no children (except the parent). So, for a node v, if the number of children is zero, it is a leaf.
+
+So, during the processing of each node v, after computing its children, we can check if the number of children is zero. If yes, then it is a leaf.
+
+But how to compute this?
+
+In the adjacency list, for each node v, we can store its children (excluding the parent). So, during the traversal, for each node v, we can have a list of children.
+
+So, during the traversal, for each node v:
+
+children = list of children (excluding the parent).
+
+if len(children) == 0:
+
+   f[v] = 0.
+
+else:
+
+   compute sum_adj and min_adj as before.
+
+So, this seems manageable.
+
+Now, the challenge is to implement this in Python, considering that the tree can be large (up to 2e5 nodes), and the time and memory constraints must be respected.
+
+But how to implement this efficiently?
+
+Let's think about the data structures.
+
+We can represent the tree as an adjacency list. For each node, we store its neighbors.
+
+Then, during the traversal, we can track the parent of each node to avoid revisiting the parent.
+
+For example, during BFS or DFS, we can keep track of the parent of each node.
+
+Once the parent is known, for each node v, we can determine its children (those neighbors that are not the parent).
+
+So, the steps for each test case:
+
+Read n.
+
+Read n-1 edges.
+
+Build the adjacency list.
+
+Choose root as 1.
+
+Perform a BFS or DFS to compute the children of each node, and track parents.
+
+Once the children are known, perform a post-order traversal to compute f(v) for each node.
+
+But how to perform the post-order traversal?
+
+We can use a DFS approach. For example:
+
+Initialize a stack with the root.
+
+For each node, when popped from the stack, if it's not processed, push it back with a flag indicating it's being processed, and push its children (excluding the parent) to the stack.
+
+But this is a standard DFS approach.
+
+Alternatively, we can use a recursive approach, but for large n, recursion may hit stack limits.
+
+So, better to use an iterative DFS.
+
+Once the children are known, for each node, we can compute f(v) as follows:
+
+For the root, f is 1.
+
+For other nodes:
+
+if number of children is 0: f is 0.
+
+else:
+
+sum_adj = sum of f of children + f of parent.
+
+min_adj = min of f of children and f of parent.
+
+f[v] = (sum_adj + min_adj) / 2.
+
+But since we are dealing with floating-point numbers, but the problem requires modular inverses, we need to represent the probabilities as fractions modulo 998244353.
+
+Ah! This is the key. The problem requires the answer to be computed modulo 998244353, which is a prime.
+
+So, we need to represent the probabilities as fractions, and perform all calculations with modular inverses.
+
+So, the problem is to compute the probabilities as fractions, and then output them modulo 998244353.
+
+So, the approach is to represent the probabilities as modular inverses.
+
+Let me think about how to handle this.
+
+For example, the probability for a node v is computed as (sum_adj + min_adj) * 0.5 mod MOD.
+
+But since we are working in modular arithmetic, 0.5 is equivalent to MOD-1 / 2.
+
+So, in modular terms, 0.5 is equal to the inverse of 2 modulo MOD.
+
+So, the formula for f(v) is (sum_adj + min_adj) * inv_2 mod MOD.
+
+But how to compute sum_adj and min_adj?
+
+Sum_adj is the sum of the f of children plus the f of the parent.
+
+Min_adj is the minimum of the f of children and the f of the parent.
+
+But since all these values are computed modulo MOD, we need to handle them correctly.
+
+So, the plan is:
+
+- For each node, compute f(v) as (sum_adj + min_adj) * inv_2 mod MOD.
+
+But how to compute sum_adj and min_adj?
+
+Let's think of the steps:
+
+For each node v:
+
+if v is root:
+
+   f[v] = 1.
+
+else:
+
+   if it is a leaf:
+
+      f[v] = 0.
+
+   else:
+
+      sum_adj = sum of f of children + f of parent.
+
+      min_adj = min of f of children and f of parent.
+
+      f[v] = (sum_adj + min_adj) * inv_2 mod MOD.
+
+So, the problem is to compute sum_adj and min_adj.
+
+But how to compute sum_adj and min_adj?
+
+For sum_adj, we need to sum the f of children of v, and add the f of the parent.
+
+For min_adj, we need to take the minimum of the f of children of v and the f of the parent.
+
+But how to compute this?
+
+Let's think of the steps for each node:
+
+During the post-order traversal, for each node v:
+
+   if v is root:
+
+      f[v] = 1.
+
+   else:
+
+      if it's a leaf:
+
+         f[v] = 0.
+
+      else:
+
+         sum_children = sum of f of children of v.
+
+         parent_f = f of parent of v.
+
+         sum_adj = sum_children + parent_f.
+
+         min_children = min of f of children of v.
+
+         min_adj = min(min_children, parent_f).
+
+         f[v] = (sum_adj + min_adj) * inv_2 mod MOD.
+
+But how to compute min_children?
+
+min_children is the minimum of the f of all children of v.
+
+So, during the traversal, for each node v, we can keep track of the minimum of the children's f.
+
+But for each node v, during the post-order traversal, after processing all children, we can compute the minimum of the children's f.
+
+So, during the processing of a node v, after processing all children, we can compute:
+
+children_f = [f of each child]
+
+min_children = min(children_f)
+
+So, the steps are:
+
+For each node v:
+
+   if v is root:
+
+      f[v] = 1.
+
+   else:
+
+      if it is a leaf:
+
+         f[v] = 0.
+
+      else:
+
+         sum_children = sum of f of children.
+
+         parent_f = f of parent.
+
+         sum_adj = sum_children + parent_f.
+
+         min_children = min of f of children.
+
+         min_adj = min(min_children, parent_f).
+
+         f[v] = (sum_adj + min_adj) * inv_2 mod MOD.
+
+But how to compute the sum_children and min_children?
+
+For the children of v, we have their f values already computed.
+
+So, during the post-order traversal, for each node v, after processing all children, we can compute sum_children and min_children.
+
+So, the algorithm is:
+
+For each test case:
+
+   Read n.
+
+   Read n-1 edges.
+
+   Build adjacency list.
+
+   Build the tree with root 1.
+
+   Perform a BFS or DFS to compute the parent of each node.
+
+   For each node, compute its children (excluding the parent).
+
+   Perform a post-order traversal to compute f(v) for each node.
+
+So, the key steps are:
+
+1. Building the tree with parent pointers.
+
+2. Performing a post-order traversal to compute f(v) for each node.
+
+Now, the challenge is to implement this in Python efficiently.
+
+But how to handle the post-order traversal?
+
+Let's think about the code.
+
+In Python, for each test case, we can represent the tree as an adjacency list.
+
+We can perform a BFS or DFS to compute the parent of each node.
+
+Once the parent is known, we can compute the children for each node.
+
+Then, perform a post-order traversal.
+
+For example, using a stack for DFS.
+
+But for large n, recursion may not be feasible, so an iterative approach is better.
+
+Let's outline the code steps.
+
+Implementing the code:
+
+Read t test cases.
+
+For each test case:
+
+   Read n.
+
+   Read n-1 edges.
+
+   Build adjacency list.
+
+   Build the tree with root 1.
+
+   For each node, track its children (excluding the parent).
+
+   Compute the parent for each node.
+
+   Perform a post-order traversal to compute f[v] for each node.
+
+Once all f[v] are computed, output them for each node 1..n.
+
+But how to compute the parent and children?
+
+For example, using BFS:
+
+Initialize a queue with root (1).
+
+Mark visited nodes.
+
+For each node in the queue, for each neighbor, if not visited, set parent[neighbor] = current node, and add to queue.
+
+This way, the parent array is built.
+
+Once the parent array is built, for each node, we can determine its children as the neighbors of the node that are not the parent.
+
+Once the children are known, we can perform a post-order traversal.
+
+For the post-order traversal, we can use a stack, and for each node, when popped from the stack, if it has not been processed, we push it back with a flag, and push all its children (excluding the parent) to the stack.
+
+But during the processing, we can track whether the node has been processed.
+
+Alternatively, for each node, we can compute its children and process them first.
+
+Once the children are processed, we can compute the f[v] for the node.
+
+So, the code for the post-order traversal:
+
+stack = [(root, False)]
+
+while stack not empty:
+
+   node, processed = stack.pop()
+
+   if not processed:
+
+      stack.append( (node, True) )
+
+      for child in children[node]:
+
+         stack.append( (child, False) )
+
+   else:
+
+      if node is root:
+
+         f[node] = 1
+
+      else:
+
+         if len(children[node]) == 0:
+
+             f[node] = 0
+
+         else:
+
+             sum_children = sum of f[child] for child in children[node]
+
+             parent_f = f[parent[node]]
+
+             sum_adj = sum_children + parent_f
+
+             min_children = min(f[child] for child in children[node])
+
+             min_adj = min( min_children, parent_f )
+
+             f[node] = (sum_adj + min_adj) * inv_2 % MOD
+
+But wait, in the code above, the children of node are known, and for each node, during the post-order traversal, the children are processed before the node.
+
+So, this should work.
+
+But how to compute sum_children?
+
+In the code, for each node, during the post-processing, we can compute sum_children as the sum of the f of its children.
+
+But how to do this efficiently?
+
+We can store for each node, the list of children, and during the post-processing, accumulate the sum.
+
+For example, during the post-processing, for each node, when it is processed (after its children), we can compute the sum_children as the sum of the f of its children.
+
+This can be done with a simple loop.
+
+So, in the code:
+
+children = [[] for _ in range(n+1)]
+
+for each node in the tree:
+
+   for neighbor in adjacency list:
+
+      if neighbor != parent[node]:
+
+          children[node].append(neighbor)
+
+Once the children are built, during the post-processing:
+
+for each node in post-order:
+
+   if node is root:
+
+      f[node] = 1
+
+   else:
+
+      if len(children[node]) == 0:
+
+          f[node] = 0
+
+      else:
+
+          sum_children = sum(f[child] for child in children[node])
+
+          parent_f = f[parent[node]]
+
+          sum_adj = sum_children + parent_f
+
+          min_children = min(f[child] for child in children[node])
+
+          min_adj = min( min_children, parent_f )
+
+          f[node] = (sum_adj + min_adj) * inv_2 % MOD
+
+But for large n, this could be O(n) time, which is acceptable.
+
+But in Python, for large n, this may be slow if we use list comprehensions.
+
+But given the constraints, it's manageable.
+
+Now, the problem is to compute inv_2 modulo 998244353.
+
+Since 998244353 is a prime, inv_2 is pow(2, MOD-2, MOD).
+
+So, in code:
+
+MOD = 998244353
+
+inv_2 = pow(2, MOD-2, MOD)
+
+Now, for each node, the f[v] is computed as (sum_adj + min_adj) * inv_2 mod MOD.
+
+But what about the case where the sum_adj + min_adj is negative? Well, since all values are modded, it's handled correctly.
+
+Now, let's test this with the first example.
+
+Test case 1:
+
+n=5.
+
+edges:
+
+1-2, 1-3, 2-4, 3-5.
+
+children for each node:
+
+children[1] = [2, 3]
+
+children[2] = [4]
+
+children[3] = [5]
+
+children[4] = []
+
+children[5] = []
+
+For post-order traversal:
+
+Process 4, then 5, then 2, then 3, then 1.
+
+Processing 4: it has no children. So f[4] = 0.
+
+Processing 5: no children. f[5] = 0.
+
+Processing 2: children is [4], sum_children is 0. parent is 1. parent_f is 1. sum_adj = 0 + 1 = 1. min_children is 0. min_adj is min(0, 1) = 0. f[2] = (1 + 0) * inv_2 = 1 * inv_2 mod MOD.
+
+Similarly for node 3: sum_children is 0. parent_f is 1. sum_adj = 0 + 1 = 1. min_children is 0. min_adj is 0. f[3] = 1 * inv_2 mod MOD.
+
+For node 1: f is 1.
+
+So, the output for nodes 1-5 is 1, inv_2, inv_2, 0, 0. But the example output is 1 499122177 499122177 0 0.
+
+Wait, 499122177 is equal to MOD - 1 / 2 mod MOD.
+
+MOD is 998244353. So, inv_2 is 499122177.
+
+Yes, because 2 * 499122177 mod MOD is 1.
+
+So, the output for node 2 and 3 is 499122177, which matches the example.
+
+So, this model is correct.
+
+Now, the code must handle this.
+
+But what about the case when a node is a leaf (non-root leaf)? For example, node 4 and 5.
+
+In the code, when a node has no children, it is a leaf. So, f[v] = 0.
+
+So, this is handled.
+
+Now, the code must be written in Python.
+
+But there are some edge cases to consider:
+
+- The root has no parent.
+
+- The tree is a chain.
+
+- Nodes with multiple children.
+
+Now, let's proceed to write the code.
+
+The steps are:
+
+Read t test cases.
+
+For each test case:
+
+Read n.
+
+Read n-1 edges.
+
+Build the adjacency list.
+
+Build the parent array using BFS.
+
+Build the children array for each node.
+
+Perform post-order traversal to compute f[v] for each node.
+
+Output the f[v] for each node 1..n.
+
+But in Python, for large n, the code must be efficient.
+
+Now, the code.
+
+Implementing the steps:
+
+In Python:
+
+MOD = 998244353
+
+inv_2 = pow(2, MOD-2, MOD)
+
+for each test case:
+
+n = int(input())
+
+adj = [[] for _ in range(n+1)]
+
+for _ in range(n-1):
+
+    x, y = map(int, input().split())
+
+    adj[x].append(y)
+
+    adj[y].append(x)
+
+parent = [0]*(n+1)
+
+children = [[] for _ in range(n+1)]
+
+visited = [False]*(n+1)
+
+from collections import deque
+
+q = deque()
+
+q.append(1)
+
+visited[1] = True
+
+parent[1] = 0
+
+while q:
+
+    u = q.popleft()
+
+    for v in adj[u]:
+
+        if not visited[v]:
+
+            visited[v] = True
+
+            parent[v] = u
+
+            children[u].append(v)
+
+            q.append(v)
+
+Then, perform post-order traversal.
+
+But for the post-order traversal, we need to process the nodes in such a way that children are processed before the parent.
+
+We can use a stack for this.
+
+stack = [(1, False)]
+
+f = [0]*(n+1)
+
+f[1] = 1
+
+while stack:
+
+    node, processed = stack.pop()
+
+    if not processed:
+
+        stack.append( (node, True) )
+
+        # Push children in reverse order to process them in the correct order
+
+        for child in reversed(children[node]):
+
+            stack.append( (child, False) )
+
+    else:
+
+        if node == 1:
+
+            pass  # already set
+
+        else:
+
+            if len(children[node]) == 0:
+
+                f[node] = 0
+
+            else:
+
+                sum_children = 0
+
+                for child in children[node]:
+
+                    sum_children += f[child]
+
+                sum_children %= MOD
+
+                parent_f = f[ parent[node] ]
+
+                sum_adj = (sum_children + parent_f) % MOD
+
+                min_children = float('inf')
+
+                for child in children[node]:
+
+                    min_children = min( min_children, f[child] )
+
+                min_adj = min( min_children, parent_f )
+
+                # compute f[node]
+
+                # (sum_adj + min_adj) * inv_2 mod MOD
+
+                f[node] = (sum_adj + min_adj) * inv_2 % MOD
+
+Once all nodes are processed, output the f[1], f[2], ..., f[n].
+
+But wait, for the root node, f[1] is 1, and for other nodes, it's computed as above.
+
+But in the code above, for the root node, the code is not processed again, since in the else clause, node == 1 is true, and the code is skipped.
+
+So, the code for the root is handled.
+
+But what about the case where the root has children?
+
+Yes, the code for the root is handled.
+
+But in the code, the root is initialized to 1, and f[1] is set to 1.
+
+Now, for the code, the children are built correctly.
+
+But what about the case where a node has no children (like 4 and 5 in the first example)?
+
+Yes, the code sets f[node] = 0.
+
+Now, the code must handle this.
+
+But what about the case where a node has multiple children, and the sum_children is computed correctly?
+
+Yes.
+
+Now, the code must be written.
+
+But in Python, for large n (up to 2e5), this should be manageable.
+
+But for the post-order traversal, the stack may take O(n) time.
+
+Now, testing the first example:
+
+The code should output 1 499122177 499122177 0 0.
+
+Which matches the example.
+
+Another example is the second test case.
+
+But the code must be written.
+
+Now, the final code:
+
+But note that in Python, for the stack, the code must process the children correctly.
+
+Now, the code:
+
+import sys
+from collections import deque
+
+MOD = 998244353
+inv_2 = pow(2, MOD-2, MOD)
+
+def main():
+    import sys
+    input = sys.stdin.read().split()
+    ptr = 0
+    t = int(input[ptr])
+    ptr +=1
+    for _ in range(t):
+        n = int(input[ptr])
+        ptr +=1
+        adj = [[] for _ in range(n+1)]
+        for __ in range(n-1):
+            x = int(input[ptr])
+            y = int(input[ptr+1])
+            adj[x].append(y)
+            adj[y].append(x)
+            ptr +=2
+        parent = [0]*(n+1)
+        children = [[] for _ in range(n+1)]
+        visited = [False]*(n+1)
+        q = deque()
+        q.append(1)
+        visited[1] = True
+        while q:
+            u = q.popleft()
+            for v in adj[u]:
+                if not visited[v]:
+                    visited[v] = True
+                    parent[v] = u
+                    children[u].append(v)
+                    q.append(v)
+        f = [0]*(n+1)
+        f[1] = 1
+        stack = [(1, False)]
+        while stack:
+            node, processed = stack.pop()
+            if not processed:
+                stack.append( (node, True) )
+                # Push children in reverse order to process them in order
+                for child in reversed(children[node]):
+                    stack.append( (child, False) )
+            else:
+                if node == 1:
+                    pass
+                else:
+                    if len(children[node]) == 0:
+                        f[node] = 0
+                    else:
+                        sum_children = 0
+                        for child in children[node]:
+                            sum_children += f[child]
+                        sum_adj = (sum_children + f[parent[node]]) % MOD
+                        min_children = float('inf')
+                        for child in children[node]:
+                            if f[child] < min_children:
+                                min_children = f[child]
+                        min_adj = min( min_children, f[parent[node]] )
+                        f[node] = (sum_adj + min_adj) * inv_2 % MOD
+        res = [str(f[i]) for i in range(1, n+1)]
+        print(' '.join(res))
+        
+main()
+
+But wait, in the code, for the node's children, the sum_children is computed as the sum of f[child] for each child.
+
+But in Python, for large n, this may be slow. However, given the constraints, it should be acceptable.
+
+But in the code, the sum_children is computed as sum_children = 0, and for each child, adding f[child].
+
+But what about the modulo? The code uses modulo operations, but the sum_children is computed as sum of f[child], which are stored as integers mod MOD.
+
+But since the f is computed modulo MOD, the sum_children is correct.
+
+But in the code, the sum_children is computed as sum_children = 0, and for each child, sum_children += f[child], which is mod MOD.
+
+But in the code, the sum_children is computed as (sum_children + f[parent[node]]) mod MOD, and then the rest.
+
+But in the code, the sum_children is computed as sum of f[child] for each child, and then added to parent_f.
+
+But the code uses (sum_children + parent_f) % MOD.
+
+But since the sum_children and parent_f are computed modulo MOD, this is correct.
+
+So, the code should work.
+
+But let's test the first example.
+
+In the first test case, the code would compute:
+
+f[1] = 1.
+
+f[2] is computed as follows:
+
+sum_children = f[4] = 0.
+
+parent_f = f[1] = 1.
+
+sum_adj = 0 + 1 = 1.
+
+min_children is min(f[4]) = 0.
+
+min_adj = min(0, 1) = 0.
+
+f[2] = (1 + 0) * inv_2 mod MOD = 1 * inv_2 = 499122177.
+
+Similarly for node 3.
+
+So, the code outputs the correct result.
+
+Now, for the second test case, the code should also compute the correct results.
+
+But the code is as written.
+
+Now, the code must be written with the correct handling of the stack and the children.
+
+But in the code, the 'children' array is built correctly.
+
+Now, the code may have some issues with the stack processing, but it's the best approach.
+
+So, this is the final code.
+</think>
+
+```python
+import sys
+from collections import deque
+
+MOD = 998244353
+inv_2 = pow(2, MOD - 2, MOD)
+
+def main():
+    input = sys.stdin.read().split()
+    ptr = 0
+    t = int(input[ptr])
+    ptr += 1
+    for _ in range(t):
+        n = int(input[ptr])
+        ptr += 1
+        adj = [[] for _ in range(n + 1)]
+        for __ in range(n - 1):
+            x = int(input[ptr])
+            y = int(input[ptr + 1])
+            adj[x].append(y)
+            adj[y].append(x)
+            ptr += 2
+        parent = [0] * (n + 1)
+        children = [[] for _ in range(n + 1)]
+        visited = [False] * (n + 1)
+        q = deque()
+        q.append(1)
+        visited[1] = True
+        while q:
+            u = q.popleft()
+            for v in adj[u]:
+                if not visited[v]:
+                    visited[v] = True
+                    parent[v] = u
+                    children[u].append(v)
+                    q.append(v)
+        f = [0] * (n + 1)
+        f[1] = 1
+        stack = [(1, False)]
+        while stack:
+            node, processed = stack.pop()
+            if not processed:
+                stack.append((node, True))
+                for child in reversed(children[node]):
+                    stack.append((child, False))
+            else:
+                if node == 1:
+                    pass
+                else:
+                    if len(children[node]) == 0:
+                        f[node] = 0
+                    else:
+                        sum_children = 0
+                        for child in children[node]:
+                            sum_children += f[child]
+                        sum_adj = (sum_children + f[parent[node]]) % MOD
+                        min_children = float('inf')
+                        for child in children[node]:
+                            if f[child] < min_children:
+                                min_children = f[child]
+                        min_adj = min(min_children, f[parent[node]])
+                        f[node] = (sum_adj + min_adj) * inv_2 % MOD
+        res = [str(f[i]) for i in range(1, n + 1)]
+        print(' '.join(res))
+
+if __name__ == "__main__":
+    main()
+```

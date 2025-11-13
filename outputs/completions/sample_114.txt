@@ -1,0 +1,1354 @@
+<think>
+Okay, let's see. The problem is about finding the maximum number of coins we can get by performing a certain operation on a coin of value n. The operation is: if the coin's value x is greater than 3, we can split it into two coins with floor(x/4). And we can do this any number of times. The goal is to find the maximum number of coins possible.
+
+Hmm. So, for example, if n is 5, we can split it into 1 and 1. Then each of those can't be split further. So total coins is 2. For 16, splitting into 4 and 4, then each 4 splits into 1 and 1. So total coins is 4 (from 16 → 4 and 4 → 2 each, total 4 coins). 
+
+The key here is to find out how splitting works. Each time we split a coin, we get two coins. So the number of coins increases by 1 each time we split. But wait, splitting a coin x into two coins (floor(x/4) and floor(x/4))? Wait, no. Wait, the operation is to split x into two coins of floor(x/4). So for example, if x is 5, floor(5/4) is 1. So splitting 5 into two 1s. So each split increases the number of coins by 1. Because you have one coin, split into two, so +1.
+
+So the problem is to find the maximum number of coins possible by splitting as much as possible. So for each x, the maximum coins is the sum of the coins obtained by splitting each x into two coins, and so on.
+
+But how do we model this? Let's think recursively. For a given x, the maximum coins is 1 (if x is not splittable) plus 2 times the maximum coins from splitting x into two coins. Wait, no. Wait, when you split x into two coins, each of those coins can be split further. So the total coins for x is 1 (original) plus the coins from splitting x into two coins. Wait, no. Wait, when you split x into two coins, each of those coins can be split further. So the total coins for x is 1 (the original) plus the coins from splitting each of the two coins. Wait, no. Because when you split x into two coins, you have two coins. Each of those coins can be split further. So the total coins for x is 1 (original) plus the coins from splitting each of the two coins. But that's not right. Because when you split x into two coins, you have two coins. Each of those coins can be split further. So the total coins for x is 1 (original) + coins from splitting the two coins. But that's not correct. Because the original x is split into two coins, and each of those coins can be split again. So the total coins is the sum of the coins from splitting the two coins. But how?
+
+Wait, let's think of it as a function f(x) which returns the maximum number of coins possible for x. So for x <=3, f(x) = 1. Because you can't split it. For x>3, you can split it into two coins, say a and b. Then the total coins is f(a) + f(b). Because each of the two coins can be split further. So the maximum coins for x is f(a) + f(b). But since a and b are floor(x/4), which is x//4. So for x>3, f(x) = 2 * f(x//4) ?
+
+Wait, no. Because when you split x into two coins, you get two coins, each of which can be split further. So the total coins is f(a) + f(b), where a and b are the two coins. But since a and b are equal (since x//4 is same for both), then f(x) = 2 * f(x//4). So the recursive formula is:
+
+f(x) = 1 if x <=3
+
+else f(x) = 2 * f(x//4)
+
+But wait, that can't be right. Because for example, let's take x=5. Then x//4 is 1. So f(5) = 2 * f(1) = 2*1 = 2. Which matches the example. For x=16, x//4 is 4. f(4) is 2 * f(1) = 2. So f(16) is 2 * 2 =4. Which matches the example. For x=4, which is >3, then f(4) is 2*f(1) = 2. So yes. So for x=16, the answer is 4. Which is correct.
+
+But wait, what about x=4? Split into two 1s. So total coins is 2. Which is correct.
+
+But what about x=8? Split into 2 and 2. Then each 2 can't be split. So total coins is 2. So f(8) = 2 * f(2) = 2*1=2. Which is correct.
+
+But what if x is 12? Split into 3 and 3. Then each 3 can't be split. So total coins is 2. But according to the formula, f(12) = 2 * f(3) = 2*1=2. Correct.
+
+But what about x= 10? Split into 2 and 2. So 2 coins. So f(10) is 2.
+
+But what if x= 16, which splits into 4 and 4. Then each 4 splits into 1 and 1. So total coins is 2*2=4. Which is correct.
+
+So the formula seems to hold. So the problem reduces to computing f(n) where f(n) is defined as:
+
+if n <=3: 1
+
+else: 2 * f(n//4)
+
+But wait, that's a recursive formula. But for large n (up to 1e18), this would lead to a lot of recursive calls. For example, if n is 1e18, then n//4 is 2.5e17, and so on. But for n=1e18, the number of steps would be log base 4 of n. Which is about log(1e18)/log(4) ≈ 18 * log(2) / log(4) → 18 * 0.69897 → about 12 steps. So even for n=1e18, the recursion would be manageable.
+
+But how to compute this efficiently. Because for each n, we can compute f(n) by dividing by 4 until it's <=3. So for example, for n=16, we divide by 4 once to get 4, then again to get 1. So the steps are 2. So the total number of steps is O(log n). So for each test case, we can compute f(n) by recursively dividing by 4 until we reach <=3, and summing the number of times we split.
+
+Wait, but the function f(n) is 2^k, where k is the number of times we can split. Wait, no. For example, for n=5, which is split once. So f(5) = 2. For n=16, split once (to 4) and then again (to 1). So f(16) = 2*2=4. So the total number of splits is log_4 (n) steps. So the total number of coins is 2^k, where k is the number of splits. Wait, no. Because each split adds 1 to the count. Wait, no. Let me think again. For example, when you split a coin, you get two coins. So each split increases the total count by 1. For example, the initial coin is 1. Split once, you have two coins. Split again, each of those splits into two, so total coins is 4. So the total coins is 2^k, where k is the number of splits. But how?
+
+Wait, the number of splits is the number of times you split. For example, for n=5, you split once. So the number of coins is 2. Which is 2^1. For n=16, you split twice. 2^2=4. For n=1, 1 coin. For n=4, split once into two coins. So 2 coins. Which is 2^1. So yes, the number of coins is 2^k, where k is the number of splits. But how to compute k?
+
+But the number of splits is the number of times you can split the coin. So for each n, the number of splits is the number of times you can divide by 4 until you reach a value <=3. So for example, n=5: 5//4 is 1, which is <=3. So one split. So coins is 2^1=2. For n=16, 16//4=4, then 4//4=1. So two splits. 2^2=4. So yes. So the maximum number of coins is 2^s, where s is the number of splits. So the problem reduces to finding the number of splits s for a given n.
+
+But how to compute s. For example, for n=1000000000000000000, the output is 536870912. Which is 2^s = 536870912. Let's check. 2^30 is 1,073,741,824. 2^29 is 536,870,912. So the output is 2^29. So for n=1e18, the answer is 2^29. Which is 536870912. So that's the example.
+
+So the problem is to compute the number of times you can split the coin until you reach a value <=3. Each split increases the count by 1. So the answer is 2^s, where s is the number of splits.
+
+But how to compute s. Let's think. For a given n, s is the number of times you can divide by 4 until you reach a value <=3. So for example, n=5:
+
+s = 1 (5//4=1, which is <=3). So s=1.
+
+n=16: 16//4=4, then 4//4=1. So s=2.
+
+So the process is to count how many times you can divide by 4 until the value is <=3. So for each n, the number of splits is the number of times you can divide by 4 until you reach a value <=3.
+
+But how to compute that. For example, for n=1, it's 0 splits. For n=4, it's 1 split (4//4=1). For n=5, 1 split.
+
+So the algorithm for s is:
+
+Initialize count = 0.
+
+While n >3:
+
+   n = n //4
+
+   count +=1
+
+return count.
+
+Then the answer is 2^count.
+
+Wait, but for n=5, count is 1. So 2^1=2. Which is correct. For n=16, count is 2. 2^2=4. Correct.
+
+But what about n=4? count is 1, 2^1=2. Correct.
+
+But what about n=3? 3 is <=3, so count is 0. 2^0=1. Correct.
+
+So the problem is to compute for each n, the number of times you can divide by 4 until it's <=3, then return 2^count.
+
+So the code can be written as:
+
+For each test case, read n.
+
+count = 0
+
+while n >3:
+
+   n = n //4
+
+   count +=1
+
+result = 2**count
+
+print(result)
+
+But wait, let's test this with the examples.
+
+First example: n=1. count is 0. 2^0=1. Correct.
+
+Second example: n=5. count is 1. 2^1=2. Correct.
+
+Third example: n=16. count is 2. 2^2=4. Correct.
+
+Fourth example: n=1e18. Let's see. Let's compute how many times we can divide by 4 until it's <=3.
+
+Let me compute 1e18 divided by 4 repeatedly.
+
+Let me think. Let's take log base 4 of 1e18. Let me compute log4(1e18) = log(1e18)/log(4) ≈ 18 * log(10)/log(4) ≈ 18 * 2.302585 / 1.386294 ≈ 18 * 1.66096 ≈ 30. So the number of steps is 30. So 2^30 is 1,073,741,824. But the sample output for 1e18 is 536,870,912, which is 2^29. Wait, that's conflicting. Wait what's the sample input?
+
+Wait the sample input for 1e18 is 1000000000000000000. The output is 536870912. Let me check what 536870912 is. 2^29 is 536870912. So that would mean that the count is 29. So why?
+
+Let me compute for 1e18.
+
+Let me compute the number of times you can divide by 4 until you reach <=3.
+
+Let me compute 1e18 divided by 4.
+
+Let me think in terms of exponents. Let's take n = 1e18 = 10^18.
+
+Let me compute the number of times you can divide by 4 until it's <=3.
+
+Let me compute 1e18 divided by 4^k <=3.
+
+So 4^k <= 1e18 / 3.
+
+But perhaps it's easier to compute the value of k.
+
+Let me compute 4^k = 1e18 / (something). Let's see:
+
+Let me compute log4(1e18) = ln(1e18)/ln(4) ≈ 41.505 / 1.386 ≈ 30. So k is 30. So 4^30 is 10^18? Let's check:
+
+4^10 is 1,048,576. 4^20 is (4^10)^2 ≈ 1.0995e6^2 ≈ 1.2e12. 4^30 is 4^20 * 4^10 = 1.2e12 * 1.048e6 ≈ 1.258e18. So 4^30 is 1.258e18, which is larger than 1e18. So 4^29 is 4^30 /4 = 1.258e18 /4 ≈ 3.145e17. Which is larger than 1e18? Wait no. 1e18 is 10^18. 3.145e17 is 3.145 *1e17, which is 0.3145e18. So 3.145e17 is less than 1e18. So 4^29 is 3.145e17. So for n=1e18, when you divide by 4, you get 1e18//4 = 2.5e17, which is larger than 3. So the count is 29 steps?
+
+Wait, let me think again. Let me compute for n=1e18.
+
+We need to find the number of times we can divide by 4 until the number is <=3.
+
+Let me compute the steps:
+
+Let me compute the value of n = 1e18.
+
+count =0
+
+n = 1e18
+
+loop:
+
+n=1e18 >3 → yes.
+
+n = 1e18 //4 → 250000000000000000 (2.5e17)
+
+count =1.
+
+n=2.5e17 >3 → yes.
+
+n=2.5e17//4 = 62500000000000000 (6.25e16)
+
+count=2.
+
+n=6.25e16>3 → yes.
+
+n=6.25e16//4 = 1.5625e16 → count=3.
+
+n=1.5625e16>3 → yes.
+
+n=1.5625e16//4 = 3.90625e15 → count=4.
+
+n=3.90625e15>3 → yes.
+
+n=3.90625e15//4 = 9.765625e14 → count=5.
+
+n=9.765625e14>3 → yes.
+
+n=9.765625e14//4 = 2.44140625e14 → count=6.
+
+n=2.44140625e14>3 → yes.
+
+n=2.44140625e14//4 = 6.103515625e13 → count=7.
+
+n=6.103515625e13>3 → yes.
+
+n=6.103515625e13//4 = 1.52587890625e13 → count=8.
+
+n=1.52587890625e13>3 → yes.
+
+n=1.52587890625e13//4 = 3.814697265625e12 → count=9.
+
+n=3.814697265625e12>3 → yes.
+
+n=3.814697265625e12//4 = 9.5367431640625e11 → count=10.
+
+n=9.5367431640625e11>3 → yes.
+
+n=9.5367431640625e11//4 = 2.384185791015625e11 → count=11.
+
+n=2.384185791015625e11>3 → yes.
+
+n=2.384185791015625e11//4 = 5.9604644775390625e10 → count=12.
+
+n=5.9604644775390625e10>3 → yes.
+
+n=5.9604644775390625e10//4 = 1.4901161193847656e10 → count=13.
+
+n=1.4901161193847656e10>3 → yes.
+
+n=1.4901161193847656e10//4 = 3.725290298461914e9 → count=14.
+
+n=3.725290298461914e9>3 → yes.
+
+n=3.725290298461914e9//4 = 9.313225746154785e8 → count=15.
+
+n=9.313225746154785e8>3 → yes.
+
+n=9.313225746154785e8//4 = 2.328306436538696e8 → count=16.
+
+n=2.328306436538696e8>3 → yes.
+
+n=2.328306436538696e8//4 = 5.82076609134674e7 → count=17.
+
+n=5.82076609134674e7>3 → yes.
+
+n=5.82076609134674e7//4 = 1.455191522836685e7 → count=18.
+
+n=1.455191522836685e7>3 → yes.
+
+n=1.455191522836685e7//4 = 3.6379788070917125e6 → count=19.
+
+n=3.6379788070917125e6>3 → yes.
+
+n=3.6379788070917125e6//4 = 9.094947017729281e5 → count=20.
+
+n=9.094947017729281e5>3 → yes.
+
+n=9.094947017729281e5//4 = 2.27373675443232e5 → count=21.
+
+n=2.27373675443232e5>3 → yes.
+
+n=2.27373675443232e5//4 = 5.6843418860808e4 → count=22.
+
+n=5.6843418860808e4>3 → yes.
+
+n=5.6843418860808e4//4 = 1.4210854715202e4 → count=23.
+
+n=1.4210854715202e4>3 → yes.
+
+n=1.4210854715202e4//4 = 3.5527136788005e3 → count=24.
+
+n=3.5527136788005e3>3 → yes.
+
+n=3.5527136788005e3//4 = 8.88178419700125e2 → count=25.
+
+n=8.88178419700125e2>3 → yes.
+
+n=8.88178419700125e2//4 = 2.2204460492503125e2 → count=26.
+
+n=2.2204460492503125e2>3 → yes.
+
+n=2.2204460492503125e2//4 = 5.551115123125781e1 → count=27.
+
+n=5.551115123125781e1>3 → yes.
+
+n=5.551115123125781e1//4 = 1.3877787807814453e1 → count=28.
+
+n=1.3877787807814453e1>3 → yes.
+
+n=1.3877787807814453e1//4 = 3.469446951953613e0 → count=29.
+
+Now n is 3.469446951953613e0, which is 3.469... which is greater than 3? Wait, 3.469 is larger than 3. So the loop continues.
+
+n=3.469...//4 → 0.867... which is 0. So count increases by 1. So now count is 30. Then the loop stops. So the count is 30. So the answer is 2^30 = 1,073,741,824. But the sample input for 1e18 is 536870912. Which is 2^29. So there's a contradiction here. Wait, what's wrong here?
+
+Wait the sample input for 1e18 is 1000000000000000000, and the output is 536870912. Which is 2^29. But according to my calculation, the count is 30. So why?
+
+Hmm, this suggests that my approach is wrong. So where is the mistake?
+
+Let me check the sample input. Let me look at the example given.
+
+Sample input:
+
+4
+
+1
+
+5
+
+16
+
+1000000000000000000
+
+Sample output:
+
+1
+
+2
+
+4
+
+536870912
+
+So for 1e18, the output is 536870912, which is 2^29. So according to that, the count is 29. So why in my calculation for 1e18, the count is 30?
+
+Let me re-calculate the steps for n=1e18. Maybe I made a mistake in the calculation steps.
+
+Let me think again.
+
+Let me start with n=1e18.
+
+Let me compute how many times I can divide by 4 until it's <=3.
+
+Let me compute 1e18 divided by 4^k.
+
+We need to find the maximum k where 4^k <= 1e18 / 3.
+
+But let's compute 4^k = 1e18 / 3 → 4^k ≈ 3.333e17. So log4(3.333e17) = ln(3.333e17)/ln(4) ≈ 39.13/1.386 ≈ 28.2. So k is 28. So 4^28 is 4^28 = (2^2)^28 = 2^56 = 7.2e16. Which is less than 1e18. So for k=28, 4^28 is 7.2e16. 1e18 / 4^28 is 1e18 / 7.2e16 = 138.888... So that's the value of n after dividing by 4^28. But that's not the case. Wait, perhaps I'm getting confused here.
+
+Alternatively, perhaps the number of steps is 29. Let me think of the steps again.
+
+Let me compute the steps for n=1e18.
+
+Let me compute the value of n and how many times I can divide by 4 until it's <=3.
+
+Let me try to compute this with code-like steps.
+
+But since I can't code here, let me think of the steps again.
+
+Let me think of n=1e18 as 10^18.
+
+Let me compute the steps:
+
+Start with n = 1e18.
+
+count =0
+
+Loop:
+
+n = 1e18 → 10^18 >3 → yes.
+
+n = 10^18 //4 = 2.5e17 → count=1.
+
+n=2.5e17>3 → yes.
+
+n=2.5e17//4 = 6.25e16 → count=2.
+
+n=6.25e16>3 → yes.
+
+n=6.25e16//4 = 1.5625e16 → count=3.
+
+n=1.5625e16>3 → yes.
+
+n=1.5625e16//4 = 3.90625e15 → count=4.
+
+n=3.90625e15>3 → yes.
+
+n=3.90625e15//4 = 9.765625e14 → count=5.
+
+n=9.765625e14>3 → yes.
+
+n=9.765625e14//4 = 2.44140625e14 → count=6.
+
+n=2.44140625e14>3 → yes.
+
+n=2.44140625e14//4 = 6.103515625e13 → count=7.
+
+n=6.103515625e13>3 → yes.
+
+n=6.103515625e13//4 = 1.52587890625e13 → count=8.
+
+n=1.52587890625e13>3 → yes.
+
+n=1.52587890625e13//4 = 3.814697265625e12 → count=9.
+
+n=3.814697265625e12>3 → yes.
+
+n=3.814697265625e12//4 = 9.5367431640625e11 → count=10.
+
+n=9.5367431640625e11>3 → yes.
+
+n=9.5367431640625e11//4 = 2.384185791015625e11 → count=11.
+
+n=2.384185791015625e11>3 → yes.
+
+n=2.384185791015625e11//4 = 5.9604644775390625e10 → count=12.
+
+n=5.9604644775390625e10>3 → yes.
+
+n=5.9604644775390625e10//4 = 1.4901161193847656e10 → count=13.
+
+n=1.4901161193847656e10>3 → yes.
+
+n=1.4901161193847656e10//4 = 3.725290298461914e9 → count=14.
+
+n=3.725290298461914e9>3 → yes.
+
+n=3.725290298461914e9//4 = 9.313225746154785e8 → count=15.
+
+n=9.313225746154785e8>3 → yes.
+
+n=9.313225746154785e8//4 = 2.328306436538696e8 → count=16.
+
+n=2.328306436538696e8>3 → yes.
+
+n=2.328306436538696e8//4 = 5.82076609134674e7 → count=17.
+
+n=5.82076609134674e7>3 → yes.
+
+n=5.82076609134674e7//4 = 1.455191522836685e7 → count=18.
+
+n=1.455191522836685e7>3 → yes.
+
+n=1.455191522836685e7//4 = 3.6379788070917125e6 → count=19.
+
+n=3.6379788070917125e6>3 → yes.
+
+n=3.6379788070917125e6//4 = 9.094947017729281e5 → count=20.
+
+n=9.094947017729281e5>3 → yes.
+
+n=9.094947017729281e5//4 = 2.27373675443232e5 → count=21.
+
+n=2.27373675443232e5>3 → yes.
+
+n=2.27373675443232e5//4 = 5.6843418860808e4 → count=22.
+
+n=5.6843418860808e4>3 → yes.
+
+n=5.6843418860808e4//4 = 1.4210854715202e4 → count=23.
+
+n=1.4210854715202e4>3 → yes.
+
+n=1.4210854715202e4//4 = 3.5527136788005e3 → count=24.
+
+n=3.5527136788005e3>3 → yes.
+
+n=3.5527136788005e3//4 = 8.88178419700125e2 → count=25.
+
+n=8.88178419700125e2>3 → yes.
+
+n=8.88178419700125e2//4 = 2.2204460492503125e2 → count=26.
+
+n=2.2204460492503125e2>3 → yes.
+
+n=2.2204460492503125e2//4 = 5.551115123125781e1 → count=27.
+
+n=5.551115123125781e1>3 → yes.
+
+n=5.551115123125781e1//4 = 1.3877787807814453e1 → count=28.
+
+n=1.3877787807814453e1>3 → yes.
+
+n=1.3877787807814453e1//4 = 3.469446951953613e0 → count=29.
+
+Now n is 3.469446951953613e0 → which is 3.469... which is greater than 3. So the loop continues.
+
+n=3.469...//4 = 0.867... which is 0. So count increases by 1 to 30. Now n is 0, which is <=3. So the loop stops. So the count is 30. So the answer is 2^30 = 1,073,741,824. But the sample output for 1e18 is 536,870,912, which is 2^29. So there's a contradiction here. Which suggests that my approach is wrong.
+
+Wait, what's the sample output for 1e18? The sample says 536870912, which is 2^29. So according to that, the count is 29. So why is there a discrepancy?
+
+Ah! Wait, perhaps the initial approach is wrong. Because when you split a coin, you get two coins, but the formula f(n) = 2 * f(n//4) is correct. But maybe the formula is not correct. Let me think again.
+
+Wait for n=4, the function is 2 * f(1) = 2 * 1 = 2. Which is correct. For n=16, 2 * f(4) = 2 * 2 =4. Correct. So for n=1e18, according to this formula, the answer is 2^count, where count is the number of splits. But according to the sample, it's 2^29. So why?
+
+Wait maybe my calculation for the number of splits is wrong. Let me think again. Let's take the sample input of 1e18 and compute the count.
+
+Let me think of the steps again. For n=1e18, the steps are:
+
+count starts at 0.
+
+n=1e18 → 10^18.
+
+count=0.
+
+n = 10^18 //4 = 2.5e17 → count=1.
+
+n=2.5e17 → 2.5e17//4 = 6.25e16 → count=2.
+
+n=6.25e16 → 6.25e16//4 = 1.5625e16 → count=3.
+
+n=1.5625e16 → 1.5625e16//4 = 3.90625e15 → count=4.
+
+n=3.90625e15 → 3.90625e15//4 = 9.765625e14 → count=5.
+
+n=9.765625e14 → 9.765625e14//4 = 2.44140625e14 → count=6.
+
+n=2.44140625e14 → 2.44140625e14//4 = 6.103515625e13 → count=7.
+
+n=6.103515625e13 → 6.103515625e13//4 = 1.52587890625e13 → count=8.
+
+n=1.52587890625e13 → 1.52587890625e13//4 = 3.814697265625e12 → count=9.
+
+n=3.814697265625e12 → 3.814697265625e12//4 = 9.5367431640625e11 → count=10.
+
+n=9.5367431640625e11 → 9.5367431640625e11//4 = 2.384185791015625e11 → count=11.
+
+n=2.384185791015625e11 → 2.384185791015625e11//4 = 5.9604644775390625e10 → count=12.
+
+n=5.9604644775390625e10 → 5.9604644775390625e10//4 = 1.4901161193847656e10 → count=13.
+
+n=1.4901161193847656e10 → 1.4901161193847656e10//4 = 3.725290298461914e9 → count=14.
+
+n=3.725290298461914e9 → 3.725290298461914e9//4 = 9.313225746154785e8 → count=15.
+
+n=9.313225746154785e8 → 9.313225746154785e8//4 = 2.328306436538696e8 → count=16.
+
+n=2.328306436538696e8 → 2.328306436538696e8//4 = 5.82076609134674e7 → count=17.
+
+n=5.82076609134674e7 → 5.82076609134674e7//4 = 1.455191522836685e7 → count=18.
+
+n=1.455191522836685e7 → 1.455191522836685e7//4 = 3.6379788070917125e6 → count=19.
+
+n=3.6379788070917125e6 → 3.6379788070917125e6//4 = 9.094947017729281e5 → count=20.
+
+n=9.094947017729281e5 → 9.094947017729281e5//4 = 2.27373675443232e5 → count=21.
+
+n=2.27373675443232e5 → 2.27373675443232e5//4 = 5.6843418860808e4 → count=22.
+
+n=5.6843418860808e4 → 5.6843418860808e4//4 = 1.4210854715202e4 → count=23.
+
+n=1.4210854715202e4 → 1.4210854715202e4//4 = 3.5527136788005e3 → count=24.
+
+n=3.5527136788005e3 → 3.5527136788005e3//4 = 8.88178419700125e2 → count=25.
+
+n=8.88178419700125e2 → 8.88178419700125e2//4 = 2.2204460492503125e2 → count=26.
+
+n=2.2204460492503125e2 → 2.2204460492503125e2//4 = 5.551115123125781e1 → count=27.
+
+n=5.551115123125781e1 → 5.551115123125781e1//4 = 1.3877787807814453e1 → count=28.
+
+n=1.3877787807814453e1 → 1.3877787807814453e1//4 = 3.469446951953613e0 → count=29.
+
+Now n=3.469... which is greater than 3. So the loop continues.
+
+n=3.469...//4 = 0.867... which is 0. So count increases by 1 to 30. Now n is 0, which is <=3. So the loop stops. So count is 30. So the answer is 2^30 = 1,073,741,824.
+
+But the sample output is 536,870,912. Which is 2^29. So there's a contradiction here.
+
+This suggests that my approach is wrong. So where is the mistake?
+
+Let me think again about the problem. Maybe the formula is not f(n) = 2 * f(n//4), but something else.
+
+Let me think of the example where n=4. According to the formula, f(4) = 2 * f(1) = 2*1=2. Which is correct. Because 4 splits into two 1s, total coins is 2.
+
+But what if n=4 is split into two coins, each of which is 2. Then each of those can't be split. So total coins is 2. So the formula is correct.
+
+But according to the sample input, the output for 1e18 is 536870912, which is 2^29. So how can that be?
+
+Wait, maybe the problem is that the initial approach is incorrect. Let me think of the example given in the problem statement.
+
+In the third example, n=16. The output is 4. Which is 2^2. So the count is 2. Which is correct.
+
+But according to the formula, the count is 2. So for n=16, the steps are 2.
+
+But according to the calculation for n=1e18, the count is 30. So why the sample output is 2^29?
+
+Wait, maybe the sample input for 1e18 is not 10^18 but something else. Let me check the sample input again.
+
+The sample input says:
+
+1000000000000000000.
+
+Which is 1 followed by 18 zeros. So 1e18. So that's correct.
+
+But according to the sample output, it's 536870912, which is 2^29. So why is the count 29?
+
+Let me think: maybe the formula is not 2^count, but something else.
+
+Wait, what if the formula is that each split increases the number of coins by 1, but the total coins is the sum of all splits. But that's not the case. For example, for n=5, you split once, so coins is 2. For n=16, you split twice, coins is 4. So it's 2^count.
+
+But for n=1e18, count is 30, so 2^30 is the answer. But the sample says it's 2^29. So there's a contradiction here.
+
+Alternatively, perhaps the sample output is wrong? No, that's unlikely.
+
+Wait, let me check the sample output for the fourth test case. The sample input is 1e18, output is 536870912. Let me compute 536870912. What is 2^29?
+
+2^10 is 1024.
+
+2^20 = 1,048,576.
+
+2^25 = 33,554,432.
+
+2^29 = 536,870,912. Yes.
+
+So the sample output is 2^29. So according to the sample, the count is 29. So why is the count 29?
+
+Let me re-calculate the steps for n=1e18.
+
+Wait, perhaps I made a mistake in the calculation steps. Let me try to find the count for n=1e18.
+
+Let me think of the steps again, but this time, perhaps I made a mistake in the number of steps.
+
+Let me think of the steps as follows:
+
+Let me compute the number of times you can divide by 4 until it's <=3.
+
+Let me compute this for n=1e18:
+
+Let me compute the value of n after dividing by 4 k times.
+
+We can compute it as n = 1e18 / 4^k.
+
+We need to find the maximum k where 1e18 / 4^k > 3.
+
+Let me compute for k=29:
+
+4^29 = 4^29 = (2^2)^29 = 2^58.
+
+What is 2^58? Well, 2^10 is 1024, 2^20 is ~1e6, 2^30 is ~1e9, 2^40 is ~1e12, 2^50 is ~1e15, 2^58 is 2^50 * 2^8 = 1e15 * 256 = 2.56e17.
+
+So 1e18 / 4^29 = 1e18 / 2.56e17 = 3.90625. So 3.90625 >3. So k=29 is possible.
+
+For k=30, 4^30 = 4^29 *4 = 2.56e17 *4 = 1.024e18. 1e18 / 4^30 = 1e18 / 1.024e18 = 0.9765625 <3. So for k=30, n after dividing by 4^30 is 0.9765625, which is less than 3. So the maximum k is 30. So the count is 30, and the answer is 2^30.
+
+But the sample says it's 2^29. So why?
+
+This suggests that there is a mistake in the sample, or in my understanding of the problem.
+
+Wait, let me recheck the sample input and output.
+
+The sample input for 1e18 is 1000000000000000000, and the output is 536870912. Let me compute 536870912 in binary.
+
+But perhaps I'm missing something. Let me think of the actual steps for n=1e18.
+
+Wait, perhaps the formula is not f(n) = 2 * f(n//4), but f(n) = 2 * f(n//4) if n >3, but for n=4, it's 2 * f(1) = 2, which is correct.
+
+But maybe the formula is f(n) = 2 * f(n//4) + 1? No, because for n=5, it would be 2*1 +1 =3, which is wrong.
+
+Alternatively, maybe the formula is f(n) = 1 + 2 * f(n//4), but that would be different.
+
+Let me think again. For n=5, the maximum coins is 2. So f(5) = 2. According to the formula 1 + 2 * f(1) = 1 + 2*1 =3, which is wrong.
+
+So that's not the case.
+
+Alternatively, maybe the formula is f(n) = 2 * f(n//4), but the count is the number of times you can split, and the answer is 2^count. But in that case, for n=1e18, the count is 30, and the answer is 2^30.
+
+But the sample says it's 2^29. So there must be a mistake in my calculation.
+
+Wait, maybe the initial approach is wrong. Let me think of another way.
+
+Let me think of the number of coins as the sum of the number of splits.
+
+Each time you split a coin, you get two coins. So the number of coins is 1 + 2 * (number of splits) ?
+
+No, that's not correct. For example, for n=5, you split once, so the number of coins is 2. Which is 1 + 1 = 2. For n=16, you split twice, so 1 + 2*1 = 3? No, that's not correct. The number of coins is 4.
+
+So this suggests that the number of coins is 2^k, where k is the number of splits.
+
+So why for n=1e18, the count is 30, but the sample says it's 29?
+
+This is very confusing. Let me check the sample explanation for the fourth test case.
+
+The sample input is 1e18, and the output is 536870912, which is 2^29.
+
+Let me compute 2^29: 2^29 = 536,870,912.
+
+Let me compute how many times you can divide 1e18 by 4 until it's <=3.
+
+Let me try to compute this with code-like steps, but in a more efficient way.
+
+Let me compute the number of times you can divide by 4 until it's <=3.
+
+Let me take n=1e18.
+
+Let me compute the number of steps:
+
+count =0
+
+n = 1e18
+
+while n >3:
+
+   n = n //4
+
+   count +=1
+
+So for n=1e18, let's compute the steps:
+
+Let me compute n = 1e18.
+
+count =0.
+
+n=1e18 >3 → yes.
+
+n = 1e18 //4 = 250000000000000000 (2.5e17) → count=1.
+
+n=2.5e17 >3 → yes.
+
+n=2.5e17 //4 = 62500000000000000 (6.25e16) → count=2.
+
+n=6.25e16 >3 → yes.
+
+n=6.25e16//4 = 1.5625e16 → count=3.
+
+n=1.5625e16 >3 → yes.
+
+n=1.5625e16//4 = 3.90625e15 → count=4.
+
+n=3.90625e15 >3 → yes.
+
+n=3.90625e15//4 = 9.765625e14 → count=5.
+
+n=9.765625e14 >3 → yes.
+
+n=9.765625e14//4 = 2.44140625e14 → count=6.
+
+n=2.44140625e14 >3 → yes.
+
+n=2.44140625e14//4 = 6.103515625e13 → count=7.
+
+n=6.103515625e13 >3 → yes.
+
+n=6.103515625e13//4 = 1.52587890625e13 → count=8.
+
+n=1.52587890625e13 >3 → yes.
+
+n=1.52587890625e13//4 = 3.814697265625e12 → count=9.
+
+n=3.814697265625e12 >3 → yes.
+
+n=3.814697265625e12//4 = 9.5367431640625e11 → count=10.
+
+n=9.5367431640625e11 >3 → yes.
+
+n=9.5367431640625e11//4 = 2.384185791015625e11 → count=11.
+
+n=2.384185791015625e11 >3 → yes.
+
+n=2.384185791015625e11//4 = 5.9604644775390625e10 → count=12.
+
+n=5.9604644775390625e10 >3 → yes.
+
+n=5.9604644775390625e10//4 = 1.4901161193847656e10 → count=13.
+
+n=1.4901161193847656e10 >3 → yes.
+
+n=1.4901161193847656e10//4 = 3.725290298461914e9 → count=14.
+
+n=3.725290298461914e9 >3 → yes.
+
+n=3.725290298461914e9//4 = 9.313225746154785e8 → count=15.
+
+n=9.313225746154785e8 >3 → yes.
+
+n=9.313225746154785e8//4 = 2.328306436538696e8 → count=16.
+
+n=2.328306436538696e8 >3 → yes.
+
+n=2.328306436538696e8//4 = 5.82076609134674e7 → count=17.
+
+n=5.82076609134674e7 >3 → yes.
+
+n=5.82076609134674e7//4 = 1.455191522836685e7 → count=18.
+
+n=1.455191522836685e7 >3 → yes.
+
+n=1.455191522836685e7//4 = 3.6379788070917125e6 → count=19.
+
+n=3.6379788070917125e6 >3 → yes.
+
+n=3.6379788070917125e6//4 = 9.094947017729281e5 → count=20.
+
+n=9.094947017729281e5 >3 → yes.
+
+n=9.094947017729281e5//4 = 2.27373675443232e5 → count=21.
+
+n=2.27373675443232e5 >3 → yes.
+
+n=2.27373675443232e5//4 = 5.6843418860808e4 → count=22.
+
+n=5.6843418860808e4 >3 → yes.
+
+n=5.6843418860808e4//4 = 1.4210854715202e4 → count=23.
+
+n=1.4210854715202e4 >3 → yes.
+
+n=1.4210854715202e4//4 = 3.5527136788005e3 → count=24.
+
+n=3.5527136788005e3 >3 → yes.
+
+n=3.5527136788005e3//4 = 8.88178419700125e2 → count=25.
+
+n=8.88178419700125e2 >3 → yes.
+
+n=8.88178419700125e2//4 = 2.2204460492503125e2 → count=26.
+
+n=2.2204460492503125e2 >3 → yes.
+
+n=2.2204460492503125e2//4 = 5.551115123125781e1 → count=27.
+
+n=5.551115123125781e1 >3 → yes.
+
+n=5.551115123125781e1//4 = 1.3877787807814453e1 → count=28.
+
+n=1.3877787807814453e1 >3 → yes.
+
+n=1.3877787807814453e1//4 = 3.469446951953613e0 → count=29.
+
+Now n=3.469446951953613e0 is 3.469... which is greater than 3. So the loop continues.
+
+n=3.469446951953613e0//4 = 0.8673617379884032 → count=30.
+
+Now n=0.8673617379884032, which is <=3. So the loop stops.
+
+So count is 30. So the answer is 2^30 = 1,073,741,824.
+
+But the sample says it's 536870912, which is 2^29. So this suggests that either the sample is wrong, or there's a misunderstanding of the problem.
+
+But the sample says that for 1e18, the output is 536870912. So what's the correct answer?
+
+Let me check the sample explanation for the fourth test case.
+
+The sample input is 1e18, and the output is 536870912. Let me compute what 536870912 is in terms of the number of splits.
+
+If the answer is 2^29, then the count is 29. So what's the reason for that?
+
+Let me think: perhaps the formula is not f(n) = 2 * f(n//4), but f(n) = 2 * f(n//4) - 1? No, that would not make sense.
+
+Alternatively, maybe the initial approach is wrong and the formula is f(n) = 2 * f(n//4) if n > 3, but for n=4, it's 2 * f(1) = 2, which is correct. For n=16, it's 2 * f(4) = 2*2=4, which is correct.
+
+So why is the sample output different?
+
+Maybe the problem is that the initial approach is correct, but the sample is wrong? That's unlikely.
+
+Alternatively, perhaps the problem is that when you split a coin, you get two coins, but the number of coins is not 2^k, but something else.
+
+Wait, let me think of the example for n=16.
+
+Split into two 4s. Each 4 is split into two 2s. Each 2 is not splittable. So total coins is 2 + 2 =4. Which is 2^2. So the formula is correct.
+
+But what about n=4: split into two 1s. Total coins is 2, which is 2^1.
+
+So the formula is correct.
+
+So why for n=1e18, the count is 30, and the sample says it's 29?
+
+This suggests that there is a mistake in the calculation of the count for n=1e18.
+
+Let me try to compute the count for n=1e18 using a different approach.
+
+Let me compute the number of times you can divide by 4 until it's <=3.
+
+Let me compute it as follows:
+
+Let me compute the value of n = 1e18, and keep dividing by 4 until it's <=3.
+
+Let me compute this in steps:
+
+1e18 /4 = 250000000000000000 (2.5e17) → count=1.
+
+2.5e17 /4 = 62500000000000000 (6.25e16) → count=2.
+
+6.25e16 /4 = 1.5625e16 → count=3.
+
+1.5625e16 /4 = 3.90625e15 → count=4.
+
+3.90625e15 /4 = 9.765625e14 → count=5.
+
+9.765625e14 /4 = 2.44140625e14 → count=6.
+
+2.44140625e14 /4 = 6.103515625e13 → count=7.
+
+6.103515625e13 /4 = 1.52587890625e13 → count=8.
+
+1.52587890625e13 /4 = 3.814697265625e12 → count=9.
+
+3.814697265625e12 /4 = 9.5367431640625e11 → count=10.
+
+9.5367431640625e11 /4 = 2.384185791015625e11 → count=11.
+
+2.384185791015625e11 /4 = 5.9604644775390625e10 → count=12.
+
+5.9604644775390625e10 /4 = 1.4901161193847656e10 → count=13.
+
+1.4901161193847656e10 /4 = 3.725290298461914e9 → count=14.
+
+3.725290298461914e9 /4 = 9.313225746154785e8 → count=15.
+
+9.313225746154785e8 /4 = 2.328306436538696e8 → count=16.
+
+2.328306436538696e8 /4 = 5.82076609134674e7 → count=17.
+
+5.82076609134674e7 /4 = 1.455191522836685e7 → count=18.
+
+1.455191522836685e7 /4 = 3.6379788070917125e6 → count=19.
+
+3.6379788070917125e6 /4 = 9.094947017729281e5 → count=20.
+
+9.094947017729281e5 /4 = 2.27373675443232e5 → count=21.
+
+2.27373675443232e5 /4 = 5.6843418860808e4 → count=22.
+
+5.6843418860808e4 /4 = 1.4210854715202e4 → count=23.
+
+1.4210854715202e4 /4 = 3.5527136788005e3 → count=24.
+
+3.5527136788005e3 /4 = 8.88178419700125e2 → count=25.
+
+8.88178419700125e2 /4 = 2.2204460492503125e2 → count=26.
+
+2.2204460492503125e2 /4 = 5.551115123125781e1 → count=27.
+
+5.551115123125781e1 /4 = 1.3877787807814453e1 → count=28.
+
+1.3877787807814453e1 /4 = 3.469446951953613e0 → count=29.
+
+Now, n=3.469446951953613e0 is 3.469... which is greater than 3. So the loop continues.
+
+n=3.469446951953613e0 /4 = 0.8673617379884032 → count=30.
+
+Now n=0.8673617379884032 is <=3. So the loop stops. So count is 30.
+
+So the answer is 2^30 = 1,073,741,824.
+
+But the sample says it's 536870912, which is 2^29. So this suggests that there's a mistake in the sample or in the problem statement.
+
+But the sample is given by the problem, so it must be correct. So where is the mistake?
+
+Wait, perhaps the initial assumption that the maximum number of coins is 2^count is incorrect. Let me think of a different approach.
+
+Let me think of the problem as follows: each time you split a coin, you get two coins. The total number of coins is the sum of all the coins generated by splitting. For example, for n=5, you split once into two coins of 1. Total coins is 2. For n=16, you split into two 4s, each split into two 2s, each split into two 1s. Total coins is 4. So it's 2^2.
+
+But for n=1e18, the number of splits is 30, so the total coins is 2^30. But the sample says it's 2^29. So why?
+
+Wait, perhaps the initial approach is wrong, and the correct formula is f(n) = 2 * f(n//4) if n >3, and f(1) =1, f(2)=1, f(3)=1, and the count is the number of times you can split, but the answer is 2^count.
+
+But in that case, the sample must be wrong. But that's unlikely.
+
+Alternatively, perhaps the problem is that when you split a coin, you get two coins, but the initial coin is counted as 1, and each split adds 1. So for example, for n=5, you have 1 coin, split into two, total coins is 2. For n=16, you have 1 coin, split into two, then each of those split into two, etc. So the total number of coins is 2^k, where k is the number of splits.
+
+But according to this, the sample must be wrong. But that's not possible.
+
+Alternatively, perhaps the problem is that the initial coin is counted as 1, and each split increases the number of coins by 1. So for example, for n=5, you have 1 coin, split into two, total coins is 2. For n=16, you have 1 coin, split into two, then each of those split into two, total coins is 4. So it's 2^k, where k is the number of splits.
+
+But for n=1e18, the number of splits is 30, so the answer is 2^30.
+
+But the sample says it's 2^29. So this suggests that there's a mistake in the sample. But that's unlikely.
+
+Alternatively, perhaps the sample is correct, and the formula is different.
+
+Let me think of another approach. Let me compute the number of splits for n=1e18.
+
+Let me compute it as follows:
+
+Let me compute the number of times you can divide by 4 until it's <=3.
+
+Let me compute this for n=1e18.
+
+Let me compute the value of n after each division:
+
+n = 1e18
+
+count = 0
+
+while n >3:
+
+   n = n //4
+
+   count +=1
+
+Let me compute this step by step, but in a more efficient way.
+
+Let me compute the number of times you can divide by 4 until it's <=3.
+
+Let me compute this for n=1e18.
+
+Let me compute log4(1e18) = log(1e18)/log(4) = 18*log(10)/log(4) ≈ 18 * 2.302585093 / 1.386294361 ≈ 18 * 1.660964 ≈ 30. So the count is 30.
+
+So the answer is 2^30.
+
+But the sample says it's 2^29. So this suggests that there's a mistake in the sample, or in the problem statement.
+
+But since the sample is provided, and the user is asking for the correct code, I must find a way to pass the sample.
+
+Let me check the sample output for the fourth test case.
+
+Sample input: 1000000000000000000 → output 536870912.
+
+Let me compute 536870912 in binary. 2^29 is 536870912. So if the count is 29, then the answer is 2^29.
+
+So why is the count 29?
+
+Maybe the initial approach is wrong, and the count is the number of times you can divide by 4 until it's <=3, but the initial coin is counted as 1, and the count is the number of splits, but the answer is 2^count -1?
+
+No, that would not make sense.
+
+Alternatively, perhaps the formula is f(n) = 2 * f(n//4) if n >3, but for n=4, f(4) = 2 * f(1) = 2, which is correct.
+
+But for n=1e18, the count is 30, and the answer is 2^30, which is 1,073,741,824. But the sample says 536,870,912, which is 2^29.
+
+This suggests that there is a mistake in the problem statement or the sample.
+
+But since the user provided the sample, and the code must pass it, I must find a way to make the code pass the sample.
+
+Let me think of the sample output for 1e18 as 2^29. So what is the count?
+
+If the count is 29, then the number of splits is 29, and the answer is 2^29.
+
+So let me compute the number of splits for n=1e18, but with count=29.
+
+Let me see what value of n would have count=29.
+
+Let me assume that the count is 29, and compute what the value of n would be after 29 splits.
+
+Let me compute the value of n after 29 splits.
+
+Let me compute it as follows:
+
+n = 1e18
+
+count=0
+
+for i in 0 to 29:
+
+   n = n //4
+
+   count +=1
+
+So after 29 splits, what is n?
+
+Let me compute this step by step.
+
+Let me start with n=1e18 and perform 29 divisions by 4.
+
+But this is tedious, but let me try to find a pattern.
+
+Let me compute the value of n after k divisions by 4.
+
+Let me note that each division by 4 is equivalent to dividing by 2^2.
+
+So for k steps, the value is 1e18 / 4^k.
+
+We want 1e18 / 4^k > 3 and 1e18 / 4^{k+1} <= 3.
+
+So for k=29, 4^29 = 2^58.
+
+1e18 / 4^29 = 1e18 / 2^58.
+
+Let me compute 2^58 = 288230376151711744.
+
+1e18 is 1000000000000000000.
+
+So 1e18 / 2^58 = 1000000000000000000 / 288230376151711744 ≈ 3.47.
+
+Which is greater than 3.
+
+For k=30, 4^30 = 2^60 = 1,152,921,504,606,846,976.
+
+1e18 / 4^30 = 1e18 / 1.1529e18 = 0.868, which is less than 3.
+
+So for k=30, the value is 0.868, which is <=3.
+
+So the count is 30.
+
+So the sample must be wrong. But this is unlikely.
+
+Alternatively, perhaps the problem is that the initial coin is counted as 1, and the number of splits is the number of times you can split, but the formula is f(n) = 1 + 2 * f(n//4), but this would be different.
+
+Let me try this.
+
+For n=5, f(5) = 1 + 2*f(1) = 1 + 2*1 =3, which is incorrect.
+
+So this is not the case.
+
+Alternatively, perhaps the formula is f(n) = 1 + 2 * f(n//4), but for n=1, it's 1, and for n=5, it's 1 + 2*1 =3, which is incorrect.
+
+So this is not the case.
+
+At this point, I'm stuck. But since the sample says that for 1e18, the output is 536870912, which is 2^29, I must find a way to make the code produce that.
+
+Let me think of the code that would produce 2^29 for n=1e18.
+
+If the count is 29, then the code must have count=29.
+
+But according to the previous calculation, it's 30.
+
+So what's the error here?
+
+Maybe the initial approach is wrong, and the correct formula is f(n) = 2 * f(n//4) if n >3, but the count is the number of times you can split, but the initial coin is counted as 1, and the number of splits is the number of times you can split, and the total coins is 2^count.
+
+But for n=1e18, the count is 30, so the answer is 2^30.
+
+But the sample says it's 2^29. So this suggests that the code is wrong.
+
+But how?
+
+Maybe the problem is that when you split a coin, you get two coins, but the initial coin is not counted as 1, but as 0. No, that doesn't make sense.
+
+Alternatively, perhaps the problem is that the initial coin is counted as 1, and each split increases the number of coins by 1. So for example, for n=5, you split once, adding 1 coin, total 2. For n=16, you split twice, adding 2 coins, total 3? No, that's not correct.
+
+No, this is not the case.
+
+At this point, I think that the initial approach is correct, and the sample is wrong. But since the sample is provided, and the user is asking for a solution that passes the sample, I must find a way to make the code pass the sample.
+
+Let me think of the sample output for 1e18 as 536870912 = 2^29.
+
+So what is the count for n=1e18?
+
+If the count is 29, then the code must return 2^29.
+
+So perhaps the code is correct, but the calculation of the count is wrong.
+
+Let me try to compute the count for n=1e18, but with a different approach.
+
+Let me compute the number of times you can divide by 4 until it's <=3, but using a different method.
+
+Let me compute it as follows:
+
+Let me compute the value of n = 1e18.
+
+Let me compute how many times I can divide by 4 until it's <=3.
+
+Let me compute this in binary.
+
+But I'm not sure.
+
+Alternatively, let me compute the number of times you can divide by 4 until it's <=3 for n=1e18.
+
+Let me compute it as follows:
+
+Let me compute 1e18 / 4^k <=3.
+
+Let me solve for k.
+
+4^k >= 1e18 / 3.
+
+4^k >= 3.333333333333333e17.
+
+Let me compute log4(3.333e17) = log(3.333e17) / log(4) ≈ 17.000000000000002 / 1.3862943611198906 ≈ 12.29.
+
+So k=12.29, so the smallest integer k is 13.
+
+So 4^13 = 67108864.
+
+Wait, no, 4^13 is 67108864, which is 6.71e7.
+
+But 1e18 / 4^13 is 1e18 / 6.71e7 = 1.488e10, which is much larger than 3.
+
+So this approach is not helping.
+
+At this point, I think that the initial approach is correct, and the sample must be wrong. But since the sample is provided, and the user is asking for a solution that passes it, I must find a way to make the code pass the sample.
+
+Let me think of the sample input for 1e18, and see what the correct output should be.
+
+If the code returns 2^29 for n=1e18, then the count is 29. So how?
+
+Let me compute the number of times you can divide by 4 until it's <=3 for n=1e18, but with a different calculation.
+
+Let me compute it as follows:
+
+Let me compute the value of n = 1e18.
+
+count = 0.
+
+while n >3:
+
+   n = n //4
+
+   count +=1
+
+Let me compute this for n=1e18, but in code.
+
+But since I can't run code here, I'll have to simulate it.
+
+Let me simulate the steps again, but this time, I'll notice that in the previous calculation, the count was 30, but the sample says it's 29. So perhaps there is a mistake in the calculation.
+
+Let me re-calculate the steps for n=1e18.
+
+Let me start from the beginning:
+
+n = 1e18 = 1000000000000000000
+
+count = 0
+
+n >3: yes.
+
+n = 1000000000000000000 //4 = 250000000000000000 → count=1.
+
+n=250000000000000000 >3: yes.
+
+n=250000000000000000//4 = 62500000000000000 → count=2.
+
+n=62500000000000000 >3: yes.
+
+n=62500000000000000//4 = 15625000000000000 → count=3.
+
+n=15625000000000000 >3: yes.
+
+n=15625000000000000//4 = 3906250000000000 → count=4.
+
+n=3906250000000000 >3: yes.
+
+n=3906250000000000//4 = 976562500000000 → count=5.
+
+n=976562500000000 >3: yes.
+
+n=976562500000000//4 = 244140625000000 → count=6.
+
+n=244140625000000 >3: yes.
+
+n=244140625000000//4 = 61035156250000 → count=7.
+
+n=61035156250000 >3: yes.
+
+n=61035156250000//4 = 15258789062500 → count=8.
+
+n=15258789062500 >3: yes.
+
+n=15258789062500//4 = 3814697265625 → count=9.
+
+n=3814697265625 >3: yes.
+
+n=3814697265625//4 = 953674316406.25 → 953674316406 → count=10.
+
+n=953674316406 >3: yes.
+
+n=953674316406//4 = 238418579101.5 → 238418579101 → count=11.
+
+n=238418579101 >3: yes.
+
+n=238418579101//4 = 59604644775.25 → 59604644775 → count=12.
+
+n=59604644775 >3: yes.
+
+n=59604644775//4 = 14901161193.75 → 14901161193 → count=13.
+
+n=14901161193 >3: yes.
+
+n=14901161193//4 = 3725290298.25 → 3725290298 → count=14.
+
+n=3725290298 >3: yes.
+
+n=3725290298//4 = 931322574.5 → 931322574 → count=15.
+
+n=931322574 >3: yes.
+
+n=931322574//4 = 232830643.5 → 232830643 → count=16.
+
+n=232830643 >3: yes.
+
+n=232830643//4 = 58207660.75 → 58207660 → count=17.
+
+n=58207660 >3: yes.
+
+n=58207660//4 = 14551915 → count=18.
+
+n=14551915 >3: yes.
+
+n=14551915//4 = 3637978.75 → 3637978 → count=19.
+
+n=3637978 >3: yes.
+
+n=3637978//4 = 909494.5 → 909494 → count=20.
+
+n=909494 >3: yes.
+
+n=909494//4 = 227373.5 → 227373 → count=21.
+
+n=227373 >3: yes.
+
+n=227373//4 = 56843.25 → 56843 → count=22.
+
+n=56843 >3: yes.
+
+n=56843//4 = 14210.75 → 14210 → count=23.
+
+n=14210 >3: yes.
+
+n=14210//4 = 3552.5 → 3552 → count=24.
+
+n=3552 >3: yes.
+
+n=3552//4 = 888 → count=25.
+
+n=888 >3: yes.
+
+n=888//4 = 222 → count=26.
+
+n=222 >3: yes.
+
+n=222//4 = 55.5 → 55 → count=27.
+
+n=55 >3: yes.
+
+n=55//4 = 13.75 → 13 → count=28.
+
+n=13 >3: yes.
+
+n=13//4 = 3.25 → 3 → count=29.
+
+Now n=3, which is <=3. The loop stops. So count is 29.
+
+Ah! So the count is 29, not 30! So earlier calculation was wrong. The count is 29.
+
+So why? Earlier, when I was calculating, I must have made a mistake in the steps.
+
+So for n=1e18, the count is 29, and the answer is 2^29 = 536870912, which matches the sample.
+
+So where was the error in the previous calculation?
+
+Ah! I must have made a mistake in the previous calculation. Let me recheck.
+
+In the previous calculation, when I reached n=3.469... and counted 29 steps, but now, after re-calculating, it's 29 steps.
+
+So the correct count is 29, and the answer is 2^29.
+
+So the initial approach is correct, but in the previous calculation, I made a mistake in the steps.
+
+So the code is correct, and the count is the number of times you can divide by 4 until it's <=3.
+
+So the code is:
+
+Read t test cases.
+
+For each n:
+
+count = 0
+
+while n >3:
+
+   n = n //4
+
+   count +=1
+
+print(2 ** count)
+
+So this code will pass the sample.
+
+Let me test it with the sample input.
+
+For n=1e18, the count is 29, and 2^29 is 536870912, which matches the sample.
+
+So the code is correct.
+
+So the final code is as follows.
+</think>
+
+```python
+import sys
+
+def main():
+    t = int(sys.stdin.readline())
+    for _ in range(t):
+        n = int(sys.stdin.readline())
+        count = 0
+        while n > 3:
+            n = n // 4
+            count += 1
+        print(2 ** count)
+
+if __name__ == "__main__":
+    main()
+```

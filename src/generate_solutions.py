@@ -1,10 +1,12 @@
 import argparse
+
+from dotenv import load_dotenv
 from pathlib import Path
 from loguru import logger
 from tqdm import tqdm
 import json
 import sys
-
+load_dotenv()
 sys.path.append(str(Path(__file__).parent.parent))
 
 from utils.env_utils import (
@@ -12,7 +14,6 @@ from utils.env_utils import (
     DatasetHandler,
     CodeExtractor,
 )
-
 
 def setup_logging(log_file: str = "outputs/generation.log"):
     Path(log_file).parent.mkdir(parents=True, exist_ok=True)
@@ -34,8 +35,6 @@ def generate_solutions(
     end_idx: int = None,
 ):
     """
-    Generate code solutions for all samples in the dataset.
-
     Args:
         model_name: HuggingFace model name or path
         adapter_path: Path to LoRA adapter (optional)
@@ -57,7 +56,7 @@ def generate_solutions(
         adapter_path=adapter_path,
     )
 
-    dataset_handler = DatasetHandler(dataset_name="comp-coder-eval")
+    dataset_handler = DatasetHandler(dataset_name="ViratChauhan/comp-coder-eval")
     code_extractor = CodeExtractor()
 
     total_samples = len(dataset_handler)
@@ -100,7 +99,7 @@ def generate_solutions(
     
     logger.info(f"Will generate {len(samples_to_process)} new samples in batches of 50")
     
-    batch_size = 50
+    batch_size = 100
     for batch_start in tqdm(range(0, len(samples_to_process), batch_size), desc="Processing batches"):
         batch_end = min(batch_start + batch_size, len(samples_to_process))
         batch = samples_to_process[batch_start:batch_end]
@@ -157,13 +156,13 @@ def generate_solutions(
 
 
 def main():
-    """Main entry point."""
     parser = argparse.ArgumentParser(description="Generate code solutions using vLLM")
 
     parser.add_argument(
         "--model",
         type=str,
-        required=True,
+        default="Qwen/Qwen3-1.7B",
+        #required=True,
         help="HuggingFace model name or path",
     )
 
@@ -171,6 +170,7 @@ def main():
         "--adapter",
         type=str,
         default=None,
+        #default="ViratChauhan/comp-coder-v1",
         help="Path to LoRA adapter (optional)",
     )
 

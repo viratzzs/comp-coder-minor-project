@@ -1,0 +1,560 @@
+<think>
+Okay, let's see. I need to find the smallest m that meets two conditions. The first condition is that m is greater than or equal to at least one of a or b. The second condition is that m mod a equals m mod b. Hmm.
+
+So, let's think about what the second condition implies. Let's say m mod a equals m mod b. Let's denote this remainder as r. So, m mod a = r and m mod b = r. Which means that m - r is divisible by both a and b. So, m - r is a common multiple of a and b. But since r is the remainder when m is divided by a and b, r must be less than a and less than b, respectively. Wait, no. Wait, the remainder when m is divided by a is r, so r is between 0 and a-1. Similarly for b. So, for m mod a = m mod b, the difference between m mod a and m mod b is zero. So, m mod a = m mod b. Let me think of m as being congruent to r modulo a and modulo b. So, m ≡ r mod a and m ≡ r mod b. Which implies that m ≡ r mod lcm(a, b). Because if m ≡ r mod a and mod b, then m - r is divisible by both a and b. So, m - r = k * lcm(a, b) for some integer k. Therefore, m = r + k * lcm(a, b). But since r is the remainder when m is divided by a and b, r must be less than a and less than b. So, the possible values of r are from 0 to min(a-1, b-1). Wait, but for example, if a and b are 4 and 6, then the possible r is 0, 1, 2, 3, 4, 5? Wait, no. Because m mod a is r, so r must be less than a. Similarly for mod b. So, the remainder r must be less than both a and b. So, the maximum possible r is min(a-1, b-1). But for the second condition, m mod a equals m mod b. So, m can be any number that is congruent to r mod a and mod b. So, the possible values of m are numbers that are congruent to some r (which is less than a and b) and then adding multiples of lcm(a, b). 
+
+But how do I find the minimal m that is >= max(a, b) or >= one of them? Because m has to be >= at least one of a or b. So, the minimal m could be the minimal value that is either >= a or >= b, and satisfies the congruence condition.
+
+Wait, but the minimal m could be the minimal between the two possibilities. Let's think. For example, in the first test case, a=4 and b=6. The minimal m that is >= 4 or 6. Let's see. The first possible m is 4. But 4 mod 4 is 0, 4 mod 6 is 4. So 0 !=4. So not valid. Then 5, 6, etc. So the first m that meets the condition is 12. Which is the example given.
+
+So, how do I find this m?
+
+Let me think about the possible candidates. The minimal m must be >= max(a, b) or >= a or >= b. But since the minimal m could be in the range between the two numbers. Let me think.
+
+Alternatively, perhaps the minimal m is the minimal value that is >= max(a, b) and satisfies m mod a == m mod b. Or maybe it's the minimal value that is >= a or >= b, but not necessarily the max. For example, if a is 4 and b is 6, then the minimal m is 12. But 6 is less than 12. So, maybe the minimal m is the minimal between the two possible cases: either the minimal m that is >= a and satisfies the condition, or the minimal m that is >= b and satisfies the condition. But how to find that?
+
+Alternatively, perhaps the minimal m is the minimal of the following possibilities:
+
+- The minimal value that is >= max(a, b) and satisfies m mod a == m mod b.
+
+Or, perhaps there's a case where m is between a and b, but that's not possible because m has to be >= a or b. Wait, if a and b are 4 and 6, then m can be 6, but 6 mod 4 is 2, and 6 mod 6 is 0. So they are not equal. So 6 is not valid. So the next possible is 12. So, perhaps the minimal m is the minimal value that is >= the maximum of a and b, and satisfies the congruence condition.
+
+But how do I find that?
+
+Another approach: Let's think of the congruence condition. m mod a = m mod b. Let's denote that m mod a = m mod b = r. Then, m can be written as m = k * lcm(a, b) + r. But since r must be less than a and less than b, the possible r's are in 0 <= r < min(a, b). Wait, but if a and b are not coprime, then lcm(a, b) is a multiple of both. So, for example, if a=4 and b=6, lcm is 12. So, r can be 0, 1, 2, 3, 4, 5? Wait, no. Because for m mod a to be r, r must be less than a. Similarly for mod b. So, for example, if a=4 and b=6, then r must be less than 4 and less than 6. So r can be 0,1,2,3. So for each possible r in 0 to min(a-1, b-1), we can find the minimal m that is >= max(a, b) and equals r + k * lcm(a, b). But since we want the minimal m, perhaps the minimal m is the minimal among all possible r's, and then the minimal k such that m is >= max(a, b).
+
+Wait, but for each possible r, the minimal m would be r + k * lcm(a, b), where k is the smallest integer such that m >= max(a, b). So for each r, compute the minimal m in that case, then take the minimal among all those possibilities.
+
+But how do I find the possible r's? Well, the possible r's are 0 <= r < min(a, b). Because m mod a = r and m mod b = r. So, for r to be valid, it must be less than both a and b. So, for example, if a=4 and b=6, the possible r's are 0,1,2,3.
+
+So for each r in 0 to min(a-1, b-1), compute the minimal m that is >= max(a, b) and equals r + k * lcm(a, b). Then, among all these possible m's, pick the minimal one.
+
+But how do I compute that?
+
+Let me think. For each r in 0 to min(a-1, b-1):
+
+- The minimal m for this r is the smallest number >= max(a, b) such that m = r + k * lcm(a, b). So, for each r, compute the minimal k such that r + k * lcm(a, b) >= max(a, b). Then, m is r + k * lcm(a, b). Then, among all these m's for all possible r's, pick the minimal one.
+
+But what if there are multiple r's that can generate a valid m? For example, if a=4 and b=6, then for r=0, the m would be 0 + k * 12. The minimal k such that 0 + 12k >= 6 (max(4,6) is 6). So k=0 gives 0, which is less than 6. k=1 gives 12, which is >=6. So m=12.
+
+For r=1, the same logic: 1 + 12k >=6. k=0 gives 1 <6. k=1 gives 13. So m=13.
+
+Similarly for r=2: 2+12k >=6. k=0: 2 <6. k=1: 14. So m=14.
+
+r=3: 3 +12k >=6. k=0: 3 <6. k=1: 15. So m=15.
+
+So the minimal m among these is 12.
+
+So the answer is 12.
+
+So the approach would be:
+
+For each test case, compute the minimal m as follows:
+
+1. Compute the LCM of a and b.
+
+2. For each possible r in 0 to min(a-1, b-1), compute the minimal m for that r.
+
+3. The minimal among all these m's is the answer.
+
+But wait, what if the minimal m is not in the range of the possible r's?
+
+Wait, for example, if a=4 and b=4. Then, the LCM is 4. For r in 0 to 3.
+
+For each r, the minimal m is r + k*4 >=4. So for r=0: 0 + 4k >=4. k=1 gives 4. So m=4.
+
+For r=1: 1 +4k >=4. k=1 gives 5. So m=5.
+
+Similarly for others. So the minimal m is 4.
+
+But in this case, the answer is 4, which is the maximum of a and b. So that's correct.
+
+Another example: a=4, b=6. The minimal m is 12.
+
+Another example: a=3, b=5. Then, LCM is 15. The possible r's are 0,1,2. For each r:
+
+For r=0: m = 0 + 15k >= max(3,5)=5. So k=1 gives 15. So m=15.
+
+For r=1: 1 +15k >=5. k=0: 1 <5. k=1: 16. So m=16.
+
+For r=2: 2 +15k >=5. k=0: 2 <5. k=1: 17. So m=17.
+
+So the minimal is 15. But wait, what about m=5? Let's check. 5 mod 3 is 2, mod 5 is 0. So 2 !=0. Not valid. So 15 is the minimal.
+
+But what if a=3 and b=5, and m= 5? No, because 5 mod 3 is 2, 5 mod 5 is 0. Not equal. So the minimal is 15.
+
+Another case: a=2, b=3. LCM is 6. Possible r's are 0,1.
+
+For r=0: m=0 +6k >= max(2,3)=3. k=1 gives 6. So m=6.
+
+For r=1: 1 +6k >=3. k=0:1 <3. k=1:7. So m=7.
+
+So the minimal is 6.
+
+But wait, what about m=3? 3 mod 2 is 1, mod 3 is 0. Not equal. So no. So the answer is 6.
+
+So the approach seems to work.
+
+So the steps are:
+
+For each test case:
+
+- Compute the LCM of a and b.
+
+- Compute the minimal m as the minimal value among all possible r's (from 0 to min(a-1, b-1)) and their corresponding m's.
+
+But how do I compute the minimal m for each r?
+
+For a given r, the minimal m is the smallest number >= max(a, b) that is congruent to r mod LCM(a,b). So, the formula is m = r + k * LCM, where k is the smallest integer such that m >= max(a, b).
+
+So, for each r, compute the minimal k such that r + k * LCM >= max(a, b).
+
+How to compute k?
+
+Let me think. Let's denote the target as T = max(a, b).
+
+We need r + k * LCM >= T.
+
+So, k >= ceil( (T - r) / LCM )
+
+But since LCM could be zero? No, because a and b are at least 1, so LCM is at least 1.
+
+But for example, if T is 6, r is 0, LCM is 12. Then (6-0)/12 = 0.5, so ceil(0.5) is 1. So k=1, m=0+1*12=12.
+
+So, the formula for k is k = ceil( (T - r) / LCM )
+
+But since T - r could be negative, but in that case, k=0. For example, if r is 5 and T is 4, then T - r is -1. So (T - r)/ LCM is -1/12 = -0.083..., so ceil(-0.083) is 0. So k=0, m=r +0* LCM =r. But in that case, m must be >= T. So if r is 5, and T is 4, then m=5 is larger than T. So that's okay. But in this case, since r is 5, which is less than a and b (assuming a and b are 4 and 6, then r is 0-3). Wait, in this case, if a=4 and b=6, then r is 0-3. So for example, if a=4, b=6, and r=3, then T is 6. So 3 + k*12 >=6. So k=0 gives 3 <6. So k=1 gives 15. So m=15.
+
+But for the case where T is 3 and r is 0, then m=0 +k* LCM. For example, if a=3 and b=5, then LCM is 15. T is 5. So for r=0, m=0 +k*15 >=5. So k=1 gives 15. So m=15.
+
+So the formula for k is:
+
+if T - r is negative, then k=0. But then m = r. But m must be >= T. So if r is >= T, then m=r is >= T. But for that to be possible, r must be >= T. But since r is less than min(a, b), which is at least 1. So if T is max(a, b), then for example, if a=3 and b=5, then T is 5. For r=5, but r is less than min(3,5) which is 3. So r can't be 5. So in that case, r is 0,1,2. So for r=0, T is 5. So m=0 +k*15 >=5. So k=1 gives 15.
+
+So the formula for k is:
+
+k = ceil( (T - r) / LCM )
+
+But since LCM is positive, and T is positive.
+
+But how to compute that in code?
+
+In Python, for a given T, r, and LCM:
+
+if T - r <=0:
+
+   k=0
+
+else:
+
+   k = ceil( (T - r) / LCM )
+
+But how to compute ceil in Python? Well, (T - r + LCM -1) // LCM.
+
+Because for example, (T - r) is 5, LCM is 12. Then (5 +12-1) // 12 = (16) //12 = 1. Which is correct.
+
+So for example, (T - r) is 5, LCM is 12. So 5/12 is 0.416..., ceil is 1.
+
+So the formula is (T - r + LCM -1) // LCM.
+
+So, for each r, compute the m as r + k * LCM, where k is (T - r + LCM -1) // LCM.
+
+But then, for each r, we can compute m.
+
+Once we have all possible m's for all r's, the minimal among them is the answer.
+
+But what if there are multiple r's that can generate m's?
+
+So, the steps for each test case:
+
+Compute LCM of a and b.
+
+Compute T = max(a, b).
+
+Compute min_r = 0, max_r = min(a-1, b-1).
+
+For each r in 0 to max_r:
+
+   compute k = ceil( (T - r) / LCM )
+
+   if T - r <=0:
+
+       k = 0
+
+   else:
+
+       k = (T - r + LCM -1) // LCM
+
+   m_candidate = r + k * LCM
+
+   add this m_candidate to a list.
+
+Then, the answer is the minimal m_candidate.
+
+But wait, what if there are multiple r's that generate m_candidate's, and the minimal one is the answer.
+
+But how to compute this?
+
+So, for each test case, the code would:
+
+- compute LCM of a and b.
+
+- compute T = max(a, b)
+
+- compute min_r = 0, max_r = min(a-1, b-1)
+
+- for each r in 0 to max_r:
+
+   compute k as above
+
+   compute m_candidate = r + k * LCM
+
+   keep track of the minimal m_candidate.
+
+But what if there are multiple r's that generate m_candidate's, but the minimal is the correct one.
+
+But how to handle the case where the minimal m_candidate is not in the range of the possible r's?
+
+Wait, for example, if a=4 and b=6. Then, the possible r's are 0-3. For each r, m_candidate is computed as r + k*12. The minimal among these is 12.
+
+But what if the minimal m_candidate is less than T? Because for example, if T is 6, and r is 0, then m_candidate is 12, which is >=6. So that's okay.
+
+So the code would generate m_candidate for each r, and then select the minimal among them.
+
+But what if there is a case where the minimal m_candidate is not in the range of the possible r's?
+
+No, because for each r in 0 to max_r, the m_candidate is >= T. Because for r in 0 to max_r, and k is chosen such that m_candidate >= T.
+
+Wait, for example, if T is 6, and r is 3, then k is (6-3 +12-1)//12 = (3 +11)//12 = 14//12=1. So m_candidate = 3 + 1*12=15 >=6.
+
+Yes.
+
+So, the code for each test case is:
+
+Compute LCM of a and b.
+
+Compute T = max(a, b)
+
+Compute min_r = 0, max_r = min(a-1, b-1)
+
+Initialize the answer as a very large number.
+
+For each r in 0 to max_r:
+
+   compute k = ceil( (T - r) / LCM )
+
+   m_candidate = r + k * LCM
+
+   if m_candidate is less than the current answer, update the answer.
+
+But wait, for example, if a=4 and b=6, then the possible m_candidate for r=0 is 12, which is the answer.
+
+But what if there is a case where the minimal m_candidate is not in the range of the possible r's? Like, if a=2 and b=3. Then, LCM is 6. T is 3.
+
+For r=0: (3-0 +6-1)//6 = (3+5)//6 = 8//6=1. So m_candidate=0 +1*6=6.
+
+For r=1: (3-1 +5)//6 = (2+5)=7//6=1. m_candidate=1 +6=7.
+
+For r=2: (3-2 +5) = 6//6=1. m_candidate=2+6=8.
+
+So the minimal is 6. Which is correct.
+
+But what about if a=2 and b=2. Then LCM is 2. T is 2. max_r is min(1,1) =1. So for r=0:
+
+k = (2-0 +2-1)//2 = (2+1)//2 = 3//2=1. m_candidate=0 +1*2=2. Which is correct.
+
+So the code seems to work.
+
+Now, the problem is how to compute LCM of a and b.
+
+The LCM can be computed as (a*b) // GCD(a, b). So, first compute GCD.
+
+So, for each a and b, compute GCD, then LCM = (a*b) // GCD.
+
+But in Python, we can use math.gcd, but note that math.gcd returns the absolute value, and since a and b are positive, that's okay.
+
+But in Python, the math.gcd function returns the greatest common divisor of two numbers. So, for example, math.gcd(4,6) is 2.
+
+So, for the code:
+
+import math
+
+def compute_lcm(a, b):
+
+    return a * b // math.gcd(a, b)
+
+But wait, for a=0, but according to the problem statement, a and b are at least 1. So no problem.
+
+So, the steps are:
+
+For each test case:
+
+Read a and b.
+
+Compute LCM.
+
+Compute T = max(a, b).
+
+Compute max_r = min(a-1, b-1).
+
+Initialize answer as a very large value, like infinity.
+
+For each r in 0 to max_r:
+
+   compute k = ceil( (T - r) / LCM )
+
+   m_candidate = r + k * LCM
+
+   if m_candidate is less than current answer, update answer.
+
+Once all r's are processed, output the answer.
+
+But wait, what if there are multiple r's that produce m_candidate's, but the minimal is not in the range of the possible r's? Well, no, because the code checks all possible r's.
+
+But what if the minimal m_candidate is not in the range of the possible r's? For example, if a=2, b=3. Then the possible r's are 0,1,2. The m_candidate for r=0 is 6, which is >= T=3. So it's okay.
+
+But what if the minimal m_candidate is in the range of r's, but the code would find it.
+
+So, the code seems correct.
+
+Now, let's test the sample input.
+
+Sample input:
+
+2
+
+4 6
+
+472 896
+
+First test case: a=4, b=6. LCM is 12. T is 6.
+
+max_r is min(3,5) =3.
+
+For r=0:
+
+k = (6-0 +12-1)//12 = (6+11)/12 = 17//12=1. m_candidate=0+1*12=12.
+
+r=1: (6-1 +11)/12 = (5+11)=16//12=1. m_candidate=1+12=13.
+
+r=2: (6-2 +11)/12 = (4+11)=15//12=1. m_candidate=2+12=14.
+
+r=3: (6-3 +11)/12 = (3+11)=14//12=1. m_candidate=3+12=15.
+
+So the minimal is 12.
+
+Second test case: a=472, b=896. Let's compute LCM.
+
+First, compute GCD(472, 896).
+
+Let me compute that.
+
+472 and 896.
+
+Divisors of 472: 472 = 16 * 29.5? Wait, 472 divided by 2 is 236, divided by 2 again is 118, divided by 2 again is 59. So 472 = 2^3 *59.
+
+896: 896 / 2 = 448, /2=224, /2=112, /2=56, /2=28, /2=14, /2=7. So 896 = 2^7 *7.
+
+So GCD(472, 896) is 2^3 = 8. So LCM is (472 * 896) / 8 = 472 * 112.
+
+Let me compute 472 * 112.
+
+Well, 472 * 100 = 47200, 472 *12= 5664. Total 47200 +5664 = 52864. Which is the sample output. So the code would generate 52864 for the second test case.
+
+So for this case, the code would compute LCM as 472*896 // 8 = 52864. Then T is 896. max_r is min(471, 895) =471.
+
+For r in 0 to 471:
+
+The code would compute for each r, m_candidate = r + k * LCM, where k is (T - r + LCM -1) // LCM.
+
+But since T is 896, and LCM is 52864. For r=0, T - r is 896. So k = (896 + 52864 -1) // 52864 = (896 + 52863) // 52864 = 53759 // 52864 = 1. So m_candidate = 0 + 1 * 52864 = 52864. Which is the sample output. So the code would find this as the minimal.
+
+So the code works for the sample.
+
+Now, what about the case where the minimal m_candidate is not in the range of the possible r's?
+
+Wait, for example, if a=5 and b=5. Then LCM is 5. T is 5. max_r is 4. For each r in 0-4:
+
+For r=0: k = (5-0 +5-1)/5 = (5 +4)/5 =9//5=1. m_candidate=0+1*5=5. Which is correct.
+
+So the code returns 5.
+
+Another example: a=3 and b=3. The code returns 3.
+
+Another example: a=2 and b=3. The code returns 6.
+
+So, the code seems to handle all cases.
+
+Now, the code in Python.
+
+But what about when the LCM is zero? No, since a and b are at least 1, so LCM is at least 1.
+
+Now, code steps:
+
+Read t test cases.
+
+For each test case:
+
+Read a and b.
+
+Compute LCM.
+
+Compute T = max(a, b).
+
+Compute max_r = min(a-1, b-1).
+
+Initialize min_m as a very large value (like infinity).
+
+Loop r from 0 to max_r inclusive:
+
+   compute numerator = T - r
+
+   if numerator <=0:
+
+       k = 0
+
+   else:
+
+       k = (numerator + LCM -1) // LCM
+
+   m_candidate = r + k * LCM
+
+   if m_candidate < min_m:
+
+       min_m = m_candidate
+
+Finally, print min_m.
+
+But wait, what if there are multiple r's that produce m_candidate's, but some of them are smaller than others. For example, if a=4, b=6, then the code finds 12 as the minimal.
+
+But what if there is a case where the minimal m_candidate is not the first one in the loop? For example, if there are multiple r's that generate m_candidate's, but the minimal is in the middle.
+
+But the code will find it.
+
+Now, code:
+
+But how to handle the case when LCM is zero? Well, since a and b are at least 1, LCM is at least 1.
+
+Now, code:
+
+import math
+
+t = int(input())
+
+for _ in range(t):
+
+    a, b = map(int, input().split())
+
+    # compute LCM
+
+    g = math.gcd(a, b)
+
+    lcm = a * b // g
+
+    T = max(a, b)
+
+    max_r = min(a-1, b-1)
+
+    min_m = float('inf')
+
+    for r in range(0, max_r + 1):
+
+        numerator = T - r
+
+        if numerator <= 0:
+
+            k = 0
+
+        else:
+
+            k = (numerator + lcm - 1) // lcm
+
+        m_candidate = r + k * lcm
+
+        if m_candidate < min_m:
+
+            min_m = m_candidate
+
+    print(min_m)
+
+Wait, but what if there are multiple r's that generate m_candidate's, but the minimal is not in the loop? For example, when a=3, b=5. The code would generate for r=0, m_candidate=15. For r=1, m_candidate=16. For r=2, m_candidate=17. So the minimal is 15. Which is correct.
+
+But what if there is a case where the minimal m_candidate is not in the loop? For example, if a=1, b=1. Then LCM is 1. T is 1. max_r is 0. So for r=0, numerator is 1 -0 =1. k = (1 +1-1)//1 =1//1=1. m_candidate =0 +1*1=1. Which is correct.
+
+Another case: a=1, b=2. LCM is 2. T is 2. max_r is min(0, 1) =0. So r=0. numerator is 2-0=2. k = (2 +2-1)//2 =3//2=1. m_candidate =0 +1*2=2. Which is correct.
+
+But what if a=1 and b=3. Then LCM is 3. T is 3. max_r is min(0, 2) =0. So r=0. numerator is 3-0=3. k = (3 +3-1)//3 =5//3=1. m_candidate=0 +1*3=3. Which is correct.
+
+So code seems to handle that.
+
+But what if the minimal m_candidate is not the first one? For example, if a=2, b=4. Then LCM is 4. T is 4. max_r is min(1, 3) =1. So r can be 0 or 1.
+
+For r=0: numerator is 4-0=4. k=(4 +4-1)//4 =7//4=1. m_candidate=0+1*4=4. Which is correct.
+
+For r=1: numerator is 4-1=3. k=(3 +4-1)//4 =6//4=1. m_candidate=1+4=5. So the minimal is 4.
+
+Which is correct.
+
+So code works.
+
+Another case: a=2, b=3. The code returns 6, which is correct.
+
+So the code seems correct.
+
+Now, check the sample input.
+
+Sample input 2:
+
+472 896. The code computes LCM as (472 * 896) // gcd(472, 896) = 472*896//8= 472 * 112 = 52864. T is 896. max_r is min(471, 895) =471.
+
+For r=0: numerator is 896 -0 =896. k = (896 + 52864 -1) // 52864 = (896 + 52863) = 53759. 53759 // 52864 = 1. So m_candidate=0 + 1*52864=52864. Which is the sample output.
+
+So code returns 52864.
+
+So the code is correct.
+
+Now, what about when the minimal m_candidate is the same as the max(a, b)?
+
+For example, a=4, b=4. Then LCM is 4. T is 4. max_r is 3. For r=0, m_candidate is 4. Which is correct.
+
+So code returns 4.
+
+Another case: a=3, b=3. code returns 3.
+
+So code works.
+
+Now, what about when a=1, b=2. The code returns 2.
+
+Yes.
+
+So the code seems to handle all cases.
+
+Now, considering the time and memory constraints. Since t is up to 100, and for each test case, the loop runs up to min(a-1, b-1) steps. Since a and b are up to 1000, min(a-1, b-1) is up to 999. So for each test case, 1000 steps. For 100 test cases, 100*1000=100,000 steps. Which is acceptable for Python.
+
+So the code is efficient enough.
+
+So the final code is as written.
+</think>
+
+```python
+import math
+
+t = int(input())
+for _ in range(t):
+    a, b = map(int, input().split())
+    g = math.gcd(a, b)
+    lcm = a * b // g
+    T = max(a, b)
+    max_r = min(a - 1, b - 1)
+    min_m = float('inf')
+    for r in range(0, max_r + 1):
+        numerator = T - r
+        if numerator <= 0:
+            k = 0
+        else:
+            k = (numerator + lcm - 1) // lcm
+        m_candidate = r + k * lcm
+        if m_candidate < min_m:
+            min_m = m_candidate
+    print(min_m)
+```

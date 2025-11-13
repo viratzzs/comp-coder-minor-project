@@ -1,6 +1,7 @@
 import re
 import subprocess
 import tempfile
+from dotenv import load_dotenv
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
 from loguru import logger
@@ -8,7 +9,7 @@ from datasets import load_dataset
 from transformers import AutoTokenizer
 from vllm import LLM, SamplingParams
 from vllm.lora.request import LoRARequest
-
+load_dotenv()
 
 class ModelHandler:
     """Handles model loading and code generation using vLLM."""
@@ -44,7 +45,8 @@ class ModelHandler:
         self.sampling_params = SamplingParams(
             temperature=0.6,
             top_p=0.95,
-            max_tokens=16384,
+            min_p=0,
+            max_tokens=24576,
             top_k=20,
         )
         
@@ -106,7 +108,7 @@ class DatasetHandler:
         """
         self.dataset_name = dataset_name
         logger.info(f"Loading dataset: {dataset_name}")
-        self.dataset = load_dataset(dataset_name, split="train")
+        self.dataset = load_dataset(dataset_name, split="test")
         logger.info(f"Dataset loaded: {len(self.dataset)} samples")
     
     def get_sample(self, idx: int) -> Dict[str, Any]:

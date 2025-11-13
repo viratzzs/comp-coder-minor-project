@@ -1,0 +1,487 @@
+<think>
+Okay, I need to solve this problem where I have to find the maximum length of a good array given l and r. Let's understand the problem first.
+
+A good array has two conditions:
+1. It's strictly increasing. So each element must be larger than the previous.
+2. The differences between adjacent elements are strictly increasing. So, for each i from 2 to n-1, the difference a_i - a_{i-1} must be less than a_{i+1} - a_i.
+
+So, the array has to be strictly increasing, and the differences between consecutive elements must be strictly increasing. 
+
+The goal is to find the maximum possible length of such an array where all elements are between l and r inclusive.
+
+Let's think about how to model this. Let's consider the possible sequences.
+
+Let's think about the minimal possible array. For example, if l and r are the same, the array can only be length 1. Because the array must be strictly increasing, so you can't have two elements. So for l = r, the answer is 1.
+
+But for larger values, we need to find the longest possible array.
+
+Let me think about the constraints. Let's think about the differences. Let's say the array is a_1, a_2, ..., a_n.
+
+Then, the differences d_1 = a_2 - a_1, d_2 = a_3 - a_2, ..., d_{n-1} = a_n - a_{n-1}.
+
+The conditions are:
+d_1 < d_2 < ... < d_{n-1}.
+
+Also, since the array is strictly increasing, each d_i must be at least 1. Because a_2 > a_1, so d_1 >= 1. Similarly, d_2 >= 1, etc.
+
+So the problem reduces to finding the maximum possible n such that there exists a sequence of d_i's with d_1 < d_2 < ... < d_{n-1} and each d_i >= 1, and the sum of d_i's (a_1 + d_1 + d_2 + ... + d_{n-1}) is <= r - l + 1, since the maximum possible sum is when the elements are as small as possible. Wait, no. Wait, the elements a_i must be between l and r. So the sum of the differences must be such that the total length of the array is possible.
+
+Wait, the sum of the differences is (a_n - a_1). So the maximum possible value for a_n is a_1 + sum(d_i). But since a_n must be <= r and a_1 >= l, the sum of d_i's must be <= r - l. So sum(d_i) <= r - l.
+
+But since each d_i is at least 1, the minimal sum for n elements is (n-1)*1. So for the sum to be possible, (n-1) <= r - l. But that's not enough. Because the sum of the differences must be such that the total a_n is within [l, r]. But the sum of d_i's can be up to (r - l) since a_1 is l. So for example, if the array is of length n, then the sum of d_i's is (a_n - a_1) = (a_n - l) must be <= r - l. So the sum of d_i's is (a_n - l) = (sum d_i) = (sum d_i) = (a_n - l) = (a_1 + sum d_i - a_1) = sum d_i. So sum d_i must be <= r - l.
+
+But the sum of d_i's is (sum d_i) = (a_n - a_1) = (a_n - l) <= r - l. So the sum of d_i's is (a_n - l) which must be <= r - l. So the sum of d_i's must be at least (n-1) (since each d_i is at least 1). So for the sum to be possible, (n-1) <= (r - l). But that's only a necessary condition. But also, the sum must be such that the sum of d_i's can be achieved with the given constraints.
+
+But the problem is to find the maximum n possible. So how to find the maximum possible n?
+
+Let's think of the minimal possible sum for the differences. For a given n, the minimal sum is (n-1) (each d_i is 1). The maximum sum is (r - l) - (n-1) + something? Wait, no. The sum of the differences must be such that the total a_n is <= r. So the sum of the differences is (a_n - a_1) = (a_n - l) <= r - l. So the sum of the differences is at most (r - l). So for the sum of the differences to be possible, we must have (n-1) <= (r - l). But that's not sufficient. Because even if the sum is (n-1), the sum can be achieved if the differences are 1, but the sum is (n-1). But for the sum to be (n-1), the a_n is l + (n-1). So that's allowed only if l + (n-1) <= r. Which is equivalent to (n-1) <= r - l. Which is the same as before. So for the sum to be possible, (n-1) <= r - l.
+
+But for the maximum possible n, we can have n-1 = r - l. So n = (r - l) + 1. But that's only possible if the differences can be arranged as 1, 2, 3, ..., (n-1). But wait, the differences must be strictly increasing. So for example, for n=3, the differences are d1=1, d2=2. The sum is 3. So the total a_n is l + 3. Which must be <= r. So if r - l >= 3, then possible. But for n=3, the maximum possible is 3. But wait, in the example given in the problem statement, when l=1 and r=5, the maximum is 3. Let's check:
+
+For l=1, r=5. The maximum possible array is 1,2,5. The differences are 1, 3. Which is strictly increasing. So the array length is 3. But according to the formula (r - l) + 1, that would be 5-1+1=5. Which is larger than 3. So that suggests that the formula is not correct.
+
+Wait, so there's a contradiction here. So the previous reasoning is wrong.
+
+Hmm. So what's wrong here?
+
+Let me think again. For the array to be as long as possible, the differences must be as small as possible. Because the sum of the differences must be as small as possible, so that the array can be as long as possible.
+
+Wait, the sum of the differences is (a_n - a_1). Since a_1 is l, and a_n is <= r, the sum of the differences is <= r - l.
+
+But the sum of the differences is also equal to d_1 + d_2 + ... + d_{n-1}.
+
+But for the differences to be strictly increasing, the minimal sum is when d_1=1, d_2=2, d_3=3, ..., d_{n-1} = n-1. So the sum is (n-1)(n)/2. Wait, no. The sum of 1+2+...+(n-1) is (n-1)*n/2. So that's the minimal sum for the differences. Wait, no. Wait, the minimal sum is when the differences are 1, 2, 3, ..., n-1. Because each d_i is as small as possible. So the sum is (n-1)*n/2. But this sum must be <= r - l. So for the sum to be possible, (n-1)*n/2 <= r - l.
+
+So for the maximum possible n, we need to find the maximum n where (n-1)*n/2 <= r - l. But also, the sum of the differences must be such that a_n = l + (sum of differences) <= r. Which is already covered by the sum being <= r - l.
+
+So, for example, in the case where l=1 and r=5. Then r - l =4. So the maximum n is such that (n-1)*n/2 <=4. Let's see:
+
+n=3: (3-1)*3/2 = 3. Which is <=4. So possible. n=4: (4-1)*4/2 = 6>4. So not possible. So maximum n is 3. Which matches the example. So the answer for that case is 3, which is correct.
+
+Another example: l=10, r=20. r - l=10. So (n-1)*n/2 <=10. Let's see:
+
+n=4: 3*4/2=6 <=10. n=5: 4*5/2=10. So yes. So maximum n is 5. Which matches the example. So the answer is 5. So that's correct.
+
+Another example: l=1, r=2. r - l=1. So (n-1)*n/2 <=1. For n=2: 1*2/2=1. So yes. So maximum n is 2. Which matches the example.
+
+So the problem reduces to finding the maximum n such that (n-1)*n/2 <= (r - l). But wait, what about when (n-1)*n/2 is exactly equal to (r - l)? Then n is possible. So the maximum n is the largest integer n where (n-1)*n/2 <= (r - l).
+
+But wait, what about when (r - l) is 0? Then the maximum n is 1. Because (n-1)*n/2 must be <=0. So n-1=0, n=1. Which is correct.
+
+So the problem becomes: for each test case, given l and r, compute the maximum n where (n-1)*n/2 <= (r - l). But wait, but what if (r - l) is 0? Then n can be 1. Which is correct.
+
+But then, the answer is the maximum n such that (n-1)*n/2 <= (r - l). So how to compute that n?
+
+Let me think of solving the quadratic equation. Let's find the maximum n where n(n-1)/2 <= k, where k is (r - l).
+
+We can solve for n in the equation n(n-1)/2 = k. Let's find the maximum integer n.
+
+We can compute n as the floor of (sqrt(8k + 1) + 1)/2. Wait, let me think.
+
+Let me consider solving for n in n(n-1)/2 <= k.
+
+We can approximate n as the solution to n^2 -n - 2k <=0.
+
+The roots of the equation n^2 -n - 2k =0 are [1 + sqrt(1 + 8k)] / 2.
+
+So the maximum integer n is floor( [1 + sqrt(8k + 1)] / 2 )
+
+But we need to check if this is correct.
+
+Let me test with the example where k=4 (r-l=4). Then the sqrt(8*4 +1) is sqrt(33) ≈5.744. So (1 + 5.744)/2 ≈ 3.372. Floor is 3. Which is correct. For k=10, sqrt(8*10 +1) = sqrt(81) =9. (1+9)/2=5. Which is correct. So yes.
+
+So the maximum n is floor( (sqrt(8k +1) +1)/2 ), where k is (r - l).
+
+But wait, what if k is 0? Then n is 1.
+
+So the formula seems to work.
+
+So the steps for solving each test case are:
+
+1. Compute k = r - l.
+
+2. If k < 0: but since l <= r, k is >=0.
+
+3. If k ==0: then the answer is 1.
+
+4. Else, compute n = floor( (sqrt(8k +1) +1)/2 )
+
+But wait, let's test some examples.
+
+For example, when l=1, r=5: k=4. So (sqrt(33) +1)/2 ≈ (5.744+1)/2 ≈ 3.372 → floor is 3. Which is correct.
+
+Another example: l=10, r=20. k=10. sqrt(81)=9. (9+1)/2=5. So n=5. Which is correct.
+
+Another example: l=2, r=2. k=0. Answer is 1.
+
+Another example: l=1, r=2. k=1. sqrt(9)=3. (3+1)/2=2 → floor is 2. Which is correct.
+
+Another example: l=1, r=3. k=2. 8k+1=17. sqrt(17)=4.123. (4.123+1)/2=2.56 → floor is 2. So n=2. Let's check: the maximum array is 1,2. The differences are 1. So the array is length 2. But what about 1, 3? The differences are 2. So array length 2. But the maximum possible is 2. So correct.
+
+But what if k=3. Let's see. For k=3, 8k+1=25. sqrt(25)=5. (5+1)/2=3. So n=3. Let's see: sum is 3. Which is 3. So the array would be 1, 2, 4. The differences are 1 and 2. Which is strictly increasing. So length 3. Correct.
+
+So the formula seems to work.
+
+So the problem reduces to, for each test case, compute k = r - l, then compute n as the floor of (sqrt(8k +1) +1)/2, but with some edge cases.
+
+But wait, what about when k is 0? Then n=1.
+
+So the code would be:
+
+For each test case:
+
+read l and r.
+
+if l == r:
+
+   output 1
+
+else:
+
+   k = r - l
+
+   compute n = floor( (sqrt(8*k +1) +1)/2 )
+
+   but wait, how to compute this in Python?
+
+But wait, the formula is (sqrt(8k +1) +1)/2. So in code, we can compute this as (sqrt(8*k +1) +1) // 2, but we need to take the floor.
+
+But how to compute this accurately in Python?
+
+But in Python, we can use math.sqrt, but since the numbers can be very large (up to 1e9), but for k up to 1e9, 8k+1 is up to 8e9+1, which is manageable.
+
+But let's think about the case when k is 0. Then, the answer is 1.
+
+So the steps:
+
+For each test case:
+
+if l == r:
+
+   print(1)
+
+else:
+
+   k = r - l
+
+   compute n = floor( (sqrt(8k +1) + 1)/2 )
+
+But how to compute that in Python?
+
+But wait, for example, when k=4, 8k+1=33, sqrt(33)=5.74456..., adding 1 gives 6.74456..., divided by 2 gives 3.372... floor is 3.
+
+So in Python, we can compute it as (math.sqrt(8*k +1) + 1) // 2 ?
+
+But wait, math.sqrt returns a float. So for example, when 8k+1 is a perfect square, then the sqrt is integer. So for example, when k=10, 8k+1=81, sqrt is 9. So (9+1)/2 = 5, which is correct.
+
+But when the sqrt is not integer, we need to take the floor. So for example, when 8k+1 is 33, sqrt is 5.744..., so adding 1 gives 6.744..., divided by 2 is 3.372, which floor is 3.
+
+So in Python, how to compute this?
+
+We can compute the value as (math.sqrt(8*k +1) + 1) // 2 ?
+
+But wait, let's see. For example, when 8k+1 is 33, sqrt is 5.744..., adding 1 is 6.744, divided by 2 is 3.372. So integer division would be 3.372 // 1 (since in Python, integer division is done with //). But how to compute this correctly?
+
+But in Python, using math.sqrt and then using integer division may not be accurate. For example, if the actual value is 3.372, then (math.sqrt(33) + 1) is 6.744, and dividing by 2 gives 3.372. So integer division (using //) would give 3. So the code would be:
+
+import math
+
+n = int( (math.sqrt(8*k +1) + 1) // 2 )
+
+But wait, perhaps we need to use math.isqrt in Python 3.8+ for integer square roots. But for the purposes of this code, perhaps using math.sqrt and then flooring.
+
+Alternatively, perhaps using binary search to find the maximum n where n(n-1)/2 <=k.
+
+But for the given constraints, since k can be up to 1e9, and n can be up to (sqrt(2*1e9)) which is about 44721. So for each test case, the calculation is manageable.
+
+But perhaps the formula is correct. Let's think about the example where k=10, which gives 5. So the code would compute (sqrt(81) +1)/2 = (9+1)/2=5. Which is correct.
+
+Another example: when k=6. Then 8k+1=49, sqrt is 7. (7+1)/2=4. So n=4. Let's check: 4*3/2=6. So yes. So the array is 1, 2, 3, 6. The differences are 1, 1, 3. Wait, but the differences must be strictly increasing. Oh, wait, the differences are d1=1, d2=2, d3=3. So sum is 6. So the array would be 1, 2, 4, 7. The differences are 1, 2, 3. Which is strictly increasing. So yes, n=4.
+
+So the formula works.
+
+So the code can be written as follows:
+
+For each test case:
+
+read l and r.
+
+if l == r:
+
+   print(1)
+
+else:
+
+   k = r - l
+
+   compute n as the maximum integer such that n(n-1)/2 <=k.
+
+   which is floor( (sqrt(8k +1) +1)/2 )
+
+But how to compute that in Python?
+
+But in Python, we can compute it as:
+
+import math
+
+k = r - l
+
+if k ==0:
+
+   print(1)
+
+else:
+
+   s = math.sqrt(8*k +1)
+
+   n = (s +1) // 2
+
+   print(n)
+
+Wait, but wait. Let's take the example where k=4. 8k+1=33. sqrt(33) is ~5.744. (5.744 +1) is 6.744. Divided by 2 is 3.372. So integer division (//) would give 3. Which is correct.
+
+Another example: k=3. 8k+1=25. sqrt(25)=5. (5+1)/2=3. So n=3. Which is correct.
+
+Another example: k=5. 8*5+1=41. sqrt(41) is ~6.403. (6.403+1)=7.403 /2=3.701. So integer division is 3. So n=3. Let's see:
+
+sum is 3* (3-1)/2 =3. Which is <=5. So possible. But what about n=4? 4*3/2=6>5. So no. So the answer is 3. Which is correct.
+
+So the code would compute that.
+
+But wait, what if the actual value is (sqrt(8k +1) +1) is not an integer. For example, if the actual value is 3.372, then (s +1) is 6.744, divided by 2 is 3.372. So integer division would give 3, which is correct.
+
+But in Python, when you do (s +1) // 2, where s is a float, it may not be accurate. For example, if s is 5.744, then (s +1) is 6.744, divided by 2 is 3.372. So integer division would be 3. But if the actual value is 3.372, then the floor is 3. So the code is correct.
+
+But how to handle this in code? Because math.sqrt returns a float, and when you add 1 and do integer division, you may have some precision issues.
+
+But for the problem, since k can be up to 1e9, and the maximum possible n is around 44721, the code should be accurate.
+
+But perhaps using math.isqrt would be better. For example, for the formula n(n-1)/2 <=k, we can find the maximum n by solving for n.
+
+But for code, perhaps using math.sqrt is acceptable.
+
+But let's test with some examples.
+
+Another example: when k=10, which gives 5. So 5*4/2=10. So the code would compute (sqrt(81)+1)/2 = (9+1)/2=5. Correct.
+
+Another example: when k=6, which gives 4. So (sqrt(49)+1)/2 = (7+1)/2=4. Correct.
+
+So the code would be:
+
+import math
+
+t = int(input())
+
+for _ in range(t):
+
+    l, r = map(int, input().split())
+
+    if l == r:
+
+        print(1)
+
+        continue
+
+    k = r - l
+
+    s = math.sqrt(8 * k + 1)
+
+    n = int( (s + 1) // 2 )
+
+    print(n)
+
+Wait, but what if the calculation is not exact? For example, when the actual value is 3.372, but due to floating point precision errors, the calculation is slightly off. Let's think about that.
+
+For example, suppose k is such that 8k +1 is a perfect square. For example, k=10, 8k+1=81. So s is 9.0. Then (s+1) is 10.0, divided by 2 is 5.0. So integer division is 5. Correct.
+
+Another case: k=3. 8k+1=25. s=5.0. (5+1)/2=3.0. Correct.
+
+Another case: k=2. 8k+1=17. sqrt(17) is approx 4.123. So s+1 is 5.123. Divided by 2 is 2.56. So integer division is 2. Which is correct, since for n=2, sum is 1*2/2=1 <=2.
+
+But what if k= (n(n-1))/2, but due to floating point precision, the calculation is slightly off?
+
+For example, if the actual value is 3.999999999999999, then (s+1) would be 5.999999999999999. Divided by 2 is 2.999999999999999. So integer division would be 2. Which is correct.
+
+But in reality, the value is 3.999999999999999, which is less than 4. So the correct n is 3. But how?
+
+Wait, the formula says that the maximum n is floor( (sqrt(8k+1) +1)/2 ). So in this case, if the actual value is 3.999999999999999, then (sqrt(8k+1) +1)/2 is 3.999999999999999/2= 1.9999999999999995. So (s +1) is 5.999999999999999. Divided by 2 is 2.9999999999999995. So integer division would be 2. But the actual value is 3.999999999999999, which is less than 4. So the correct n is 3. But according to the code, it would return 2. Which is wrong.
+
+Wait, but this is a problem. How can that happen?
+
+Let me think. Let's take k= (n(n-1))/2. For example, let's take n=3. Then k=3. So 8k+1=25. sqrt(25)=5. So (5+1)/2=3. So the code returns 3. Correct.
+
+But if k is 3.999999999999999, which is just under 4. Then the code would compute (sqrt(8k +1) +1)/2. Let's compute 8k+1= 8*3.999999999999999 +1 = 32 +1 =33. So sqrt(33) is approx 5.74456. Adding 1 gives 6.74456. Divided by 2 is 3.37228. So integer division would be 3. Which is correct.
+
+So why in the previous example did I think that the code would return 2? Because I made a mistake in the calculation.
+
+So the code is correct.
+
+So the code is:
+
+import math
+
+t = int(input())
+
+for _ in range(t):
+
+    l, r = map(int, input().split())
+
+    if l == r:
+
+        print(1)
+
+        continue
+
+    k = r - l
+
+    s = math.sqrt(8 * k + 1)
+
+    n = int( (s + 1) // 2 )
+
+    print(n)
+
+But wait, let's test the case where k=3.999999999999999.
+
+But in reality, the code would compute s as sqrt(8k +1) where 8k +1 is 33. So s is 5.744... So (s +1) is 6.744..., divided by 2 is 3.372... integer division is 3. Which is correct. Because for n=3, the sum is 3*2/2=3. Which is <=k=3.999... So the code returns 3, which is correct.
+
+So the code is correct.
+
+But wait, what about the example where k= (n(n-1))/2 + 1? For example, n=3, k=3. So the code returns 3. But if k is 3.5, then the code would compute s as sqrt(8*3.5 +1) = sqrt(28 +1)=sqrt(29) ≈5.385. (s +1) is 6.385. divided by 2 is 3.192. integer division is 3. Which is correct, since for n=3, the sum is 3, which is <=3.5.
+
+So the code returns 3, which is correct.
+
+So the code seems to work.
+
+But let's check the example given in the problem.
+
+The sample input:
+
+5
+
+1 2 → output 2
+
+1 5 → output 3
+
+2 2 → output 1
+
+10 20 → output 5
+
+1 1000000000 → output 44721.
+
+Let's check the last case.
+
+For l=1, r=1e9. k=999,999,999.
+
+Compute s = sqrt(8*k +1) = sqrt(8*999,999,999 +1) = sqrt(7999999992 +1) = sqrt(7999999993). Let's compute that.
+
+But 8*999,999,999 = 7999999992. Adding 1 gives 7999999993. What is sqrt(7999999993)?
+
+Well, 89999.99999999...?
+
+Wait, let's compute 89999.999999999^2 is 89999.999999999^2. But this is getting complicated. Let's compute it numerically.
+
+But the code would compute s as sqrt(8k +1) = sqrt(7999999993). Let's compute 89999.999999999^2 = ?
+
+But maybe there's a better way. Let's see, the code would compute the value as (sqrt(8k +1) +1)/2. Let's compute for k=999,999,999.
+
+But let's think of the formula for n. The maximum n is the floor of (sqrt(8k +1)+1)/2.
+
+In the sample input, the output is 44721. Let's check what 44721*(44721-1)/2 is. 44721 * 44720 / 2 = (44721 * 44720)/2. Let's compute that.
+
+But 44721 * 44720 = 44721 * (44720) = ?
+
+But perhaps we can compute the value of k for which n=44721. Let's compute 44721 * 44720 / 2 = ?
+
+But 44721 * 44720 / 2 = (44721 * 22360) = ?
+
+But regardless, the code would compute the correct value.
+
+But according to the sample input, when l=1 and r=1e9, the output is 44721.
+
+So according to the formula, the code would return 44721.
+
+So the code is correct.
+
+So the code is as written above.
+
+But let's check the code for the sample input.
+
+Sample input 5:
+
+1 1000000000 → output 44721.
+
+So let's compute 44721 * 44720 / 2 = ?
+
+Well, 44721 * 44720 = 44721 * (44720) = ?
+
+But the code would compute k = 999,999,999.
+
+So 8k +1 = 8*999,999,999 +1 = 7999999992 +1 = 7999999993.
+
+sqrt(7999999993) is approximately 89445. So let's compute:
+
+Let me compute 89445^2 = ?
+
+Well, 89445^2 = (89445)^2. Let's see:
+
+But perhaps the exact value is not needed. The code would compute (sqrt(8k+1) +1)/2. Let's compute that for k=999,999,999.
+
+But let's compute 8k+1 = 8*999,999,999 +1 = 7999999993.
+
+The square root of that is sqrt(7999999993). Let's compute 89445^2 = ?
+
+Well, 89445^2 = (89445)^2. Let's see:
+
+But 89445^2 = (89445)^2. Let's compute:
+
+We can note that 89445^2 = (89445)^2. Let's compute 89445 * 89445:
+
+But perhaps it's easier to note that 89445^2 = 7999999993?
+
+Let me compute 89445 * 89445:
+
+Well, 89445^2 = (8.9445 * 1e4)^2 = approx 8.9445^2 * 1e8. But this is getting complicated.
+
+But in any case, the code would compute the correct value. So the code would return 44721 for that case.
+
+Thus, the code is correct.
+
+But wait, what about the case where k is exactly (n(n-1))/2? For example, n=5, k=10. Then the code returns 5, which is correct.
+
+Another test case: l=2, r=2 → output 1. Correct.
+
+Another test case: l=1, r=5 → output 3. Correct.
+
+So the code seems to handle all cases correctly.
+
+Now, the code in Python:
+
+But wait, the code uses math.sqrt, which returns a float. However, when we do (s +1) // 2, in Python, it's possible that due to floating point precision errors, the calculation is incorrect. For example, if the actual value is (sqrt(8k+1) +1) is exactly 6.0, then (s +1) // 2 is 6.0//2 = 3.0, which is correct. But if due to floating point precision, the actual value is slightly less than 6.0, but due to the calculation, it's stored as 5.999999999999999, then (s+1) is 5.999999999999999 +1 = 6.999999999999999. Then divided by 2 is 3.499999999999999, which when integer division is 3. Which is correct.
+
+But in Python, how to handle this?
+
+The code uses (s +1) // 2. But since s is a float, and in Python, the // operator does integer division. So for example, if s is 5.744, then s +1 is 6.744, divided by 2 is 3.372, and integer division is 3.
+
+So the code should be correct.
+
+But what if the actual value of (s +1) is exactly an integer? For example, when 8k+1 is a perfect square. Then the code would return the correct value.
+
+So the code is correct.
+
+Thus, the final code is as follows.
+</think>
+
+```python
+import math
+
+t = int(input())
+for _ in range(t):
+    l, r = map(int, input().split())
+    if l == r:
+        print(1)
+        continue
+    k = r - l
+    s = math.sqrt(8 * k + 1)
+    n = int((s + 1) // 2)
+    print(n)
+```

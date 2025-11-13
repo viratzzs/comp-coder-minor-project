@@ -1,0 +1,1013 @@
+<think>
+Okay, let's see. The problem is about finding which odd digits from 1 to 9 divide a number formed by writing the digit d exactly n! times. So, for each test case with n and d, we need to find all odd digits (1,3,5,7,9) that divide the number made by repeating d n! times.
+
+First, I need to understand what the number looks like. For example, if n is 2 and d is 6, then the number is 66. The divisors of 66 are 1, 2, 3, 6, 11, 22, 33, 66. But we are only interested in the odd digits. So the odd digits are 1,3, and 5? Wait, 66 is even, so the odd digits that divide it would be 1, 3. Wait, 66 divided by 3 is 22, which is even. So 3 divides 66. So the output is 1 and 3. Which matches the first example.
+
+But how do we find for a general case?
+
+The problem is that n can be up to 1e9, and n! is a huge number. So we can't actually generate the number. So we need a mathematical approach.
+
+Let me think about the properties of the number. Let's denote the number as N. N is made of d repeated n! times. So N = d * (10^{k} + 10^{k-1} + ... + 1), where k = n! digits. Wait, no. For example, if n! is 2 digits, then the number is d followed by d, so 10^1 * d + d = d * (10 + 1) = 11d. So for general case, N is d multiplied by a number consisting of (n! digits of 1's) but that's not exactly right. Wait, no. For example, if you have 3 digits, then it's d * 100 + d * 10 + d = d * (100 + 10 + 1) = d * 111. So the number is d multiplied by a number that is 111...1 with n! digits. So N = d * (111...1) with n! digits.
+
+But how can we find the divisors of N? Well, the problem is that N is a very large number, but we need to find which odd digits divide it.
+
+But the key is that for a digit to divide N, it must divide the number formed by d repeated n! times. Let's think about the properties of the number.
+
+Let me think about the problem in terms of modular arithmetic. For a digit x (odd, 1-9) to divide N, then N mod x must be zero.
+
+So for each x in {1,3,5,7,9}, we need to check if N mod x == 0.
+
+But how can we compute N mod x efficiently?
+
+Let me think. Let's consider that N is d repeated n! times. So N is d multiplied by a number consisting of (n! digits of 1's). But that's not exactly correct. Wait, for example, if n! is 2, then the number is d * 11. If n! is 3, then it's d * 111. So the number is d multiplied by a number made of (n! digits of 1's). Let's call that number M. So N = d * M.
+
+So the problem reduces to checking if d * M is divisible by x, where x is an odd digit.
+
+But M is a number with n! digits of 1's. So M = (10^{n!} - 1)/9. Because 111...1 (k digits) is (10^k - 1)/9. So for example, 111 is (10^3 -1)/9 = 999/9 = 111.
+
+So N = d * ( (10^{n!} - 1)/9 )
+
+So for x to divide N, x must divide d * ( (10^{n!} - 1)/9 )
+
+But since x is an odd digit (so 1,3,5,7,9), and d is given, we need to check for each x whether x divides d * ( (10^{n!} - 1)/9 )
+
+But how can we compute this efficiently?
+
+Let's think about the factors. Let's denote that for x to divide d * ( (10^{n!} - 1)/9 ), then x must divide d * ( (10^{n!} - 1)/9 )
+
+But since x is an odd digit, and 10 and x are coprime (since x is 1,3,5,7,9, and 10 is 2*5. So for x=5, 10 and 5 are not coprime. But for x=5, the denominator is 9, and the numerator is 10^{n!} -1. Let's think about the divisibility.
+
+But perhaps there's a way to find the divisibility conditions.
+
+Let me think about the problem for each x. Let's consider x is an odd digit. For x to divide N, then x must divide d * M, where M is (10^{n!} -1)/9.
+
+But since x is an odd digit, and 10 and x are coprime for x not 2 or 5. Wait, but x can be 5. So for x=5, we need to check if 5 divides d * M.
+
+But M is (10^{n!} -1)/9. Let's think about 5 divides M. Because 10^k mod 5 is 0, so 10^k -1 mod 5 is 4. So (10^k -1)/9 mod 5 is (4/9) mod 5. But 9 mod 5 is 4. So 4/9 mod 5 is 4 * 4^{-1} mod 5. Since 4 * 4 = 16 mod 5 is 1, so inverse of 4 mod 5 is 4. So 4 * 4 mod 5 is 1. So (10^k -1)/9 mod 5 is (4 * 4) mod 5 = 1. So M mod 5 is 1. So M is congruent to 1 mod 5. Therefore, for x=5, the divisibility depends on d * M mod 5. Since M mod 5 is 1, then d * M mod 5 is d mod 5. So 5 divides d * M if and only if 5 divides d * M. But since M mod 5 is 1, then 5 divides d * M iff 5 divides d. But d is given as a digit between 1-9. So if d is a multiple of 5, then 5 divides N. Otherwise, not. Wait, but x is 5, so for x to divide N, 5 must divide d * M. Since M mod 5 is 1, then d * M mod 5 is d mod 5. So 5 divides d * M iff d mod 5 is 0. So for x=5, the condition is d mod 5 == 0.
+
+But wait, what if d is 5? Then d mod 5 is 0, so 5 divides N. So yes. So for x=5, the condition is d mod 5 == 0.
+
+But for other x's, like x=3, we need to check if 3 divides d * M.
+
+But M is (10^{n!} -1)/9. Let's think about the divisibility by 3. Since 10 ≡ 1 mod 3, so 10^k ≡ 1^k = 1 mod 3. So 10^k -1 ≡ 0 mod 3. So (10^k -1)/9 ≡ 0 mod 3? Let's see. 10^k -1 is divisible by 9, so (10^k -1)/9 is an integer. But for example, when k is 1, (10^1 -1)/9 = 1, which is 1 mod 3. When k is 2, (100-1)/9 = 11, which is 2 mod 3. So for 10^k -1 divided by 9, the value mod 3 is (1 -1)/9 mod 3. Wait, 10^k mod 3 is 1, so 10^k -1 mod 3 is 0. So 10^k -1 is divisible by 3. So (10^k -1)/9 is an integer. But what is its value mod 3?
+
+Let me compute (10^k -1)/9 mod 3. Let's take k as any number. Let's compute (10^k -1)/9 mod 3. Since 10 ≡ 1 mod 3, 10^k ≡ 1 mod 3. So 10^k -1 ≡ 0 mod 3. So (10^k -1) is divisible by 3. So (10^k -1)/9 is an integer. Let's compute (10^k -1)/9 mod 3. Let's take k=1: (10-1)/9 = 1/9? No, wait for k=1, (10^1 -1)/9 is 1. So 1 mod 3 is 1. For k=2, (100-1)/9 = 11, which is 2 mod 3. For k=3, (1000-1)/9 = 111, which is 0 mod 3. So for k=3, 111 mod 3 is 0. So the pattern seems to be that (10^k -1)/9 mod 3 is 0 when k is a multiple of 3, and 1 or 2 otherwise. But how can we find this for general k?
+
+But for our problem, k is n! (which is a very large number). So for x=3, the value of M mod 3 is ( (10^{n!} -1)/9 ) mod 3. Let's compute that.
+
+Since 10^k mod 3 is 1, so 10^k -1 mod 3 is 0. So (10^k -1) is divisible by 3. So (10^k -1)/9 mod 3 is equal to ( (10^k -1) / 9 ) mod 3. Let's note that 10^k mod 3 is 1. So 10^k -1 mod 9 is 0. So (10^k -1) is divisible by 9. Let me think about (10^k -1)/9 mod 3. Let me denote that as ( (10^k -1)/9 ) mod 3.
+
+But since 10^k ≡ 1 mod 3, then 10^k -1 ≡ 0 mod 3. So (10^k -1)/9 ≡ (something) mod 3. Let me compute it for k=1: (10-1)/9 = 1/9? No, 10^1 -1 is 9, divided by 9 is 1. So 1 mod 3 is 1. For k=2: (100-1)/9 = 11, which is 2 mod 3. For k=3: (1000-1)/9 = 111, which is 0 mod 3. For k=4: (10000-1)/9 = 1111, which is 1 mod 3. So the pattern is that for k=1, 1; k=2, 2; k=3, 0; k=4, 1; k=5, 2; k=6, 0. So it's periodic with period 3. So for k, the value of (10^k -1)/9 mod 3 is 0 if k mod 3 is 0, 1 if k mod 3 is 1, 2 if k mod 3 is 2.
+
+But since k is n! (which is a very large number), we can compute k mod 3. Let's see. For n >= 3, n! is divisible by 3, so n! mod 3 is 0. So for k = n! (which is >= 6 for n >= 3), then k mod 3 is 0. So (10^k -1)/9 mod 3 is 0. Therefore, M mod 3 is 0. So for x=3, since M mod 3 is 0, then d * M mod 3 is 0 * d mod 3 = 0. Therefore, 3 divides N. So for x=3, the condition is always true, regardless of d. Wait, but that's only if M mod 3 is 0. So for x=3, the condition is that 3 divides N, which is always true?
+
+Wait, but for example, if n=2, then k=2! = 2. So for x=3, M is (10^2 -1)/9 = 11. So N is d * 11. So 3 divides d * 11 if 3 divides d * 11. Since 11 mod 3 is 2, then 3 divides d * 2. So 3 divides d * 2. Which implies that 3 divides d. Because 2 and 3 are coprime. So for x=3, the condition is that 3 divides d * M. But for n=2, k=2, which is not divisible by 3. So M mod 3 is 2. So for x=3, the condition is that 3 divides d * 2. Which is possible only if d is divisible by 3. So in this case, for n=2, d=6, then 6 is divisible by 3. So 3 divides N. Which is correct.
+
+But when n! is divisible by 3, then M mod 3 is 0. So for x=3, the condition is that 3 divides d * 0 mod 3. Which is 0. So 3 divides N. So for x=3, the condition is always true, provided that M is divisible by 3. Which is the case when k is divisible by 3. So for x=3, the answer is always yes, as long as the M is divisible by 3. Which is when n! is divisible by 3. But n! is divisible by 3 for n >= 3. So for n >= 3, x=3 will always divide N. But for n=2, n! is 2, which is not divisible by 3. So for x=3, the condition depends on whether n! is divisible by 3.
+
+So for the general case, for x=3, the condition is that (d * M) mod 3 == 0. Which depends on whether M mod 3 is 0. Which is true if n! is divisible by 3. So for x=3, the condition is:
+
+if n! is divisible by 3, then yes. Else, no.
+
+But for n >= 3, n! is divisible by 3. So for n >=3, x=3 will always divide N. So for x=3, the answer is yes.
+
+But for n=2, x=3 is not included in the output. Wait, but in the first example, when n=2, d=6, the output is 1 3. So for x=3, it's included. But according to the previous reasoning, when n=2, the M mod 3 is 2. So for x=3, the condition is d * 2 mod 3 ==0. So for d=6, 6 mod 3 is 0, so 0 * 2 mod 3 is 0. So yes. So in that case, x=3 is included.
+
+So the conclusion is that for x=3, the condition is that (d * M) mod 3 == 0. But since M mod 3 is (k mod 3) where k is n! (since k = n! ), and for k = n!:
+
+if n! mod 3 is 0: M mod 3 is 0 → 0 → 0 mod 3 → yes.
+
+if n! mod 3 is 1: M mod 3 is 1 → d * 1 mod 3 → 0?
+
+No. For example, if n! mod 3 is 1, then M mod 3 is 1. So for x=3, the condition is d * 1 mod 3 == 0. Which requires d mod 3 == 0.
+
+Similarly, if n! mod 3 is 2, then M mod 3 is 2. So d * 2 mod 3 == 0 → d mod 3 must be 0.
+
+So for x=3, the condition is that d mod 3 == 0, if n! mod 3 is 1 or 2. But for n! mod 3 is 0, it's always yes.
+
+So how do we compute n! mod 3?
+
+Well, for n >= 3, n! is divisible by 3. So n! mod 3 is 0.
+
+So for n >=3, x=3 will always divide N. So for x=3, the answer is always yes. So in the code, for x=3, we can check if n >=3, and then include 3 in the answer.
+
+But for n=2, which is allowed (n can be 2), then n! is 2, which is not divisible by 3. So for x=3, the condition is (d * M) mod 3 == 0. Which for n=2, M mod 3 is 2. So for x=3, the condition is d * 2 mod 3 ==0. Which is d mod 3 ==0.
+
+So the code needs to check for each x (1,3,5,7,9) whether the condition holds.
+
+So let's think about each x:
+
+For x=1: any number is divisible by 1. So 1 is always included.
+
+For x=3: as discussed, if n >=3, then yes. For n <3, depends on d mod 3.
+
+For x=5: the condition is d mod 5 == 0. Because for x=5, M mod 5 is 1. So d * M mod 5 is d mod 5. So 5 divides N if and only if d mod 5 ==0.
+
+For x=7: need to find whether N is divisible by 7. How?
+
+Similarly for x=7, we need to find whether d * M is divisible by 7.
+
+But how to compute this?
+
+Let me think about the general approach. For each x (1,3,5,7,9), we need to check if N mod x ==0.
+
+But since N is d * M, where M is (10^{n!} -1)/9.
+
+So for x to divide d*M, we need to check if (d * M) mod x ==0.
+
+But since x can be up to 9, and n is up to 1e9, we need to find a way to compute this efficiently.
+
+But for x=7, how can we compute (d * M) mod 7?
+
+Let me think about M mod 7. Since M is (10^{n!} -1)/9.
+
+So (10^{n!} -1) is divisible by 9, so M is an integer. So we need to compute (10^{n!} -1)/9 mod 7.
+
+But how?
+
+Let me compute 10^k mod (7*9) = 63. Because 9 and 7 are coprime. So 10^k mod 63.
+
+But perhaps there's a better way. Let's think about 10^k mod 7. Since 10 mod 7 is 3, so 10^k mod 7 is 3^k mod 7.
+
+So 10^k mod 7 = 3^k mod 7.
+
+So 10^k -1 mod 7 = (3^k -1) mod 7.
+
+Then, (10^k -1)/9 mod 7 is equal to (3^k -1)/9 mod 7. But since 9 and 7 are coprime, we can multiply by the modular inverse of 9 mod 7.
+
+But 9 mod 7 is 2. The inverse of 2 mod 7 is 4, since 2*4=8 ≡1 mod7. So (3^k -1) * 4 mod 7.
+
+So M mod 7 is equal to ( (3^k -1) * 4 ) mod 7.
+
+So for x=7, we need to compute (d * M) mod 7 = d * [ (3^k -1) * 4 ] mod 7, where k = n!.
+
+So let's compute this.
+
+But k = n! So for n >= 2, n! is at least 2. Let's see for x=7, what is k mod something.
+
+But for x=7, the value of k (n!) can be very large. However, since we need to compute 3^k mod 7, and 3^k mod 7 has a cycle.
+
+The cycle for 3 mod 7 is 6, since 3^6 mod 7 is 1. So the cycle length is 6.
+
+So 3^k mod 7 depends on k mod 6.
+
+So for example, if k mod 6 is 0, then 3^k mod 7 is 1. If mod 6 is 1, then 3^k mod7 is 3. And so on.
+
+So for k = n! (which is a very large number), we can compute k mod 6.
+
+But for n >= 3, n! is divisible by 6 (since 3! = 6, and 6 is divisible by 6). So for n >=3, n! mod 6 is 0. So k mod 6 is 0.
+
+So for n >=3, 3^k mod7 is 1. So for x=7, the M mod 7 is ( (1 -1) *4 ) mod7 = 0. So M mod7 is 0. Therefore, d * M mod7 is 0. So x=7 divides N.
+
+So for x=7, when n >=3, the condition is always true.
+
+But for n <3, let's see:
+
+For n=2, k=2. So 2 mod6 is 2. So 3^2 mod7 is 9 mod7=2. So 3^k mod7 is 2. So (3^k -1) is 1 mod7. Then multiply by 4 mod7: 1*4=4 mod7. So M mod7 is 4. So d * M mod7 is d *4 mod7. So for x=7, the condition is that d *4 mod7 ==0.
+
+So for n=2, the condition depends on d mod7.
+
+Similarly for n=1, but n starts from 2.
+
+So for x=7, the condition is:
+
+if n >=3 → yes.
+
+else:
+
+if n=2 → check if d*4 mod7 ==0.
+
+if n=1 → not possible, since n >=2.
+
+So for x=7, the answer is yes if n >=3, or if n=2 and d is divisible by 7.
+
+Wait, but for n=2, d=7, then d*4 mod7 is 7*4 mod7 is 0. So yes. So x=7 is included.
+
+So for x=7, the answer is always yes if n >=3, else if n=2 and d mod7 is 0.
+
+But for n=2 and d=7, the output would include 7.
+
+So for x=7, the code needs to check for n >=3, or n=2 and d mod7 ==0.
+
+Similarly for other x's.
+
+So for each x in {1,3,5,7,9}, the code needs to check:
+
+For x=1: always included.
+
+For x=3: if n >=3 → yes. else, check if d mod3 ==0.
+
+For x=5: check if d mod5 ==0.
+
+For x=7: if n >=3 → yes. else, check if n=2 and d mod7 ==0.
+
+For x=9: similar to x=3 and x=7.
+
+Let me think about x=9. For x=9, the condition is that N is divisible by 9. N is d * M. M is (10^{n!} -1)/9. So M mod9?
+
+Let me compute M mod9. Since 10 ≡1 mod9. So 10^k mod9 is 1. So 10^k -1 mod9 is 0. So (10^k -1)/9 mod9 is (something). Let's compute (10^k -1)/9 mod9.
+
+But 10^k -1 is divisible by 9. So (10^k -1) = 9 * M. So M = (10^k -1)/9.
+
+But 10^k mod9 is 1. So 10^k -1 mod9 is 0. So M is an integer. Now, what is M mod9?
+
+Let me compute for k=1: (10-1)/9=1 → 1 mod9=1.
+
+k=2: (100-1)/9=11 → 11 mod9=2.
+
+k=3: (1000-1)/9=111 → 111 mod9 is 3 (since 9*12=108, 111-108=3).
+
+k=4: 1111 mod9 is 1+1+1+1=4 mod9.
+
+So for k, M mod9 is k mod9. Because for k=1, mod9 is 1. For k=2, mod9 is 2. For k=3, mod9 is 3. So yes, M mod9 is k mod9.
+
+So M mod9 is k mod9. Since k is n! (n! is the exponent).
+
+So for x=9, the condition is that d * M mod9 ==0. Since M mod9 is k mod9. So d * (k mod9) mod9 ==0.
+
+But k is n! So for x=9, the condition is d * (n! mod9) mod9 ==0.
+
+So for example, if n=2, then n! is 2. 2 mod9 is 2. So d*2 mod9 ==0.
+
+So for x=9, the code needs to check if d * (n! mod9) is divisible by 9.
+
+But how can we compute n! mod9?
+
+n can be up to 1e9. So for n >=6, n! is divisible by 9. So for n >=6, n! mod9 is 0. So for x=9, the condition is d * 0 mod9 ==0 → yes. So for n >=6, x=9 is always included.
+
+For n=5, n! is 120. 120 mod9 is 120 - 13*9= 120-117=3. So mod9 is 3. So for x=9, the condition is d * 3 mod9 ==0. Which requires that d is divisible by 3.
+
+For n=4, n! is 24. 24 mod9 is 6. So d*6 mod9 ==0. Which requires d divisible by 3.
+
+For n=3, n! is 6. 6 mod9 is 6. So d*6 mod9 ==0 → d must be divisible by 3.
+
+For n=2, n! is 2. 2 mod9 is 2. So d*2 mod9 ==0 → d must be divisible by 9/ gcd(2,9) = 9/1 =9. So d must be divisible by 9.
+
+So for x=9, the condition is:
+
+if n >=6 → yes.
+
+else:
+
+if n=5 → d must be divisible by 3.
+
+if n=4 → d must be divisible by 3.
+
+if n=3 → d must be divisible by 3.
+
+if n=2 → d must be divisible by 9.
+
+So for x=9, the code needs to check this.
+
+So putting all this together, the approach is:
+
+For each test case, given n and d:
+
+- For each odd digit x in {1,3,5,7,9}:
+
+   - Check if x divides N.
+
+   - How?
+
+   - For x=1: always yes.
+
+   - For x=3: if n >=3 → yes. else, check if d mod3 ==0.
+
+   - For x=5: check if d mod5 ==0.
+
+   - For x=7: if n >=3 → yes. else, check if n=2 and d mod7 ==0.
+
+   - For x=9: if n >=6 → yes. else:
+
+      - if n=5 → check if d mod3 ==0.
+
+      - if n=4 → check if d mod3 ==0.
+
+      - if n=3 → check if d mod3 ==0.
+
+      - if n=2 → check if d mod9 ==0.
+
+So, the code can be structured as follows:
+
+For each test case, generate the list of odd digits that meet the conditions.
+
+So, the steps for each test case are:
+
+- Check for x=1 → always add 1.
+
+- Check for x=3:
+
+   if n >=3 → add 3.
+
+   else:
+
+      if d mod3 ==0 → add 3.
+
+- Check for x=5 → if d mod5 ==0 → add 5.
+
+- Check for x=7:
+
+   if n >=3 → add 7.
+
+   else:
+
+      if n ==2 and d mod7 ==0 → add 7.
+
+- Check for x=9:
+
+   if n >=6 → add 9.
+
+   else:
+
+      if n ==5 → check if d mod3 ==0 → add 9.
+
+      if n ==4 → check if d mod3 ==0 → add 9.
+
+      if n ==3 → check if d mod3 ==0 → add 9.
+
+      if n ==2 → check if d mod9 ==0 → add 9.
+
+So, the code can be written with these conditions.
+
+Now, the code must read t test cases, and for each, output the digits in sorted order.
+
+Now, let's think about the code.
+
+First, read t.
+
+Then, for each test case, read n and d.
+
+Then, collect the digits that meet the conditions.
+
+So, the code can be structured as follows:
+
+for each test case:
+
+   n, d = map(int, input().split())
+
+   res = [1]
+
+   if n >=3:
+
+      res.append(3)
+
+   else:
+
+      if d %3 ==0:
+
+          res.append(3)
+
+   if d %5 ==0:
+
+      res.append(5)
+
+   if n >=3:
+
+      res.append(7)
+
+   else:
+
+      if n ==2 and d %7 ==0:
+
+          res.append(7)
+
+   if n >=6:
+
+      res.append(9)
+
+   else:
+
+      if n ==5:
+
+          if d %3 ==0:
+
+              res.append(9)
+
+      elif n ==4:
+
+          if d %3 ==0:
+
+              res.append(9)
+
+      elif n ==3:
+
+          if d %3 ==0:
+
+              res.append(9)
+
+      elif n ==2:
+
+          if d %9 ==0:
+
+              res.append(9)
+
+   # Now, sort the res and print as space-separated.
+
+But wait, the code needs to collect all the digits that meet the conditions. So the code must generate the list, then sort it, then print.
+
+But what about the order? For example, the output for the first example:
+
+n=2, d=6.
+
+res starts with [1].
+
+Check x=3: n=2 <3 → check d%3 ==0 → 6%3=0 → add 3.
+
+Check x=5: 6%5 is 1 → no.
+
+Check x=7: n=2 <3 → check if n==2 and d%7 ==0 → 6%7 is 6 → no. So 7 is not added.
+
+Check x=9: n=2 <6 → check if n==5,4,3,2. No. So not added.
+
+So res is [1,3], sorted → 1 3. Which matches the example.
+
+Another example: input 8 5.
+
+n=8, d=5.
+
+res starts with 1.
+
+x=3: n >=3 → add 3.
+
+x=5: d=5 mod5=0 → add 5.
+
+x=7: n >=3 → add 7.
+
+x=9: n=8 >=6 → add 9.
+
+So res is [1,3,5,7,9]. Sorted → 1 3 5 7 9. Which matches the third example.
+
+Another example: input 7 1.
+
+n=7, d=1.
+
+res starts with 1.
+
+x=3: n >=3 → add 3.
+
+x=5: d=1 mod5 is 1 → no.
+
+x=7: n >=3 → add 7.
+
+x=9: n=7 >=6 → add 9.
+
+So res is [1,3,7,9]. Sorted → 1 3 7 9. Which matches the second example.
+
+So the code seems to handle these cases.
+
+Now, the code must handle the conditions correctly.
+
+But what about when n is 2 and d is 9?
+
+For x=9, n=2 <6. So check if n==2 → d mod9 is 0. 9 mod9 is 0 → yes. So add 9.
+
+So the code would add 9.
+
+So the code seems to handle that.
+
+Now, the code must be written in Python.
+
+But what about the case when n is 0? Well, according to the problem statement, n is at least 2.
+
+Now, the code:
+
+Read t.
+
+For each test case:
+
+n, d = map(int, input().split())
+
+res = [1]
+
+if n >=3:
+
+    res.append(3)
+
+else:
+
+    if d %3 ==0:
+
+        res.append(3)
+
+if d %5 ==0:
+
+    res.append(5)
+
+if n >=3:
+
+    res.append(7)
+
+else:
+
+    if n ==2 and d %7 ==0:
+
+        res.append(7)
+
+if n >=6:
+
+    res.append(9)
+
+else:
+
+    if n ==5:
+
+        if d %3 ==0:
+
+            res.append(9)
+
+    elif n ==4:
+
+        if d %3 ==0:
+
+            res.append(9)
+
+    elif n ==3:
+
+        if d %3 ==0:
+
+            res.append(9)
+
+    elif n ==2:
+
+        if d %9 ==0:
+
+            res.append(9)
+
+Then, sort res and print as space-separated.
+
+But wait, in the code, the 'res' list is built in the order of 1, then 3, then 5, then 7, then 9. But when we add elements, the order is not sorted. So after collecting all the elements, we need to sort them.
+
+So the code must collect all the elements, then sort them.
+
+But for example, in the case where 3 and 5 are added, but 5 comes after 3. So the code will collect 1,3,5, etc. So after collecting, the list is sorted.
+
+Yes, because in the code, the elements are added in the order of 1, then 3, then 5, then 7, then 9. So when we add 3, 5, 7, 9, the list is in order. But when adding 3, then 5, then 7, then 9, the list is in order. But for example, when 3 is added, then 5, then 7, then 9, the list is [1,3,5,7,9]. So when sorted, it's already in order. But what if the code adds 5, then 3? Well, the code adds 3 first, then 5. So the list is [1,3,5, ...], so sorted.
+
+But the code is adding 3, then 5, then 7, then 9. So the list is in order. So after collecting, the list is already in order. So no need to sort. Wait, no. Because for example, when n=3, the code adds 3, then 5, then 7, then 9. But for the code, the order is 1, then 3, then 5, then 7, then 9. So the list is in order. So the code can collect the elements in that order, and then output them as is. But wait, what about when 3 is added, then 5, then 7, then 9. But for example, if the code adds 5 and 3, but the code adds 3 first. So the list is [1,3,5, ...].
+
+So the code can collect the elements in the order 1,3,5,7,9, and then output them as is, since they are in order. But in the code, the order is not necessarily sorted. For example, suppose the code adds 3 and 5, but 3 is added first. Then 5 is added. So the list is [1,3,5, ...]. So the code can output them in order. But the problem requires the output to be in ascending order. So the code must sort the list.
+
+So, in the code, after collecting all elements, we need to sort them.
+
+So the code must collect all the elements, then sort them.
+
+So, in the code:
+
+res = [1]
+
+then, for each x, append as needed.
+
+then, res is a list. Then, sorted_res = sorted(res). Then, print the elements separated by space.
+
+But in the code, the order of adding elements is 1,3,5,7,9. But when adding 3, 5, 7, 9, the list is in order. But for example, if 3 is added, then 5 is added, then 7 is added, then 9 is added. So the list is [1,3,5,7,9]. So when sorted, it's already in order. But what if in the code, for example, 5 is added before 3? Well, no. Because in the code, the code adds 3 only if n >=3, and 3 is added before 5. So the list is [1,3,5, ...], but when adding 3, then 5, etc. So the list is in order. So the code can collect the elements in order, and then sort them. But for example, if the code adds 5 and 3, then the list would have 5 and 3 in the order of 5, then 3. But that's not possible, because in the code:
+
+The code first adds 1. Then, if n >=3, adds 3. Then, if d%5 is 0, adds 5. So 3 is added before 5. So the list is [1,3,5, ...]. So the list is in order. So the code can collect the elements in order, and then sort them. But since the elements are added in order, the list is already in order. So the code can just print them as is.
+
+But no. For example, suppose the code adds 5 and then 3. But in the code, 3 is added only if n >=3. So if n >=3, then 3 is added. Then, if d%5 is 0, 5 is added. So the code adds 3 before 5. So the list is [1,3,5, ...], which is in order. So the code can just collect the elements in order, and then output them as is.
+
+But for the code, the order in which elements are added is:
+
+1, then 3 (if applicable), then 5 (if applicable), then 7 (if applicable), then 9 (if applicable). So the list is in order. So when we collect the elements, they are in order. So the code can just sort them? No, because the code may have elements added in a different order. For example, if 5 is added before 3. But that's not possible, because 3 is added first. So the code can collect the elements in the order [1,3,5,7,9], and then output them as is.
+
+Wait, but for example, suppose n=3 and d=3. Then:
+
+res starts with [1].
+
+n >=3 → add 3.
+
+d%5 is 3%5=3 → no.
+
+then, add 5 if d%5 ==0. So no.
+
+then add 7 if n >=3 → yes.
+
+then add 9 if n >=6 → no.
+
+So res is [1,3,7]. Then sorted is [1,3,7].
+
+But if the code adds 3, then 7, then 5, etc. No, because 5 is added only if d%5 ==0. So in this case, the code adds 3, then 7. So the list is [1,3,7]. So the code is correct.
+
+So the code can collect the elements in the order of 1,3,5,7,9. So the list is in order. So the code can just print the elements as they are, sorted. But since the code adds 1 first, then 3, then 5, then 7, then 9, the list is already in order. So the code can just collect the elements and print them in order.
+
+Wait, but what about when 9 is added after 7, but 7 is added before 9. So the code adds 1,3,5,7,9. So the list is in order. So the code can just print them as is.
+
+But in the code, when adding 9, it is added after 7. So the list is in order.
+
+So the code can collect the elements in the order 1,3,5,7,9, and then output them as is.
+
+But what if the code adds 3 and 5, but 5 is added before 3? No, because 3 is added first. So the code can collect the elements in order.
+
+So in the code, after collecting all the elements, the list is in order. So the code can just print them as is.
+
+But wait, let's take an example where the code adds 3, then 5, then 7, then 9. So the list is [1,3,5,7,9]. So sorted is same as the list. So no problem.
+
+Another example: suppose the code adds 3, then 5, then 7, then 9. So the list is [1,3,5,7,9]. So sorted is same.
+
+But if the code adds 5, then 3, then 7, then 9, but that's not possible. Because 3 is added before 5.
+
+So the code can safely collect the elements in the order 1,3,5,7,9, and then output them as is.
+
+But in the code, for example, if the code adds 3 and 5, but 5 is added before 3. But how?
+
+No, because 3 is added only if n >=3. Then, 5 is added if d%5 ==0. So in the code, the order is 3 is added before 5. So the list is [1,3,5, ...].
+
+So the code can just collect the elements in the order they are added, and then output them as is.
+
+So the code can be written as follows:
+
+res = [1]
+
+if n >=3:
+
+    res.append(3)
+
+else:
+
+    if d%3 ==0:
+
+        res.append(3)
+
+if d%5 ==0:
+
+    res.append(5)
+
+if n >=3:
+
+    res.append(7)
+
+else:
+
+    if n ==2 and d%7 ==0:
+
+        res.append(7)
+
+if n >=6:
+
+    res.append(9)
+
+else:
+
+    if n ==5:
+
+        if d%3 ==0:
+
+            res.append(9)
+
+    elif n ==4:
+
+        if d%3 ==0:
+
+            res.append(9)
+
+    elif n ==3:
+
+        if d%3 ==0:
+
+            res.append(9)
+
+    elif n ==2:
+
+        if d%9 ==0:
+
+            res.append(9)
+
+Then, print the sorted list.
+
+But wait, the code may add 9 after 7, but in the list, 9 is added after 7. So the list is [1,3,5,7,9], which is sorted. So the code can print the list as is.
+
+But what if the code adds 9 before 7? For example, if n=3, and the code adds 9. But according to the code, the code adds 7 only if n >=3. So in this case, n=3, and 7 is added. So 9 is added only if n >=6. So in the code, 9 is added after 7. So the code's list is [1,3,5,7,9].
+
+So the code can just print the list as is.
+
+But in the code, when n is 3, and 9 is added, then the list would be [1,3,5,7,9], which is correct.
+
+But what if the code adds 9 before 7? For example, if n is 3 and 9 is added. But according to the code, 7 is added only if n >=3. So in this case, n=3, and 7 is added. So 9 is added only if n >=6. So in the code, 9 is added only if n >=6. So for n=3, 9 is not added. So the code is correct.
+
+Thus, the code can proceed to collect the elements in order, and then print them as is.
+
+But in the code, the list may have elements added in a different order. For example, if 5 is added before 3, but that's not possible. Because 3 is added first.
+
+So the code can proceed to collect the elements in order, and then print them as is.
+
+But in the code, the list may have elements in the order [1,3,5,7,9], but for example, if 5 is added before 3. But that's not possible.
+
+So the code can proceed to collect the elements in order, and then print them as is.
+
+Thus, the code can be written as:
+
+Read t.
+
+for _ in range(t):
+
+    n, d = map(int, input().split())
+
+    res = [1]
+
+    if n >=3:
+
+        res.append(3)
+
+    else:
+
+        if d %3 ==0:
+
+            res.append(3)
+
+    if d %5 ==0:
+
+        res.append(5)
+
+    if n >=3:
+
+        res.append(7)
+
+    else:
+
+        if n ==2 and d %7 ==0:
+
+            res.append(7)
+
+    if n >=6:
+
+        res.append(9)
+
+    else:
+
+        if n ==5:
+
+            if d %3 ==0:
+
+                res.append(9)
+
+        elif n ==4:
+
+            if d %3 ==0:
+
+                res.append(9)
+
+        elif n ==3:
+
+            if d %3 ==0:
+
+                res.append(9)
+
+        elif n ==2:
+
+            if d %9 ==0:
+
+                res.append(9)
+
+    # Now, sort the list and print
+
+    res.sort()
+
+    print(' '.join(map(str, res)))
+
+Wait, but the code adds 3, then 5, then 7, then 9. So the list is [1,3,5,7,9] if all conditions are met. But what if the code adds 5 before 3? For example, if n is 3, and d is 5. Then:
+
+res starts with [1].
+
+n >=3 → add 3.
+
+d%5 is 5%5=0 → add 5.
+
+so res is [1,3,5].
+
+then, check for 7: n >=3 → add 7. res is [1,3,5,7].
+
+then check for 9: n >=6? n is 3 → no. So check n ==5, 4, 3, 2. No. So no 9 added.
+
+so res is [1,3,5,7], which is sorted.
+
+Yes.
+
+So the code is correct.
+
+But what about when the code adds 9 after 7, but in the list, 9 is added after 7, and the list is sorted. So the code is correct.
+
+Thus, the code should be correct.
+
+Now, let's test the code against the examples.
+
+First example:
+
+Input:
+
+3
+
+2 6
+
+7 1
+
+8 5
+
+First test case: n=2, d=6.
+
+res starts with [1].
+
+n <3 → check d%3 ==0 → 6%3=0 → add 3. res is [1,3].
+
+d%5 is 6%5=1 → no 5.
+
+n >=3 → no. So 7 is not added.
+
+n >=6 → no. So 9 is not added.
+
+so res is [1,3]. sorted → 1 3. Correct.
+
+Second test case: n=7, d=1.
+
+res starts with [1].
+
+n >=3 → add 3. res [1,3].
+
+d%5 is 1 → no 5.
+
+n >=3 → add 7. res [1,3,7].
+
+n >=6 → yes → add 9. res [1,3,7,9].
+
+sorted → same.
+
+Third test case: n=8, d=5.
+
+res starts with [1].
+
+n >=3 → add 3. res [1,3].
+
+d%5 is 5%5=0 → add 5. res [1,3,5].
+
+n >=3 → add 7. res [1,3,5,7].
+
+n >=6 → yes → add 9. res [1,3,5,7,9]. sorted → same.
+
+So the code outputs the correct examples.
+
+Another test case: n=2, d=9.
+
+res starts with [1].
+
+n <3 → check d%3 → 9%3=0 → add 3. res [1,3].
+
+d%5 → 9%5=4 → no 5.
+
+n >=3 → no. 7 is not added.
+
+n >=6 → no. So check for n=2: add 9.
+
+so res is [1,3,9]. sorted → 1 3 9.
+
+Which is correct.
+
+Another test case: n=5, d=3.
+
+n=5, d=3.
+
+res starts with [1].
+
+n >=3 → add 3. res [1,3].
+
+d%5 is 3%5=3 → no 5.
+
+n >=3 → add 7. res [1,3,7].
+
+n >=6 → no. check for n=5: d%3 is 0 → add 9. res [1,3,7,9].
+
+sorted → 1 3 7 9.
+
+Which is correct.
+
+Another case: n=3, d=3.
+
+res starts with [1].
+
+n >=3 → add 3. res [1,3].
+
+d%5 is 3%5=3 → no 5.
+
+n >=3 → add 7. res [1,3,7].
+
+n >=6 → no. check for n=3: d%3 is 0 → add 9. res [1,3,7,9]. sorted.
+
+So code outputs 1 3 7 9.
+
+Which is correct.
+
+Thus, the code should work.
+
+Now, implement this in Python.
+
+But note that for the code, the 'res' list is built, then sorted.
+
+But in the code, the 'res' list is built in the order of 1, then 3, then 5, then 7, then 9. So after adding all elements, the list is in order. But when sorted, it's still in order. So the code can just print the list as is.
+
+But in Python, the code can be written as follows:
+
+Read t.
+
+for _ in range(t):
+
+    n, d = map(int, input().split())
+
+    res = [1]
+
+    if n >=3:
+
+        res.append(3)
+
+    else:
+
+        if d %3 ==0:
+
+            res.append(3)
+
+    if d %5 ==0:
+
+        res.append(5)
+
+    if n >=3:
+
+        res.append(7)
+
+    else:
+
+        if n ==2 and d %7 ==0:
+
+            res.append(7)
+
+    if n >=6:
+
+        res.append(9)
+
+    else:
+
+        if n ==5:
+
+            if d %3 ==0:
+
+                res.append(9)
+
+        elif n ==4:
+
+            if d %3 ==0:
+
+                res.append(9)
+
+        elif n ==3:
+
+            if d %3 ==0:
+
+                res.append(9)
+
+        elif n ==2:
+
+            if d %9 ==0:
+
+                res.append(9)
+
+    res.sort()
+
+    print(' '.join(map(str, res)))
+
+But wait, in the code, the 'res' list is built with 1, then 3, then 5, then 7, then 9. But when adding 9, it's added after 7. So the list is in order. But when the code adds 9, it's added after 7. So the list is [1,3,5,7,9], but if the code adds 9 before 7, then it's not. But in the code, the 9 is added only when n >=6, which is after 7 is added. So for example, if n=6, then 9 is added. So the code adds 7 first, then 9.
+
+So the code is correct.
+
+Thus, the code should work.
+</think>
+
+```python
+t = int(input())
+for _ in range(t):
+    n, d = map(int, input().split())
+    res = [1]
+    if n >= 3:
+        res.append(3)
+    else:
+        if d % 3 == 0:
+            res.append(3)
+    if d % 5 == 0:
+        res.append(5)
+    if n >= 3:
+        res.append(7)
+    else:
+        if n == 2 and d % 7 == 0:
+            res.append(7)
+    if n >= 6:
+        res.append(9)
+    else:
+        if n == 5:
+            if d % 3 == 0:
+                res.append(9)
+        elif n == 4:
+            if d % 3 == 0:
+                res.append(9)
+        elif n == 3:
+            if d % 3 == 0:
+                res.append(9)
+        elif n == 2:
+            if d % 9 == 0:
+                res.append(9)
+    res.sort()
+    print(' '.join(map(str, res)))
+```

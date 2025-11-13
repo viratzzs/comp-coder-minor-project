@@ -1,0 +1,813 @@
+<think>
+Okay, let's try to figure out this problem. So, Alice has a certain number of coins, a, and she can open a deposit called "Profitable" which requires b coins. But there's also an "Unprofitable" deposit. She can open that with any amount of coins. But when she opens the Unprofitable deposit, the minimum required for the Profitable deposit decreases by 2x, where x is the amount she puts into Unprofitable. However, once she opens the Unprofitable deposit, those coins can't be used again for the Profitable deposit.
+
+The goal is to find the maximum number of coins she can deposit into the Profitable deposit. If she can't open it, output 0.
+
+Hmm. Let's think about the steps.
+
+First, the initial scenario: if a >= b, then she can open the Profitable deposit with a coins. But maybe she can do better by opening the Unprofitable deposit first, which allows her to get a lower b.
+
+Wait, but the problem says that when she opens the Unprofitable deposit with x coins, the minimum required for Profitable decreases by 2x. But those coins can't be deposited into Profitable. So, the idea is that she can choose to open the Unprofitable deposit, which allows her to have some coins left, and then use that to get a lower b for Profitable.
+
+But how does this work? Let's think of the process.
+
+Let me think of the possible scenarios.
+
+Case 1: She doesn't open the Unprofitable deposit. Then, she can just take a coins and open Profitable if a >= b. So the answer is max(a, 0) if a >= b, else 0.
+
+Case 2: She opens the Unprofitable deposit with x coins. Then, the Profitable deposit's minimum becomes b - 2x. But she can't use those x coins again. So the total coins she has after opening Unprofitable is a - x. But then, she can use that a - x coins to open Profitable, but only if a - x >= (b - 2x). So the maximum possible coins in Profitable would be the minimum between (a - x) and (b - 2x) if that's possible.
+
+But wait, how do we choose x? Because x can be any value up to a. But since we want to maximize the coins in Profitable, we need to find the optimal x.
+
+But how do we find x? Let's think.
+
+The problem is that x can be any value, but the total coins she has after opening Unprofitable is a - x. And then she can use that to open Profitable, which requires (b - 2x) coins. So, the condition is that a - x >= (b - 2x) → a - x >= b - 2x → a - b >= -x → x >= b - a. But since x is the amount she puts into Unprofitable, which can't be negative. So x can be any value such that x >= max(0, b - a) ?
+
+Wait, let me re-derive that.
+
+After opening Unprofitable with x coins, the remaining coins are a - x. Then, the required for Profitable is (b - 2x). So for that to be possible, a - x >= (b - 2x) → a - x >= b - 2x → a - b >= -x → x >= b - a.
+
+But x can't be negative, so x >= max(0, b - a).
+
+But since x can be any value up to a, but the problem is that we want to maximize the coins in Profitable. So the maximum possible coins in Profitable would be the minimum between (a - x) and (b - 2x) if possible.
+
+But how do we find x that maximizes this?
+
+Alternatively, let's think about the maximum possible value of (b - 2x) that is <= (a - x). So, the maximum possible coins in Profitable would be (b - 2x) if that's possible. But since x can be chosen, perhaps we can find the optimal x.
+
+But how?
+
+Let me think. Let's consider that after opening the Unprofitable deposit, the Profitable deposit's required is (b - 2x). But the amount of coins available is (a - x). So, the maximum possible coins in Profitable would be (a - x) if (a - x) >= (b - 2x) → which is the same as x >= (b - a). But if x is chosen such that a - x is as large as possible, but then the required is (b - 2x). So, perhaps the optimal x is such that (a - x) is as large as possible, but also (b - 2x) is as large as possible.
+
+Wait, but the problem is to maximize the coins in Profitable. So, the maximum possible coins in Profitable is the maximum value of (b - 2x) such that a - x >= (b - 2x) and x is between 0 and a.
+
+But how can we find that?
+
+Alternatively, let's think of the maximum possible coins in Profitable as follows:
+
+If she opens the Unprofitable deposit with x coins, then the Profitable deposit can be opened with (b - 2x) coins. But she can only do that if a - x >= (b - 2x) → x >= (b - a). But x can be any value that satisfies this. So, for x >= max(0, b - a), then she can open the Profitable deposit with (b - 2x) coins. But the maximum possible (b - 2x) would be when x is as small as possible. Because as x increases, (b - 2x) decreases.
+
+Wait, but x has to be at least max(0, b - a). So the minimal x is max(0, b - a). So, the maximum possible (b - 2x) would be when x is as small as possible. So, the maximum possible value of (b - 2x) is when x is as small as possible.
+
+So, the maximum possible coins in Profitable would be (b - 2x), where x is the minimal possible value, which is max(0, b - a). But then, what is that value?
+
+Let me compute that. Let's take x = max(0, b - a). Then, the required for Profitable is b - 2x. But if x is chosen as max(0, b - a), then:
+
+If b - a is negative, then x is 0. So, the required is b - 0 = b. So, the coins in Profitable would be a - 0 = a, but only if a >= b. Which is the case when she doesn't open the Unprofitable deposit. So in this case, the maximum is a, which is the same as the initial case.
+
+But if x is max(0, b - a), then:
+
+If x is 0, then the required for Profitable is b. So, the coins in Profitable is a - 0 = a, but only if a >= b. Which is the same as the initial case.
+
+But if x is max(0, b - a), then for example, if a is 10 and b is 5, then x is 0. So the required is 5. So she can take 10 coins and open Profitable. Which is the first example.
+
+Another example: the second test case is a=7, b=9. So, initial case: a=7 < 9, so can't open Profitable. So, she can open Unprofitable with x coins. The required for Profitable is 9 - 2x. But she has a -x coins. So, a -x >= 9 - 2x → 7 -x >= 9 - 2x → x >= 2. So x can be 2. Then, the required is 9 - 2*2 = 5. The coins available is 7 - 2 = 5. So she can open Profitable with 5 coins. So the answer is 5.
+
+So, in this case, the maximum possible is 5.
+
+So, the idea is that the maximum possible coins is the maximum between the initial case (a >= b) and the case where she opens the Unprofitable deposit with x coins (which allows her to get a higher value).
+
+But how do we compute this?
+
+So, the maximum possible is the maximum between:
+
+- the initial case (if a >= b, then a)
+
+- the case where she opens the Unprofitable deposit with x coins, which gives (b - 2x) coins, but only if a - x >= (b - 2x) → x >= max(0, b - a).
+
+But in that case, the maximum possible coins is (b - 2x), where x is as small as possible (so that (b - 2x) is as large as possible). So x is max(0, b - a). Then, the coins in Profitable is (b - 2x) if a -x >= (b - 2x).
+
+Wait, but when x is chosen as max(0, b -a), then:
+
+If x is 0, then (b - 2x) is b. So the coins in Profitable is b, but only if a >= b. Which is the initial case.
+
+But in the case where a < b, but x is chosen as max(0, b -a) = b -a (if b -a is positive). So, for example, if a=5 and b=10, then x is 10 -5 = 5. Then, the required for Profitable is 10 - 2*5 = 0. So, she can open the Profitable deposit with 0 coins? But that's not possible. Wait, but the problem says that the minimum amount required to open the deposit is b coins. So, if the required is 0, then she can open it with 0 coins? But that's not possible. So perhaps the problem requires that the required is at least 1?
+
+Wait, the problem says that the minimum amount required to open the deposit is b coins. So, if the required is 0, then she can open it with 0 coins. But that's not possible. So, perhaps the problem requires that the required is at least 1. But the problem says that the initial minimum is b coins. So, when you open the Unprofitable deposit, the required for Profitable is b - 2x. But if that is 0, then she can open it with 0 coins. But that's not possible. So, perhaps the problem allows for that. But in that case, the answer would be 0.
+
+Wait, but in the third test case, the input is 5 100. So, a=5, b=100. So, initial case: a < b, so can't open Profitable. Then, she can open Unprofitable with x coins. So, x must be >= max(0, 100 -5) = 95. So x=95. Then, the required for Profitable is 100 - 2*95 = 0. So, she can open it with 0 coins. But that's not allowed. So, the answer would be 0.
+
+So, in that case, the maximum coins is 0.
+
+So, the problem is that when the required is 0, she can't open the deposit. So, the answer is 0.
+
+So, the maximum possible coins in Profitable is the maximum between:
+
+- the initial case (if a >= b, then a)
+
+- the case where she opens Unprofitable with x coins, and then the required is (b - 2x), but that required must be <= (a -x), and also that (b - 2x) >= 0 (since you can't have negative coins). So, the maximum possible coins in Profitable is (b - 2x) if (b - 2x) >= 0 and (a -x) >= (b - 2x).
+
+But how to find this maximum?
+
+So, the maximum possible coins in Profitable would be the maximum of:
+
+- the initial case (if a >= b, then a)
+
+- the maximum possible (b - 2x) where x is chosen such that x >= max(0, b - a), and (a - x) >= (b - 2x), and (b - 2x) >= 0.
+
+But how to compute this?
+
+Let me think again. For the case where she opens the Unprofitable deposit, the required for Profitable is (b - 2x). But this must be >= 0. So, (b - 2x) >= 0 → x <= b/2.
+
+But x must also be >= max(0, b - a). So, the x must be in the range [max(0, b - a), min(a, b/2)].
+
+But if this range is non-empty, then the maximum possible (b - 2x) is when x is as small as possible. Because as x increases, (b - 2x) decreases.
+
+So, the maximum possible (b - 2x) is when x is as small as possible, i.e., x = max(0, b - a). But we also need to make sure that x is <= b/2. Because if x is larger than b/2, then (b - 2x) would be negative, which is not allowed.
+
+So, the maximum possible (b - 2x) is (b - 2 * max(0, b - a)) if that value is >= 0 and x is <= b/2.
+
+So, the steps to compute the answer would be:
+
+For each test case:
+
+1. Check if a >= b. If yes, then the answer is a. Because she can open the Profitable deposit with a coins.
+
+2. Else, check if she can open the Unprofitable deposit. So, she can open it with x coins, which must be >= max(0, b - a). But also, after opening, the required for Profitable is (b - 2x) and the coins available is (a - x). So, (a - x) must be >= (b - 2x) → x >= (b - a). So, the x is in the range [max(0, b -a), ... ].
+
+But to find the maximum possible coins in Profitable, we can compute the maximum possible (b - 2x) in this scenario.
+
+So, the maximum possible (b - 2x) is when x is as small as possible, which is x = max(0, b -a). But we also need to check if this x is <= b/2. Because if x is larger than b/2, then (b - 2x) is negative, which is not allowed. So, if x is max(0, b -a) and x > b/2, then there's no way to open the Profitable deposit. So, in that case, the answer is 0.
+
+So, let's compute x = max(0, b -a). Then, if x > b/2, then the required is (b - 2x) < 0, which is invalid. So, the answer in this case is 0.
+
+Otherwise, the maximum coins is (b - 2x) if (a - x) >= (b - 2x). But since x is chosen as max(0, b -a), and x >= (b -a), then x >= (b -a) → a -x <= a - (b -a) = 2a - b. But I'm not sure.
+
+Wait, but when x is chosen as max(0, b -a), then x is >= (b -a). So, if x is >= (b -a), then the required for Profitable is (b - 2x). But since x >= (b -a), then:
+
+b - 2x <= b - 2*(b -a) = b - 2b + 2a = 2a -b.
+
+But the coins available is a -x. Since x >= (b -a), then a -x <= a - (b -a) = 2a -b. So, the coins available is a -x, which is <= 2a -b. But the required is (b - 2x) which is <= 2a -b. So, the required is <= coins available. So, the condition is satisfied.
+
+So, in this case, the maximum possible coins in Profitable is (b - 2x), where x is max(0, b -a). But we need to check if (b - 2x) is >= 0. Because if x is such that (b - 2x) < 0, then it's invalid.
+
+So, the steps for each test case:
+
+if a >= b:
+
+   answer is a
+
+else:
+
+   x = max(0, b -a)
+
+   if x > b/2:
+
+       then the required is (b - 2x) < 0 → invalid. So answer is 0.
+
+   else:
+
+       the maximum coins is (b - 2x) if (a -x) >= (b - 2x) → which is always true because x >= (b -a) → a -x <= 2a -b, and (b - 2x) = 2a -b - (a -x) ?
+
+Wait, maybe not. Let me think.
+
+Wait, x is chosen as max(0, b -a). So, for example, if a=7, b=9. Then, b -a is 2. So x is 2. Then, required is 9 - 2*2 = 5. The coins available is a -x = 7-2=5. So 5 >= 5. So yes.
+
+Another example: a=5, b=100. Then, x is max(0, 100-5) = 95. Then, required is 100 - 2*95 = 0. So, the coins available is 5 -95 = -90. Which is negative. So, this is invalid. So, the answer is 0.
+
+So, in this case, the required is 0, but the coins available is negative. So, the answer is 0.
+
+So, the problem is that even if x is chosen as max(0, b -a), we need to check that a -x >= 0. Because if a -x is negative, then she can't have any coins left to open the Profitable deposit.
+
+So, in the case where x is chosen as max(0, b -a), we need to check that a -x >= 0. Because if a -x is negative, then she can't open the Profitable deposit.
+
+So, the steps are:
+
+For each test case:
+
+if a >= b:
+
+   answer is a
+
+else:
+
+   x = max(0, b -a)
+
+   if x > a:
+
+       then, even if she opens the Unprofitable deposit with x coins, she can't have a -x coins. So, answer is 0.
+
+   else:
+
+       if (b - 2x) >= 0:
+
+           then, the answer is max( (b - 2x), 0 )
+
+       else:
+
+           answer is 0
+
+Wait, but how do we check if (b - 2x) is >= 0?
+
+Because x is chosen as max(0, b -a). So, if x is >= (b -a), then:
+
+if x is >= b/2, then (b - 2x) is <= 0. So, in that case, the answer is 0.
+
+But if x is <= b/2, then (b - 2x) is >= 0.
+
+So, for example, in the case where a=7, b=9:
+
+x = 2, which is <= 9/2 =4.5. So, (b - 2x) = 9 -4 =5 >=0. So answer is 5.
+
+In the case where a=5, b=100: x = 95, which is 95 > 100/2 =50. So, (b - 2x) = 100 - 190 = -90 <0 → answer is 0.
+
+So, the steps for the else part are:
+
+x = max(0, b -a)
+
+if x > a → then, a -x is negative → answer is 0.
+
+else:
+
+   if (b - 2x) >=0 → then answer is (b - 2x)
+
+   else → answer is 0.
+
+But how do we check if (b - 2x) is >=0?
+
+Well, since x is max(0, b -a), then:
+
+if x is max(0, b -a):
+
+Case 1: x = b -a (when b -a is positive, so a < b). So, x = b -a.
+
+Then, b - 2x = b - 2*(b -a) = b - 2b + 2a = 2a -b.
+
+Which is >=0?
+
+Well, since a < b, 2a -b is negative. So, in this case, (b - 2x) is 2a -b <0. So, the answer would be 0.
+
+Wait, but in the case where a=7, b=9, x is 2. Then, 2a -b is 14 -9=5, which is positive. So why is that?
+
+Because x is max(0, b -a) = 2. So, 2a -b = 2*7 -9 =14-9=5>0. So, the answer is 5.
+
+Ah, so the formula for (b - 2x) is 2a -b. So, when x = b -a, then (b - 2x) = 2a -b.
+
+So, in this case, if 2a -b >=0, then the answer is 2a -b. Otherwise, it's 0.
+
+But how?
+
+So, for x = max(0, b -a):
+
+if x <= b/2 → then (b - 2x) >=0.
+
+But x is max(0, b -a). So, if x is in the range [max(0, b -a), ...], then:
+
+if x is <= b/2, then (b - 2x) is >=0.
+
+But when x is max(0, b -a), then:
+
+if x is >= b -a, then x can be:
+
+if b -a <= b/2 → then x is <= b/2.
+
+But if b -a <= b/2 → then a >= b/2.
+
+So, for example, if a is 7, b is 9. Then, b -a is 2. Which is <= 9/2 =4.5. So x is 2, which is <= 4.5. So (b - 2x) = 9 - 4 =5 >=0.
+
+But if a is 5, b is 10. Then, b -a is 5. Which is 5. Then, b/2 is 5. So x is 5, which is equal to 5. So (b - 2x) = 10 - 10 =0. Which is allowed. So the answer is 0.
+
+But if a is 5, b is 10, then x is 5. So, the coins available is a -x = 0. So, the required is 0. Which is allowed. So the answer is 0.
+
+So, the formula for the answer in this case is:
+
+if x is max(0, b -a) and x <= b/2, then the answer is (b - 2x) = 2a -b.
+
+But if x is greater than b/2, then the answer is 0.
+
+So, putting it all together:
+
+For each test case:
+
+if a >= b:
+
+   answer is a
+
+else:
+
+   x = max(0, b -a)
+
+   if x > a:
+
+       answer is 0
+
+   else:
+
+       if (b - 2x) >= 0:
+
+           answer is (b - 2x)
+
+       else:
+
+           answer is 0
+
+But wait, how do we check if (b - 2x) >=0?
+
+Because x is max(0, b -a). So, if x is b -a, then (b - 2x) is 2a -b. Which is >=0 only if 2a >=b → a >= b/2. But since a < b (because in this case, a < b), then 2a >=b is possible only when a >= b/2.
+
+So, for example, if a=7, b=9: 2a=14 >=9 → yes. So answer is 5.
+
+If a=5, b=10: 2a=10 >=10 → yes. So answer is 0.
+
+If a=5, b=11: 2a=10 <11 → 2a -b is -1. So answer is 0.
+
+So, in the else part, after x is calculated, we need to check if (b - 2x) >=0. But since x is max(0, b -a), then:
+
+if x is <= b/2 → then (b - 2x) >=0.
+
+But how do we know that x is <= b/2?
+
+Because x is max(0, b -a). So, if x is b -a, then:
+
+b -a <= b/2 → a >= b/2.
+
+But since in this case, a < b, then a can be >= b/2 or not.
+
+So, for example, if a=6, b=9 → b -a =3. 3 <= 9/2 =4.5 → yes. So (b - 2x) =9 -6=3 >=0. So answer is 3.
+
+If a=5, b=10 → x=5. 5 is equal to 10/2=5 → yes. So (b -2x)=0.
+
+So, in this case, the answer is 0.
+
+So, the condition for (b - 2x) >=0 is:
+
+if x <= b/2 → which is true when x is max(0, b -a) and x <= b/2.
+
+But how to check that?
+
+Well, in code, after calculating x, we can check if x <= b/2. But since x is an integer, we can check if x <= (b // 2) or x <= (b - 1) // 2 ?
+
+Wait, but for example, if b is even, then b/2 is integer. If b is odd, then b/2 is a float. So, for example, b=9, x=4.5 (but x is integer). So, in code, we can check if x <= b/2. But since x is an integer, and b is integer, perhaps we can check if x <= b//2.
+
+Wait, for example, if b=9, then b/2 is 4.5. So x=4 is <=4.5 → yes. x=5 is 5>4.5 → no.
+
+So, in code, for x = max(0, b -a), we can check if x <= (b / 2). But since in Python, we can do integer division.
+
+So, in code, for x, we can check if x <= b / 2.
+
+But since x is an integer, we can check if x <= (b // 2) or x <= (b -1) // 2 ?
+
+Wait, for example, b=9, x=4.5 is not possible. So, for x as integer, x <= 4.5 is equivalent to x <=4.
+
+So, in code, the condition is x <= (b // 2) ?
+
+Wait, no. Because if b is even, say 10, then b//2 is 5. So x=5 is allowed. x=5 is equal to b//2. So, 5 <=5 → yes.
+
+If b is 9, then b//2 is 4. So x=4 is allowed. x=4 is <=4.5 → yes.
+
+So, in code, the condition is x <= (b // 2) ?
+
+No. Because for example, if b is 9, and x is 4, then 4 <= 9//2 → 9//2 is 4. So yes.
+
+If x is 5, then 5 <=4 → no.
+
+So, yes. So, the condition is x <= (b // 2) ?
+
+But wait, if b is even, say 10, then b//2 is 5. So, x=5 is allowed. So, yes.
+
+So, in code, after calculating x, we can check if x <= b//2. If yes, then (b - 2x) is >=0. Otherwise, it's negative.
+
+So, the steps in code:
+
+for each test case:
+
+read a, b.
+
+if a >= b:
+
+   print(a)
+
+else:
+
+   x = max(0, b -a)
+
+   if x > a:
+
+       print(0)
+
+   else:
+
+       if x <= (b // 2):
+
+           ans = b - 2 * x
+
+       else:
+
+           ans = 0
+
+       print(ans if ans >=0 else 0)
+
+Wait, but what about the case where x is <= (b//2), but (b - 2x) is negative?
+
+No, because x is max(0, b -a). So, if x is <= (b//2), then (b - 2x) is >=0?
+
+Let me see.
+
+If x is max(0, b -a). Let's think of two cases:
+
+Case 1: x = b -a.
+
+Then, (b - 2x) = b - 2*(b -a) = 2a -b.
+
+But since a < b, 2a -b can be positive or negative.
+
+For example, if a = 7, b=9 → 2*7 -9=5>0.
+
+If a=5, b=10 → 2*5 -10=0.
+
+If a=5, b=11 → 2*5-11 = -1 <0.
+
+So, in this case, if x is b -a, then (b - 2x) is 2a -b. Which is >=0 only when 2a >=b → a >=b/2.
+
+But since a <b, this is possible when a >=b/2.
+
+So, in code, if x is <= b//2, then (b - 2x) is >=0?
+
+No. For example, if a=5, b=10 → x=5. b//2 is 5. So x is 5 <=5 → yes. Then (b -2x) is 10-10=0 >=0. So yes.
+
+Another example: a=5, b=11. x= max(0, 11-5)=6. b//2 is 5. So x=6>5. So the code would check if x <=5 → no, so ans is 0.
+
+So, in the code, after calculating x, if x <= (b//2), then (b - 2x) is >=0. But how?
+
+Because x is max(0, b -a). So, when x is <= b//2, then:
+
+if x is b -a, then 2a -b is >=0 → a >=b/2.
+
+But in that case, a >=b/2 → since a <b, then a can be >=b/2.
+
+But in code, how to ensure that?
+
+Well, in code, the condition is x <= (b//2). So, when x is <= (b//2), then (b - 2x) is >=0?
+
+Not necessarily. For example, if b is 9 and x is 4 (b//2 is 4). So x=4, which is <=4. Then (b - 2x) is 9-8=1 >=0. So yes.
+
+Another example: b=10, x=5 (b//2 is 5). Then (b -2x) is 10-10=0.
+
+Another example: b=9, x=4 → 9-8=1.
+
+But if a is 5, b=10, x=5 (b//2 is 5). Then (b -2x) is 0.
+
+So, in code, when x is <= (b//2), then (b -2x) is >=0.
+
+But why?
+
+Because x is max(0, b -a). So, for x to be <= (b//2), then:
+
+if x is b -a, then:
+
+b -a <= b//2 → a >= b - b//2.
+
+Which is a >= (b - (b//2)).
+
+But how?
+
+But regardless, in code, when x is <= (b//2), then (b -2x) is >=0.
+
+But how can we be sure?
+
+Because:
+
+x is max(0, b -a).
+
+If x <= b//2 → then:
+
+if x is 0 → then (b - 2x) =b >=0.
+
+if x is b -a, then:
+
+since x <= b//2 → b -a <= b//2 → a >= b - b//2.
+
+But since a <b, then a can be in that range.
+
+But regardless, the formula for (b -2x) is:
+
+if x is b -a → 2a -b.
+
+But since a <b, then 2a -b can be positive or negative.
+
+But if x is <= b//2, then 2a -b = (b - 2x) → since x =b -a, then:
+
+b - 2x = b - 2(b -a) = 2a -b.
+
+But if x is <=b//2 → then:
+
+x =b -a <= b//2 → b -a <= b//2 → a >= b - b//2.
+
+But then 2a -b = 2*(b - b//2) -b → 2b - 2*(b//2) -b = b - 2*(b//2).
+
+But if b is even, say 10, then b//2 is 5. So 2a -b = 2*(b - b//2) -b = 2*(5) -10 = 0.
+
+If b is 9, then b//2 is 4. So 2a -b = 2*(b -4) -9 = 2*(5) -9 = 10-9=1.
+
+So in this case, (b -2x) is positive.
+
+But if a is 5, b=11 → x=6. But in this case, x is 6 which is greater than b//2 (5). So the code would not process this case.
+
+So, the code is correct.
+
+So, the code steps are:
+
+for each test case:
+
+read a and b.
+
+if a >=b:
+
+   print(a)
+
+else:
+
+   x = max(0, b -a)
+
+   if x > a:
+
+       print(0)
+
+   else:
+
+       if x <= b//2:
+
+           ans = b - 2*x
+
+       else:
+
+           ans = 0
+
+       print(ans if ans >=0 else 0)
+
+But wait, in the case where x is <= b//2, but ans is negative?
+
+No. Because x is max(0, b -a). So, if x is <= b//2, then:
+
+if x is 0 → then ans is b - 0 =b >=0.
+
+if x is b -a, then ans is 2a -b. But since a <b, 2a -b can be negative.
+
+Wait, for example, if a=5, b=10 → x=5. Then ans is 10 - 2*5 =0. Which is >=0.
+
+But if a=5, b=11 → x=6. But in this case, x is 6, which is greater than b//2 (5). So the code would not process this case.
+
+So, when x is <= b//2, then ans is b - 2x.
+
+But in the case where a=5, b=11, x=6 is not <=5. So, the code would not process this case.
+
+So, the code is correct.
+
+Another example: a=5, b=11.
+
+a <b. So, x = max(0, 11-5) =6. Then, x=6. Check if x <= 11//2 =5. 6>5 → ans is 0. So output 0.
+
+Another example: a=5, b=10. x=5. 5 <=5. ans is 10-10=0. So output 0.
+
+Another example: a=7, b=9. x=2. 2 <=4.5. ans is 9-4=5. So output 5.
+
+Another example: a=5, b=100. x=95. 95 > 50 (100//2). So ans is 0.
+
+So, the code seems to handle all cases.
+
+Now, let's check the sample input.
+
+Sample input:
+
+5
+
+10 5 → a=10 >=5 → output 10.
+
+7 9 → a=7 <9. x = max(0, 9-7)=2. x=2 <=9//2=4. So ans=9-4=5. So output 5.
+
+5 100 → a=5 <100. x=95. 95>50 → ans 0.
+
+1 1 → a=1 <1? No. So a=1 >=1 → output 1.
+
+1 2 → a=1 <2. x= max(0, 2-1)=1. x=1 <=2//2=1. ans=2-2*1=0. So output 0.
+
+Which matches the sample output.
+
+Another test case: a=5, b=10. Output is 0.
+
+Another test case: a=5, b=11. Output is 0.
+
+So, the code seems to handle these cases.
+
+Now, let's code this in Python.
+
+But wait, what about when x is 0?
+
+For example, a=5, b=5. Then, a >=b → output 5.
+
+Another case: a=5, b=6. So, a <b. x=6-5=1. x=1 <=6//2=3. ans=6-2*1=4. So output 4.
+
+But what if a=5, b=6. Then, the initial a is 5 <6. So, she can open the Unprofitable deposit with x=1. Then, the coins available is 5-1=4. The required is 6-2*1=4. So, she can open the Profitable deposit with 4 coins. So the answer is 4.
+
+Yes, which is correct.
+
+Another case: a=3, b=5. x=2. 2 <=5//2=2. So ans=5-4=1. So output 1.
+
+Yes, because after opening Unprofitable with 2 coins, she has 1 coin left. The required is 5-4=1. So she can open the deposit with 1 coin.
+
+So, the code is correct.
+
+Now, code:
+
+Read t test cases.
+
+For each test case:
+
+a, b = map(int, input().split())
+
+if a >=b:
+
+    print(a)
+
+else:
+
+    x = max(0, b -a)
+
+    if x > a:
+
+        print(0)
+
+    else:
+
+        if x <= b//2:
+
+            ans = b - 2 * x
+
+            print(ans if ans >=0 else 0)
+
+        else:
+
+            print(0)
+
+Wait, but in the case where x is <=b//2, but ans is negative?
+
+No, because x is max(0, b -a). So, when x is <=b//2, then:
+
+if x is 0 → ans is b - 0 =b >=0.
+
+if x is b -a, then ans is 2a -b.
+
+But since a <b, 2a -b can be negative.
+
+Wait, for example, a=3, b=5. Then, x=2. 2 <=5//2=2. ans=5-4=1 ≥0. So correct.
+
+Another example: a=3, b=7. x=4. 4 <=7//2=3.5 → 4>3.5. So no. So code would not process this case. Wait, 7//2 is 3. So x=4>3. So code would output 0.
+
+But wait, in this case, a=3 <7. x=7-3=4. 4>7//2=3. So code would output 0.
+
+But what's the actual answer?
+
+If she opens the Unprofitable deposit with x=4 coins, then the coins available is 3-4 =-1. Which is invalid. So answer is 0.
+
+Yes.
+
+Another example: a=4, b=7. x=3. 3 <=7//2=3. So ans=7-6=1. So output is 1.
+
+Yes, because after opening Unprofitable with x=3 coins, the coins available is 4-3=1. The required is 7-6=1. So she can open the deposit with 1.
+
+So, code is correct.
+
+So, the code seems to handle all cases.
+
+Now, code:
+
+But wait, in the code, when x is <=b//2, then ans is b-2x. But what if that is negative?
+
+But in the code, the code checks if ans >=0. But in the code above, it's written as:
+
+ans = b - 2 *x
+
+print(ans if ans >=0 else 0)
+
+But why? Because when x is <=b//2, then ans is >=0?
+
+No. Because for example, a=3, b=7. x=4. But x is 4, which is larger than 7//2=3. So code would not process it. But if a=3, b=7, then x is 7-3=4. Which is larger than 7//2=3. So the code would check if x <=3 → no, so print 0.
+
+But if a=4, b=7. x=3. 3 <=3.5 (7//2 is 3). So 3 <=3. So ans is 7-6=1. So correct.
+
+Another example: a=2, b=5. x=3. 3 <=5//2=2.5 → no. So code would output 0. But in this case, a=2 <5. x=3. But x=3>2. So code would print 0.
+
+Yes.
+
+So, in code, the code for the else part is:
+
+if x <= b//2:
+
+   ans = b - 2*x
+
+   print(ans if ans >=0 else 0)
+
+But in code, the code is:
+
+if x <= b//2:
+
+   ans = b - 2 * x
+
+   print(ans if ans >=0 else 0)
+
+But in the case where x is 0, then ans is b -0 =b, which is >=0.
+
+So, the code is correct.
+
+But in code, the code for the else part is:
+
+else:
+
+   if x <= b//2:
+
+       ans = b - 2 *x
+
+       print(ans if ans >=0 else 0)
+
+   else:
+
+       print(0)
+
+But in Python, the code would be:
+
+So, the code is:
+
+t = int(input())
+for _ in range(t):
+    a, b = map(int, input().split())
+    if a >= b:
+        print(a)
+    else:
+        x = max(0, b - a)
+        if x > a:
+            print(0)
+        else:
+            if x <= b // 2:
+                ans = b - 2 * x
+                print(ans if ans >= 0 else 0)
+            else:
+                print(0)
+
+Wait, but in the case where x is 0, and ans is b, which is >=0. So, the code would print it.
+
+But what about when x is 0, and ans is b - 0 =b. Which is correct.
+
+But in code, when x is 0, then x <= b//2 is always true, since 0 <= b//2. So the code would print ans.
+
+But what if x is 0, and ans is b - 0 =b. Which is correct.
+
+But what about when x is 0 and a <b. For example, a=3, b=5. Then x=5-3=2. So x=2. Which is <=5//2=2. So ans is 5-4=1. So code is correct.
+
+But in the code, when x is 0, then x = max(0, b -a) =0. So, for example, if a=3, b=5, then x is 2. So the code is correct.
+
+So, the code is correct.
+
+Now, let's test the sample input.
+
+Sample input:
+
+5
+
+10 5 → output 10.
+
+7 9 → output 5.
+
+5 100 → output 0.
+
+1 1 → output 1.
+
+1 2 → output 0.
+
+Which matches the sample output.
+
+Another test case: a=5, b=10 → output 0.
+
+Another test case: a=5, b=11 → output 0.
+
+Another test case: a=5, b=10 → x=5. 5 <=5. ans is 10-10=0. So output 0.
+
+Another test case: a=5, b=9. x=4. 4 <=4.5 → yes. ans is 9-8=1. So output 1.
+
+Yes.
+
+So, the code seems correct.
+
+Now, the code must be written in Python, and it must read from stdin and output to stdout.
+
+But in Python, for large t (up to 1e4), it's acceptable.
+
+So, the code is as written above.
+</think>
+
+```python
+t = int(input())
+for _ in range(t):
+    a, b = map(int, input().split())
+    if a >= b:
+        print(a)
+    else:
+        x = max(0, b - a)
+        if x > a:
+            print(0)
+        else:
+            if x <= b // 2:
+                ans = b - 2 * x
+                print(ans if ans >= 0 else 0)
+            else:
+                print(0)
+```

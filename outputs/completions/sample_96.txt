@@ -1,0 +1,312 @@
+<think>
+Okay, let's tackle this problem. The task is to find a non-empty substring p of a given string s such that the number of distinct non-empty substrings of p is even. If no such p exists, return -1.
+
+First, I need to understand what f(p) represents. For a string p, f(p) is the count of distinct substrings. For example, the string "abc" has 6 distinct substrings (a, b, c, ab, bc, abc). So the problem is to find any substring p where this count is even.
+
+The challenge is to find such a p efficiently, considering the constraints on time and memory. Since the sum of the lengths of s across all test cases is up to 3e5, we need an approach that's efficient.
+
+Let me think about the possible approaches. The straightforward way would be to check all possible substrings of s and compute their f(p). But for a string of length n, there are O(n^2) substrings, which is not feasible for large n (like 1e5). So we need a smarter approach.
+
+Wait, but the problem requires that f(p) is even. Let's think about some properties of f(p). For example, the minimum possible value of f(p) is 1 (when p is a single character). The maximum is n*(n+1)/2 for a string of length n. But for the problem, we need to find any p where f(p) is even.
+
+But how can we find such a p quickly?
+
+Let me think about the possible cases. For example, if the string s has a substring of length 1. For example, if there's a single character in s, then the substring is that character, which has f(p) = 1 (odd). So in that case, it's impossible. But wait, the second example in the problem says that for input "a", the output is -1. So for a single character, the answer is -1.
+
+But for longer strings, maybe there's a way. For example, if there's a substring of length 2. Let's see: for a substring of length 2, the number of distinct substrings is 3 (the two characters and their combination). So that's odd. So for a substring of length 2, it's impossible. But wait, for example, if the substring is "aa", then the distinct substrings are a, aa. So 2, which is even. So in that case, it's possible. So for a substring of length 2, if the two characters are the same, then f(p) is 2 (even). So that's a valid case.
+
+So the idea is: for any substring p of s, if it's of length 2 and the two characters are same, then f(p) is 2 (even). So that's a valid solution. So in that case, we can return that substring.
+
+So for example, in the first test case, the input is "dcabaac". The substring "abaa" is present. But why is that a valid solution? Because the number of distinct substrings is 8, which is even. But there's a shorter substring that meets the condition. Like "aa" (length 2, same characters) which would have 2 distinct substrings, which is even. So why isn't that the answer?
+
+Wait, the first test case's output is "abaa" but the problem allows any valid p. So if there's a substring of length 2 with same characters, then that's a valid solution. So for example, if the input is "aa", then the answer is "a" (but wait, the substring "a" has f(p) = 1, which is odd. So that's not allowed. But "aa" has f(p) = 2 (a and aa), which is even. So the answer would be "aa".
+
+So the problem is to find any substring p where f(p) is even. So for the problem, the solution could be as simple as checking if there's any substring of length 2 with same characters. If yes, then return that substring. Otherwise, check for longer substrings.
+
+But how to find that quickly?
+
+Let me think: for each test case, check if there exists a substring of length 2 with same characters. If yes, then return that substring. Otherwise, check for substrings of length 3, etc. But for large strings, this could be time-consuming.
+
+But perhaps there's a smarter way. Let's think about the possible cases:
+
+Case 1: There exists a substring of length 2 with same characters. Then, return that substring. Because for such a substring, f(p) is 2, which is even.
+
+Case 2: If there is no such substring, then check for substrings of length 3. For example, if there's a substring of length 3 where the first and second characters are same, then f(p) is 3 + 1 (the first character, the second, the third, and the two two-character substrings, and the three-character). Wait, no. For a substring of length 3, the number of distinct substrings is 3 + 2 + 1 = 6? No, wait. For a string of length 3, the number of distinct substrings is 3 + 2 + 1 = 6? No, that's not right. For example, the string "aaa" has 3 distinct substrings (a, aa, aaa). So for a substring of length 3, the number of distinct substrings is 3 (for the three possible lengths). So for a substring of length 3, if all three characters are same, then the number is 3. Which is odd. But if there's a substring of length 3 where the first and second are same, but the third is different, then the number of distinct substrings is 3 + 2 (for the two two-character substrings) + 1 (the three-character) but maybe some overlapping. Wait, maybe I need to think of the formula for the number of distinct substrings.
+
+The number of distinct substrings of a string of length n is n(n+1)/2 - (number of duplicates). But for a string of length 3, the maximum possible is 3*4/2 = 6. But for a string like "aba", the distinct substrings are a, b, a, ab, ba, aba. So the distinct count is 5. So the formula is not straightforward.
+
+But for the problem, perhaps there's a way to find that for some substrings, the number of distinct substrings is even.
+
+But how?
+
+Alternatively, perhaps the answer is always possible except for certain cases. For example, if the string has no two same consecutive characters, then the minimal possible substring is of length 2, which has f(p) = 2 (even) if the two are same. Wait, no. If the two characters are different, then the substring of length 2 has f(p) = 2 (the two characters). Which is even. So in that case, the answer is that substring.
+
+Wait, that's a key point. For example, if there's a substring of length 2 with different characters, then f(p) is 2, which is even. So in that case, the answer is that substring.
+
+So, for example, in the case where the string is "abc", then the substrings of length 2 are "ab", "bc". Both have f(p) = 2 (even). So the answer is either "ab" or "bc".
+
+So the problem reduces to: if there exists any substring of length 2 (i.e., any two consecutive characters) that are the same, then return that substring. Otherwise, return any substring of length 2 (if they are different) as the answer. But wait, if there's a substring of length 2 with different characters, then the answer is that substring. Because f(p) is 2, which is even.
+
+So, in that case, the problem can be solved by checking if there exists any two consecutive characters in the string that are the same. If yes, then return that substring. Otherwise, return the first two characters (since they are different, and their f(p) is 2, which is even). But wait, if the string is of length 1, then there are no two consecutive characters, so the answer is -1.
+
+Wait, let's think about the cases:
+
+For the string s of length 1, the only possible substring is s itself. Its f(p) is 1 (odd), so output -1.
+
+For a string of length 2, if the two characters are same, then the answer is that substring (f(p) is 2, even). If they are different, then the answer is the substring (f(p) is 2, even). So for any string of length 2, the answer is the substring (since f(p) is 2, even).
+
+So for the string of length 2, the answer is the substring of length 2.
+
+But for longer strings, if there exists a substring of length 2 with same characters, then return that substring. Otherwise, return any substring of length 2 (which is different, so f(p) is 2 even).
+
+So the solution is: for each test case, check if there's any two consecutive characters in the string that are same. If yes, return that substring. Otherwise, return the first two characters (since they are different, and their f(p) is 2 even).
+
+But wait, what if the string is of length 3 and the first two characters are different, but the second and third are same. Then, the substring "baa" would have f(p) of 3 (for the three characters) + 2 (for the two two-character substrings) + 1 (the three-character) but maybe some overlaps. Wait, for "baa", the distinct substrings are:
+
+b, a, a, ba, aa, baa. So the distinct ones are b, a, ba, aa, baa. So total of 5. Which is odd. So the answer is not this substring. But according to our previous logic, since there's no two consecutive same characters, we return the first two characters (ba), which has f(p) of 2 (even). So that's valid.
+
+So the approach is:
+
+For each test case:
+
+- If the string length is 1: output -1.
+
+- Else:
+
+   - Check if there exists any two consecutive characters that are same. If yes, return that substring (the first occurrence of such a pair, or any such pair).
+
+   - Else, return the first two characters (since they are different, and their f(p) is 2, even).
+
+But wait, what if the first two characters are same? Then the answer is that substring. But in that case, the code would have already handled it.
+
+So the code can be structured as follows:
+
+For each test case:
+
+   s = input string.
+
+   if len(s) == 1:
+
+      print -1
+
+   else:
+
+      for i in 0 to len(s)-2:
+
+          if s[i] == s[i+1]:
+
+              print s[i:i+2]
+
+              break
+
+      else:
+
+          print s[0:2]
+
+But wait, in the case where the first two characters are different, but there exists a longer substring where f(p) is even. For example, if the string is "abcde", then the first two characters are different, but the substring "ab" is valid. So the code would output "ab".
+
+But what if there's no two consecutive same characters, but the entire string has a substring of length 3 with even f(p)?
+
+But according to the problem, the code needs to return any valid p. So even if there's a longer substring with even f(p), but the code can return a shorter one.
+
+But according to the above approach, the code returns the first two characters, which is valid.
+
+But why is that?
+
+Because the first two characters are different. So their f(p) is 2, which is even. So the code returns that.
+
+So the code would work for all cases except when the string has length 1. But what about when the string has length 2 and the two characters are same? Then the code returns that substring, which is correct.
+
+So the code would work for all cases.
+
+Let's check the examples:
+
+First example:
+
+Input is "dcabaac".
+
+The code checks for consecutive same characters. Let's see:
+
+d c a b a a c.
+
+The consecutive pairs are:
+
+d and c (no), c and a (no), a and b (no), b and a (no), a and a (yes). So the code returns "aa".
+
+But the sample output is "abaa". But according to our approach, the code would output "aa", which is valid. However, the sample output is "abaa", but the problem allows any valid solution. So the code would output "aa" which is correct.
+
+But the sample output is "abaa" because the problem says that any valid solution is acceptable. So the code's output would be correct.
+
+But wait, the sample output for the first test case is "abaa". But according to our approach, the code would output "aa" which is also valid. So why is the sample output different? Because the problem allows any valid solution. So our approach is correct.
+
+So the code would work for all test cases.
+
+But let's check the sample input:
+
+Second test case: "a" → output -1. Correct.
+
+Third test case: "youknowwho" → the length is 11. The code checks for consecutive same characters. Let's see: the string is "youknowwho". Let's check consecutive characters:
+
+y o u k n o w h o. No consecutive same characters. So the code returns the first two characters "yo", which is valid. But the sample output is "youknowwho" (the entire string). So why is that?
+
+Because the sample output for the third test case is "youknowwho" (the entire string). But according to our approach, the code would return "yo" (the first two characters). But the sample output is the entire string. So why is that?
+
+Ah, because the sample output is not the only correct answer. The problem says that any valid solution is acceptable. So the code's approach is correct. But in the sample input, the third test case's output is "youknowwho" which is the entire string. But according to our approach, the code would return "yo" which is valid. So why is the sample output different?
+
+Because the problem allows any valid solution. So the code's approach is correct.
+
+So the code's approach is correct.
+
+But wait, what about the third test case? Let's check the sample input. The third test case is "youknowwho". The entire string has 11 characters. The number of distinct substrings of the entire string is 52 (as per the note). Which is even. So the code would output "yo" which is valid. But the sample output is the entire string. But that's allowed.
+
+So the code's approach is correct.
+
+Another example: the fourth test case is "codeforces". The output is "eforce". Let's see. The code would check for consecutive same characters. The string is "codeforces". Let's check consecutive characters:
+
+c o d e f o r c e s. No consecutive same characters. So the code returns the first two characters, "co". But the sample output is "eforce". So why?
+
+Because the sample output is another valid solution. The code's approach would return "co", which is valid. But the sample output is different. But the problem allows any valid solution. So the code's approach is correct.
+
+So the code's approach is correct.
+
+So the code can be written as follows:
+
+Read t test cases.
+
+For each test case:
+
+   s = input string.
+
+   if len(s) == 1:
+
+      print -1
+
+   else:
+
+      for i in 0 to len(s)-2:
+
+          if s[i] == s[i+1]:
+
+              print s[i:i+2]
+
+              break
+
+      else:
+
+          print s[0:2]
+
+But wait, what if the string is of length 2 and the two characters are same? Then the code would print that substring. Which is correct.
+
+But what about when the string is of length 2 and the two characters are different? Then the code prints the first two characters, which is correct.
+
+But what if the string is of length 2 and the two characters are same? Then the code returns that substring, which is correct.
+
+So this approach works.
+
+But wait, what about when the string is of length 3 and the first two characters are different, but the second and third are same. Then the code returns the first two characters (which is valid). So that's correct.
+
+So the code is correct.
+
+But let's test the sample input.
+
+Sample input 5:
+
+bangladesh → output is "bang".
+
+Let's check the code's approach. The string is "bangladesh".
+
+Check for consecutive same characters. Let's see:
+
+b a n g l a d e s. No consecutive same characters. So the code returns the first two characters "ba". But the sample output is "bang". But "ba" is valid. So the code's output would be "ba", which is correct. But the sample output is "bang". So why is that?
+
+Because the sample output is one of the possible correct answers. So the code's approach is correct.
+
+Thus, the code is correct.
+
+But wait, the sample output for the fifth test case is "bang". Let's check the code's approach. The code would return the first two characters "ba" (since there are no consecutive same characters). So the code's output would be "ba", which is valid. But the sample output is "bang". So the code's output is correct, but the sample output is different. So the code is correct.
+
+So the code is correct.
+
+But why does the sample output have "bang"? Because the problem allows any valid solution. So the code's approach is correct.
+
+Thus, the code can be written as follows.
+
+Now, considering the constraints.
+
+The code needs to read t test cases, each with a string s. For each s, check if len(s) is 1. If yes, output -1. Else, check for any consecutive same characters. If found, output the substring. Else, output the first two characters.
+
+But how to implement this in Python.
+
+Now, the code:
+
+Read t.
+
+For each test case:
+
+   s = input().strip()
+
+   if len(s) == 1:
+
+      print(-1)
+
+   else:
+
+      for i in range(len(s)-1):
+
+          if s[i] == s[i+1]:
+
+              print(s[i:i+2])
+
+              break
+
+      else:
+
+          print(s[0:2])
+
+But wait, in the case where the string is of length 2 and the two characters are same, then the code will print that substring. Which is correct.
+
+But for the sample input 5, the code would output "ba" for "bangladesh", which is valid.
+
+But the sample output is "bang". But that's allowed.
+
+So the code is correct.
+
+But let's test the sample input 2: "a" → output -1. Correct.
+
+Sample input 3: "youknowwho" → code returns "yo" (the first two characters). But the sample output is "youknowwho" (the entire string). But the code's output is valid. So the code is correct.
+
+But why is the sample output "youknowwho"? Because the entire string is a valid solution. The code's approach returns a shorter solution, which is correct.
+
+Thus, the code is correct.
+
+But what about the case where the code returns the first two characters, but there exists a longer substring with even f(p)?
+
+But the code's approach is correct because the first two characters are valid.
+
+So the code is correct.
+
+Thus, the code is as follows.
+</think>
+
+```python
+import sys
+
+def main():
+    t = int(sys.stdin.readline())
+    for _ in range(t):
+        s = sys.stdin.readline().strip()
+        if len(s) == 1:
+            print(-1)
+        else:
+            found = False
+            for i in range(len(s) - 1):
+                if s[i] == s[i+1]:
+                    print(s[i:i+2])
+                    found = True
+                    break
+            if not found:
+                print(s[0:2])
+
+if __name__ == "__main__":
+    main()
+```
