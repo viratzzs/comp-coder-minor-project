@@ -1,21 +1,26 @@
 import os
 
-#os.environ["VLLM_MAX_MODEL_LEN"] = "19000"
-#os.environ["WANDB_PROJECT"] = "comp-coder"
+# os.environ["VLLM_MAX_MODEL_LEN"] = "19000"
+# os.environ["WANDB_PROJECT"] = "comp-coder"
 
 # Launch script with accelerate instead
-# CUDA_VISIBLE_DEVICES=0,1 accelerate launch grpo-qwen3-8b.py 
-#os.environ["CUDA_VISIBLE_DEVICES"] = "0"
-#os.environ["WORLD_SIZE"] = "1"
-#os.environ["RANK"] = "0"
-#os.environ["LOCAL_RANK"] = "0"
-#os.environ["MASTER_ADDR"] = "localhost"
-#os.environ["MASTER_PORT"] = "12355"
- 
+# CUDA_VISIBLE_DEVICES=0,1 accelerate launch grpo-qwen3-8b.py
+# os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+# os.environ["WORLD_SIZE"] = "1"
+# os.environ["RANK"] = "0"
+# os.environ["LOCAL_RANK"] = "0"
+# os.environ["MASTER_ADDR"] = "localhost"
+# os.environ["MASTER_PORT"] = "12355"
+
 import torch
 
 from datasets import load_dataset, Dataset
-from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig, TextStreamer
+from transformers import (
+    AutoTokenizer,
+    AutoModelForCausalLM,
+    BitsAndBytesConfig,
+    TextStreamer,
+)
 from peft import LoraConfig
 from vllm import SamplingParams
 from trl import GRPOConfig, GRPOTrainer
@@ -36,23 +41,32 @@ Then provide your solution below in this format:
 Now solve the problem and return the code.
 """
 
-def get_sol_data(split = "train") -> Dataset:
-    data = load_dataset('KolwaiiOfficial/instruct-rl-sol-v3', split=split)#.select(range(1000))
-    data = data.map(lambda x: {
-        'prompt': [
-            {'role': 'system', 'content': SYSTEM_PROMPT},
-            {'role': 'user', 'content': f"{x['problem']}\n\nUnit tests:\n{x['test']}"}
-        ],
-        'test': x['test']
-    })
+
+def get_sol_data(split="train") -> Dataset:
+    data = load_dataset(
+        "KolwaiiOfficial/instruct-rl-sol-v3", split=split
+    )  # .select(range(1000))
+    data = data.map(
+        lambda x: {
+            "prompt": [
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {
+                    "role": "user",
+                    "content": f"{x['problem']}\n\nUnit tests:\n{x['test']}",
+                },
+            ],
+            "test": x["test"],
+        }
+    )
     return data
+
 
 dataset = get_sol_data()
 
 model_name = "Qwen/Qwen3-8B"
 
-output_dir="outputs/comp-coder-v1"
-run_name="comp-coder-v1"
+output_dir = "outputs/comp-coder-v1"
+run_name = "comp-coder-v1"
 
 if __name__ == "__main__":
     # 45k samples * 2 epochs * 2 generations = 180k samples
@@ -64,25 +78,25 @@ if __name__ == "__main__":
     # 18k * 2 epochs * 2 generations = 72k samples
     # 72k / (2 batch size * 8 gradient accumulation * 4 workers) = 1125 steps (for 4 gpus)
     training_args = GRPOConfig(
-        #importance_sampling_level="sequence", # GSPO implementation by Qwen team
+        # importance_sampling_level="sequence", # GSPO implementation by Qwen team
         loss_type="bnpo",
-        #beta=0.1,
-        #epsilon=0.2,
+        # beta=0.1,
+        # epsilon=0.2,
         output_dir=output_dir,
         run_name=run_name,
         use_vllm=True,
         vllm_mode="colocate",
         repetition_penalty=1.05,
-        #vllm_mode="server",
+        # vllm_mode="server",
         vllm_gpu_memory_utilization=0.51,
         learning_rate=2e-5,
         temperature=0.7,
         top_p=0.95,
         top_k=-1,
         min_p=0.0,
-        #weight_decay = 0.05, #exp
-        warmup_ratio = 0.1,
-        lr_scheduler_type='cosine',
+        # weight_decay = 0.05, #exp
+        warmup_ratio=0.1,
+        lr_scheduler_type="cosine",
         bf16=True,
         use_liger_loss=True,  # liger only supports token level sampling, so incompatible with GSPO(sequence level sampling)
         logging_steps=1,
@@ -98,14 +112,22 @@ if __name__ == "__main__":
         ddp_find_unused_parameters=False,
         report_to="wandb",
         push_to_hub=True,
-        #generation_kwargs={},
+        # generation_kwargs={},
         wandb_log_unique_prompts=True,
     )
 
     peft_config = LoraConfig(
         r=16,
         lora_alpha=32,
-        target_modules=["q_proj", "k_proj", "v_proj", "o_proj", "up_proj", "down_proj", "gate_proj"],
+        target_modules=[
+            "q_proj",
+            "k_proj",
+            "v_proj",
+            "o_proj",
+            "up_proj",
+            "down_proj",
+            "gate_proj",
+        ],
         task_type="CAUSAL_LM",
         lora_dropout=0.05,
     )
@@ -113,29 +135,29 @@ if __name__ == "__main__":
     model = AutoModelForCausalLM.from_pretrained(
         model_name,
         torch_dtype=torch.bfloat16,
-    )#.to("cuda")
+    )  # .to("cuda")
 
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     tokenizer.pad_token = tokenizer.eos_token
-    
+
     trainer = GRPOTrainer(
-        #model=model_name, # for vllm server mode
+        # model=model_name, # for vllm server mode
         model=model,
         processing_class=tokenizer,
         reward_funcs=[
-            #xmlcount_reward_func,
-            #format_reward_func,
-            #reward_long_cot_chains,
-            #reward_compilation,
-            #reward_test_quality,
-            #reward_test_passing,
+            # xmlcount_reward_func,
+            # format_reward_func,
+            # reward_long_cot_chains,
+            # reward_compilation,
+            # reward_test_quality,
+            # reward_test_passing,
         ],
         args=training_args,
         train_dataset=dataset,
-        peft_config=peft_config
+        peft_config=peft_config,
     )
-    
-    #trainer.train(resume_from_checkpoint="/workspace/training-mvp/src/code-rl/outputs/Qwen8B-RL/checkpoint-600")
+
+    # trainer.train(resume_from_checkpoint="/workspace/training-mvp/src/code-rl/outputs/Qwen8B-RL/checkpoint-600")
     trainer.train()
 
     repo_name = "ViratChauhan/comp-coder-v1"
@@ -143,24 +165,26 @@ if __name__ == "__main__":
     trainer.save_model(f"{output_dir}/final_model")
 
     logger.info("Saving LoRA adapters...")
-    if hasattr(trainer.model, 'save_pretrained'):
+    if hasattr(trainer.model, "save_pretrained"):
         trainer.model.save_pretrained(f"{output_dir}/final_lora")
     else:
         logger.warning("Warning: Could not save LoRA adapters separately")
-    
+
     try:
         trainer.model.push_to_hub(
             repo_name,
             commit_message="push model",
             private=True,
         )
-        
+
         trainer.tokenizer.push_to_hub(
             repo_name,
             commit_message="push tokenizer",
         )
-        
-        logger.success(f"Model successfully pushed to: https://huggingface.co/{repo_name}")
+
+        logger.success(
+            f"Model successfully pushed to: https://huggingface.co/{repo_name}"
+        )
     except Exception as e:
         logger.error(f"Error pushing to hub: {e}")
         logger.info("Model saved locally in:", f"{output_dir}/final_model")
