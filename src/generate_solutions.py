@@ -44,7 +44,9 @@ def generate_solutions(
     """
     logger.info("Initializing components...")
 
-    output_path = Path(output_dir)
+    # Create model-specific directory (using only model name, not org)
+    model_dir_name = model_name.split("/")[-1]
+    output_path = Path(output_dir) / model_dir_name
     code_dir = output_path / "generated_code"
     completions_dir = output_path / "completions"
     code_dir.mkdir(parents=True, exist_ok=True)
@@ -59,7 +61,8 @@ def generate_solutions(
     dataset_handler = DatasetHandler(dataset_name="ViratChauhan/comp-coder-eval")
     code_extractor = CodeExtractor()
 
-    total_samples = len(dataset_handler)
+    #total_samples = len(dataset_handler)
+    total_samples = 149
     if end_idx is None:
         end_idx = total_samples
     end_idx = min(end_idx, total_samples)
@@ -99,7 +102,7 @@ def generate_solutions(
     
     logger.info(f"Will generate {len(samples_to_process)} new samples in batches of 50")
     
-    batch_size = 100
+    batch_size = 50
     for batch_start in tqdm(range(0, len(samples_to_process), batch_size), desc="Processing batches"):
         batch_end = min(batch_start + batch_size, len(samples_to_process))
         batch = samples_to_process[batch_start:batch_end]
@@ -169,8 +172,8 @@ def main():
     parser.add_argument(
         "--adapter",
         type=str,
-        default=None,
-        #default="ViratChauhan/comp-coder-v1",
+        #default=None,
+        default="ViratChauhan/comp-coder-v1",
         help="Path to LoRA adapter (optional)",
     )
 
@@ -197,7 +200,11 @@ def main():
 
     args = parser.parse_args()
 
-    setup_logging(f"{args.output_dir}/generation.log")
+    # Create model-specific directory for logs
+    model_dir_name = args.model.split("/")[-1]
+    log_dir = Path(args.output_dir) / model_dir_name
+    log_dir.mkdir(parents=True, exist_ok=True)
+    setup_logging(f"{log_dir}/generation.log")
 
     logger.info("Arguments:")
     for arg, value in vars(args).items():

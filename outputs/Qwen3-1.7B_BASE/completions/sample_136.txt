@@ -1,0 +1,959 @@
+<think>
+Okay, let's see. So the problem is about choosing start days for Robin's brother and mother's visits such that the brother's visit overlaps with as many distinct jobs as possible (maximizing the count), and the mother's visit overlaps with as few as possible (minimizing the count). And if there are multiple solutions, pick the earliest one for both.
+
+Hmm. So the key is to find for the brother's visit a start day that maximizes the number of overlapping jobs, and then for the mother's visit a start day that minimizes the overlapping count given the brother's choice.
+
+Wait, but how do we compute the number of overlapping jobs for a given start day?
+
+Let's think. For the brother's visit, which starts on day x, the days covered are x to x+d-1. For each job (l_i, r_i), we need to check if the interval [x, x+d-1] and [l_i, r_i] overlap. So the overlap is non-empty if x <= r_i and x+d-1 >= l_i. Because if the job's start is before x and the job's end is after x+d-1, then they overlap.
+
+Wait, no. The job's interval is [l_i, r_i], and the brother's is [x, x+d-1]. So the overlap is non-empty if x <= r_i and x+d-1 >= l_i. Because the brother's interval starts at x, ends at x+d-1. The job starts at l_i, ends at r_i. So the two intervals overlap if l_i <= x+d-1 and r_i >= x. Because that's the condition for the intervals to have any point in common.
+
+So for each job, the brother's interval overlaps with it if l_i <= x + d -1 and r_i >= x. So that's the condition.
+
+So the brother's job count is the number of jobs where this condition holds. We need to find x such that this count is maximum, and if there are multiple, choose the earliest x.
+
+For the mother's visit, the same logic applies, but the mother's interval is [y, y + d -1]. So the mother's job count is the number of jobs where y <= r_i and y + d -1 >= l_i. We need to find y such that this count is minimum, and again choose the earliest if there are multiple.
+
+So the approach would be:
+
+For each test case:
+
+1. Find the best x (brother's start day) that maximizes the number of overlapping jobs (count_brother), and if there are multiple, choose the earliest x.
+
+2. Then, for the same set of jobs, find the best y (mother's start day) that minimizes the number of overlapping jobs (count_mother), and again choose the earliest y.
+
+But how to compute these x and y efficiently?
+
+The brute-force approach would be to check all possible x (from 1 to n -d +1) and for each, compute how many jobs overlap with it, then select the x with the maximum count. Similarly for y.
+
+But for n up to 1e5 and t up to 1e4, this would be O(t * n * k) time, which is way too slow.
+
+So we need a smarter way.
+
+Let me think about how to compute the maximum x efficiently.
+
+For each job (l_i, r_i), the x that can overlap with it is in the range [max(1, l_i - (d-1)), min(n - (d-1), r_i + (d-1))]. Wait, no. Because the brother's interval is [x, x + d -1]. For the job to overlap with it, l_i <= x + d -1 and r_i >= x.
+
+So l_i <= x +d-1 => x >= l_i -d +1 +1? Wait, l_i <= x +d-1 => x >= l_i -d +1. Because x can be as low as l_i -d +1, but x can't be less than 1. So x must be in [max(1, l_i -d +1), min(n -d +1, r_i)].
+
+Wait, x can be up to n -d +1, since the brother's interval ends at x +d-1 <=n.
+
+So for each job, the possible x's that can overlap with it are in the interval [max(1, l_i -d +1), min(n -d +1, r_i)]. Wait, but r_i can be larger than n -d +1. So the upper bound is min(r_i, n -d +1). Because x can't be larger than n -d +1. So the valid x's for job i are in [a_i, b_i], where a_i = max(1, l_i -d +1) and b_i = min(n -d +1, r_i).
+
+Then the brother's optimal x is the one that has the maximum number of jobs covering it, and the earliest such x in case of ties.
+
+So the problem reduces to finding x in [1, n -d +1] that is covered by the maximum number of intervals [a_i, b_i], and earliest in case of tie.
+
+Similarly for the mother's y, which is in [1, n -d +1], and the intervals [a_j, b_j] (for mother's job j) where a_j = max(1, l_j -d +1) and b_j = min(n -d +1, r_j).
+
+So the steps are:
+
+For each test case:
+
+- Compute for all jobs the intervals [a_i, b_i] (a_i = max(1, l_i -d +1), b_i = min(n -d +1, r_i)), and then find the x in [1, n -d +1] that is covered by the maximum number of intervals, and earliest x in case of tie.
+
+- Then compute for all jobs the intervals [a_j, b_j], and find the y in [1, n -d +1] that is covered by the minimum number of intervals, and earliest y in case of tie.
+
+So the key is to find the x that is covered by the maximum number of intervals, and the same for y.
+
+Now, how to compute this efficiently.
+
+The problem of finding the x covered by the maximum number of intervals is similar to the maximum interval coverage problem. For each x, the count is the number of intervals that include x. We need to find the x with the maximum count.
+
+This is a classic problem. One approach is to use a line sweep algorithm.
+
+Let me think: For each interval [a_i, b_i], we can add a +1 at a_i and a -1 at b_i +1. Then, the prefix sum array will give the count for each x.
+
+Wait, yes. For example, if we create an array of size n (assuming n is the maximum possible), and for each interval [a, b], we add +1 to a, and -1 to b+1. Then, after processing all intervals, the prefix sum at position x gives the number of intervals that include x. Then, the maximum value in the prefix sum array is the maximum number of overlapping intervals for x.
+
+But since the x ranges from 1 to n -d +1, we need to process the intervals that are within this range.
+
+Wait, no. The intervals [a_i, b_i] can be such that a_i is larger than n -d +1, but since x can only be in 1 to n -d +1, the intervals that could contribute to x are those where a_i <= x <= b_i and x is in the valid range.
+
+But when we create the line sweep, the a_i can be up to n -d +1, but the b_i can be up to n.
+
+Wait, but the x is in [1, n-d+1], so for x to be in the valid range, the intervals that could cover x are those where a_i <= x <= b_i, and x is within 1 to n -d +1.
+
+So during the line sweep, the events are the start and end of the intervals. For each interval [a_i, b_i], we add a +1 at a_i, and a -1 at b_i +1. Then, the prefix sum array gives the count for x. However, since x is only in the valid range, we need to process the events only for a_i and b_i that are in the valid range.
+
+So the steps for the x calculation are:
+
+1. Initialize an array of size n (since x can be up to n -d +1, which is up to n). But since the valid x's are up to n -d +1, perhaps we can process only the events in the valid x range.
+
+Wait, no. For example, if d is 2, then the valid x's are from 1 to n -1. So for each interval [a_i, b_i], the a_i can be up to n -d +1, but the b_i can be up to n. So when we process the events, we have to consider both a_i and b_i +1.
+
+But the x's that are valid are only those in [1, n -d +1]. So during the line sweep, we can process all events (a_i and b_i +1), and then compute the prefix sum for x in [1, n -d +1].
+
+So the algorithm is:
+
+For each test case:
+
+- For the brother's x:
+
+   a. Create an array events of size n + 2 (to avoid index issues).
+
+   b. For each job, compute a_i = max(1, l_i -d +1), b_i = min(n -d +1, r_i). If a_i > n -d +1, then the job does not contribute to any x. So we can ignore it.
+
+   c. For each job where a_i <= n -d +1, add +1 at a_i, and -1 at b_i +1.
+
+   d. Compute the prefix sum array of the events.
+
+   e. Find the maximum value in the prefix sum array for x in [1, n -d +1].
+
+   f. Among all x's that have this maximum value, select the earliest one (the first occurrence in the prefix sum array).
+
+   g. That x is the optimal for the brother.
+
+- Then, repeat the same steps for the mother's y, but with the intervals [a_j, b_j] where a_j = max(1, l_j -d +1), b_j = min(n -d +1, r_j). Again, the same logic applies.
+
+But wait, for the mother's y, the same approach applies. So the steps for the mother are the same as for the brother, but with the intervals computed for the mother's jobs.
+
+So, the key is to compute for both x and y the intervals [a_i, b_i], and then find the maximum and minimum counts.
+
+Now, the challenge is to compute these intervals efficiently.
+
+So, for each test case, the steps are:
+
+1. Process the brother's x:
+
+   a. For each job, compute a_i and b_i as before.
+
+   b. For each a_i <= n -d +1, add +1 at a_i and -1 at b_i +1.
+
+   c. Compute the prefix sum array.
+
+   d. Find the x with the maximum count, earliest x.
+
+2. Process the mother's y:
+
+   a. For each job, compute a_i and b_i as before.
+
+   b. For each a_i <= n -d +1, add +1 at a_i and -1 at b_i +1.
+
+   c. Compute the prefix sum array.
+
+   d. Find the y with the minimum count, earliest y.
+
+But how to compute the prefix sum array efficiently.
+
+In Python, we can create a list of size n + 2 (since the maximum possible x is n -d +1, and the maximum possible b_i +1 is n +1). Then, for each event, we can process it and compute the prefix sum.
+
+Once we have the prefix sum array, we can iterate from x=1 to x = n -d +1, and track the maximum count and the earliest x.
+
+So for the brother's x:
+
+Initialize an array events of size (n + 2) (since x can be up to n -d +1, and b_i +1 can be up to n +1).
+
+Then, for each job, if a_i <= n -d +1, then add +1 to events[a_i], and -1 to events[b_i +1].
+
+Then, compute the prefix sum array.
+
+Then, iterate x from 1 to n -d +1, and track the maximum count and the earliest x.
+
+Similarly for the mother's y.
+
+Now, the time complexity for each test case is O(k) for processing the intervals, O(n) for the line sweep, and O(n) for the final check. Since the sum of n over all test cases is 2e5, this should be manageable.
+
+Now, let's think about possible edge cases.
+
+For example, when d is 1. Then the brother's interval is [x, x], so for a job to overlap with it, x must be in [l_i, r_i]. So the a_i is max(1, l_i -1 +1) = max(1, l_i) = l_i (since l_i >=1). And b_i is min(n, r_i). So the interval for the brother's x is [l_i, r_i].
+
+Wait, but in this case, the x can be any day in [1, n]. So the line sweep would process events for all jobs, and the maximum count is the number of jobs that include x in their interval.
+
+But in this case, the x can be any day, but the maximum count is the number of jobs that include the earliest x where x is in the maximum.
+
+So the code should handle that.
+
+Another edge case is when k=0. Then the brother and mother can choose any x (but since the mother's job count is zero, the minimum is zero). So the brother's x can be any day, but the earliest is 1.
+
+Another case is when the intervals for the brother's x are such that all x's have the same count, then the earliest x is chosen.
+
+So the code must handle all these cases.
+
+Now, let's think about implementing this in Python.
+
+The steps for each test case:
+
+Read n, d, k.
+
+Then read k pairs of l_i and r_i.
+
+Compute for the brother's x:
+
+events = [0] * (n + 2)
+
+for each job in jobs:
+
+   l = l_i
+
+   r = r_i
+
+   a_i = max(1, l -d +1)
+
+   b_i = min(n -d +1, r)
+
+   if a_i <= n -d +1:
+
+       events[a_i] +=1
+
+       events[b_i +1] -=1
+
+Then, compute the prefix sum array.
+
+Then, find the x in [1, n -d +1] with the maximum count.
+
+Similarly for the mother's y.
+
+But how to compute the prefix sum array?
+
+Initialize a current_sum = 0.
+
+max_count = 0
+
+best_x = 0
+
+for x in 1 to n -d +1:
+
+   current_sum += events[x]
+
+   if current_sum > max_count:
+
+       max_count = current_sum
+
+       best_x = x
+
+   elif current_sum == max_count:
+
+       if x < best_x:
+
+           best_x = x
+
+So that's the way to compute the best x.
+
+Once we have best_x for brother and best_y for mother, output best_x and best_y.
+
+Now, let's test this approach against the sample input.
+
+Sample Input 1:
+
+6
+
+2 1 1
+
+1 2
+
+So n=2, d=1, k=1.
+
+Brother's x can be 1 or 2 (since n -d +1 =2-1+1=2).
+
+For the job (1,2):
+
+a_i = max(1, 1 -1 +1) = max(1,1) =1.
+
+b_i = min(2-1+1=2, 2) =2.
+
+So events[1] +=1, events[3] -=1.
+
+So events array is [0,1,0, -1, 0, ...].
+
+Then the prefix sum for x=1 is 1, x=2 is 1 (current_sum += events[2] =0, so remains 1).
+
+So the maximum is 1, and best_x is 1.
+
+Mother's y: same as brother's, because the job is the same. So same best_x=1. So output is 1 1.
+
+Which matches the first sample output.
+
+Another sample input:
+
+4 1 2
+
+1 2
+
+2 4
+
+So n=4, d=1, k=2.
+
+Brother's x can be 1, 2, 3.
+
+For first job (1,2):
+
+a_i = max(1, 1-1+1)=1.
+
+b_i = min(4-1+1=4, 2) =2.
+
+events[1] +=1, events[3] -=1.
+
+Second job (2,4):
+
+a_i = max(1, 2-1+1=2) =2.
+
+b_i = min(4-1+1=4, 4) =4.
+
+events[2] +=1, events[5] -=1.
+
+events array is [0,1,1, -1, 0, -1, ...].
+
+prefix sum:
+
+x=1: current_sum=1.
+
+x=2: current_sum += events[2] =1+1=2.
+
+x=3: current_sum += events[3] =2-1=1.
+
+So max is 2 at x=2.
+
+So best_x is 2.
+
+Mother's y: same as brother's, because the jobs are same. So best_y is 2.
+
+So output is 2 2. Wait, but the sample output for this test case is 2 1.
+
+Wait, no. Wait in the sample input:
+
+Wait the second test case in the sample input is:
+
+4 1 2
+
+1 2
+
+2 4
+
+Which is n=4, d=1, k=2.
+
+The jobs are:
+
+Job1: l=1, r=2.
+
+Job2: l=2, r=4.
+
+So for the brother's x, the maximum count is 2 (x=2: job1 and job2 are overlapping with x=2).
+
+But for the mother's y, the minimum count is 1. How?
+
+Because the mother's interval is [y, y], and the count is the number of jobs that include y.
+
+For the mother's job count, the minimum is 1. So y can be 1 (only job1 includes it), or 2 (only job2 includes it). So the earliest y is 1.
+
+So the code for the mother's y would compute the minimum count.
+
+But according to the code above, the mother's y would be 1, because the events for the mother's jobs are same as the brother's.
+
+But how does the code compute the mother's best y?
+
+Ah, the code for the mother's y is the same as the brother's x, but the code is processing the same events for the mother's jobs.
+
+Wait no. For the mother's y, the code is processing the same events as the brother's x. Because the mother's job intervals are the same as the brother's.
+
+So for the mother's y, the events array is same as brother's, and the code for the mother's y would compute the same maximum count. But the mother's y is supposed to minimize the count, not maximize.
+
+Wait, this is a problem. Oh no! Because in the code above, the brother's and mother's code are the same. So for the brother's x, we find the maximum count. For the mother's y, we find the minimum count. But the code for the mother's y is the same as the brother's x code. Which would not work.
+
+Ah, right! So the code for the mother's y is different. The code must process the same events as the brother's x, but find the minimum count.
+
+So for the mother's y, the code is:
+
+Compute the same events array (same as brother's x's events array), then compute the minimum count and earliest y.
+
+So the code for the brother is to find the maximum count, and the code for the mother is to find the minimum count.
+
+So the code for the brother is:
+
+max_count = 0
+
+best_x = 0
+
+for x in 1 to n-d+1:
+
+   current_sum += events[x]
+
+   if current_sum > max_count:
+
+       max_count = current_sum
+
+       best_x = x
+
+   elif current_sum == max_count:
+
+       if x < best_x:
+
+           best_x = x
+
+Similarly for the mother's y:
+
+min_count = INF
+
+best_y = 0
+
+for x in 1 to n-d+1:
+
+   current_sum += events[x]
+
+   if current_sum < min_count:
+
+       min_count = current_sum
+
+       best_y = x
+
+   elif current_sum == min_count:
+
+       if x < best_y:
+
+           best_y = x
+
+Wait, but how do we compute the min_count and best_y?
+
+So for the mother's y, the code is the same as the brother's, but with a different goal: find the minimum count.
+
+So the code for the brother's x and the mother's y must be processed in different ways.
+
+So the code must be structured as follows:
+
+For each test case:
+
+   Read n, d, k.
+
+   Read k pairs of l_i and r_i.
+
+   Compute events for the brother's x (max count), and events for the mother's y (min count).
+
+But how to compute the events for the mother's y?
+
+The events for the mother's y are the same as the brother's x events, but the code must find the minimum count.
+
+So the code for the brother's x is:
+
+events = [0] * (n + 2)
+
+for each job in jobs:
+
+   l = l_i
+
+   r = r_i
+
+   a_i = max(1, l -d +1)
+
+   b_i = min(n -d +1, r)
+
+   if a_i <= n -d +1:
+
+       events[a_i] +=1
+
+       events[b_i +1] -=1
+
+then compute the prefix sum and find the best x for max count.
+
+Similarly for the mother's y, the code is:
+
+events = [0] * (n + 2)
+
+for each job in jobs:
+
+   l = l_i
+
+   r = r_i
+
+   a_i = max(1, l -d +1)
+
+   b_i = min(n -d +1, r)
+
+   if a_i <= n -d +1:
+
+       events[a_i] +=1
+
+       events[b_i +1] -=1
+
+then compute the prefix sum and find the best y for min count.
+
+So the code for the brother's x and the mother's y are computed using the same events array, but the code for the brother is to find the maximum count and the code for the mother is to find the minimum count.
+
+So the code for the brother's x is:
+
+max_count = 0
+
+best_x = 0
+
+current_sum = 0
+
+for x in range(1, n -d +2):
+
+    current_sum += events[x]
+
+    if current_sum > max_count:
+
+        max_count = current_sum
+
+        best_x = x
+
+    elif current_sum == max_count:
+
+        if x < best_x:
+
+            best_x = x
+
+Similarly for the mother's y:
+
+min_count = INF
+
+best_y = 0
+
+current_sum = 0
+
+for x in range(1, n -d +2):
+
+    current_sum += events[x]
+
+    if current_sum < min_count:
+
+        min_count = current_sum
+
+        best_y = x
+
+    elif current_sum == min_count:
+
+        if x < best_y:
+
+            best_y = x
+
+So that's the correct approach.
+
+So the code must process the events for both x and y, but with different goals.
+
+Now, for the sample input 2:
+
+Sample Input 2:
+
+4 1 2
+
+1 2
+
+2 4
+
+So n=4, d=1, k=2.
+
+The events array is same for both x and y.
+
+For the brother's x, the events are:
+
+events[1] +=1 (job1), events[3] -=1 (job1).
+
+events[2] +=1 (job2), events[5] -=1 (job2).
+
+So events array is [0,1,1, -1, 0, -1, 0, ...].
+
+The prefix sum for x=1 is 1, x=2 is 2, x=3 is 1.
+
+So max_count is 2, best_x is 2.
+
+For the mother's y:
+
+We need to find the minimum count. So the code will iterate x from 1 to 3.
+
+current_sum starts at 0.
+
+x=1: current_sum += events[1] = 1. current_sum=1. min_count is 1, best_y=1.
+
+x=2: current_sum += events[2] =1+1=2. min_count is 1. So current_sum is larger than min_count. So best_y remains 1.
+
+x=3: current_sum += events[3] = 2-1=1. current_sum=1. min_count remains 1. best_y remains 1.
+
+So the best_y is 1. So the output is 2 1, which matches the sample.
+
+Great! So the code must process the same events for x and y, but with different goals.
+
+Now, the code in Python.
+
+Implementing the steps:
+
+Read t test cases.
+
+For each test case:
+
+Read n, d, k.
+
+Read k pairs of l_i and r_i.
+
+Compute events for the brother's x (max count) and events for the mother's y (min count).
+
+Then compute best_x and best_y.
+
+Now, the code.
+
+But in Python, for large n (up to 1e5), the events array must be of size n + 2.
+
+But for n up to 1e5, it's manageable.
+
+So the code:
+
+Read t.
+
+for _ in range(t):
+
+    n, d, k = map(int, input().split())
+
+    jobs = [tuple(map(int, input().split())) for _ in range(k)]
+
+    # Compute events for brother's x (max count)
+
+    events = [0] * (n + 2)
+
+    for l, r in jobs:
+
+        a_i = max(1, l -d +1)
+
+        b_i = min(n -d +1, r)
+
+        if a_i <= n -d +1:
+
+            events[a_i] +=1
+
+            events[b_i +1] -=1
+
+    max_count = 0
+
+    best_x = 0
+
+    current_sum = 0
+
+    for x in range(1, n -d +2):
+
+        current_sum += events[x]
+
+        if current_sum > max_count:
+
+            max_count = current_sum
+
+            best_x = x
+
+        elif current_sum == max_count:
+
+            if x < best_x:
+
+                best_x = x
+
+    # Compute events for mother's y (min count)
+
+    events = [0] * (n + 2)
+
+    for l, r in jobs:
+
+        a_i = max(1, l -d +1)
+
+        b_i = min(n -d +1, r)
+
+        if a_i <= n -d +1:
+
+            events[a_i] +=1
+
+            events[b_i +1] -=1
+
+    min_count = float('inf')
+
+    best_y = 0
+
+    current_sum = 0
+
+    for x in range(1, n -d +2):
+
+        current_sum += events[x]
+
+        if current_sum < min_count:
+
+            min_count = current_sum
+
+            best_y = x
+
+        elif current_sum == min_count:
+
+            if x < best_y:
+
+                best_y = x
+
+    print(best_x, best_y)
+
+But wait, for the mother's y, the code is the same as the brother's x, but with the min_count.
+
+But in the code above, after reading the jobs, the code creates events again for the mother's y. So this is correct.
+
+Now, let's test this code against the sample input.
+
+Sample Input 1:
+
+6
+
+2 1 1
+
+1 2
+
+4 1 2
+
+1 2
+
+2 4
+
+7 2 3
+
+1 2
+
+1 3
+
+6 7
+
+5 1 2
+
+1 2
+
+3 5
+
+9 2 1
+
+2 8
+
+9 2 4
+
+7 9
+
+4 8
+
+1 3
+
+2 3
+
+Sample Output:
+
+1 1
+
+2 1
+
+1 4
+
+1 1
+
+1 1
+
+3 4
+
+Let's see:
+
+First test case: n=2, d=1, k=1.
+
+jobs = [(1,2)]
+
+events for brother's x: a_i=1, b_i=2. events[1] +=1, events[3] -=1.
+
+events array is [0,1,0, -1, ...].
+
+For x from 1 to 2:
+
+x=1: current_sum=1, max_count=1, best_x=1.
+
+x=2: current_sum += events[2] (0) => 1. max_count is same, best_x remains 1.
+
+So best_x=1.
+
+For mother's y: same events. min_count is 1, best_y=1.
+
+Output is 1 1.
+
+Second test case: n=4, d=1, k=2.
+
+jobs = [(1,2), (2,4)]
+
+events for brother's x:
+
+a_i=1 for first job, b_i=2. events[1] +=1, events[3] -=1.
+
+a_i=2 for second job, b_i=4. events[2] +=1, events[5] -=1.
+
+events array is [0,1,1,-1,0,-1, ...].
+
+For x from 1 to 3:
+
+x=1: current_sum=1, max_count=1, best_x=1.
+
+x=2: current_sum +=1 (events[2]=1) => 2, max_count=2, best_x=2.
+
+x=3: current_sum += events[3] = -1 => 1. So best_x remains 2.
+
+So best_x=2.
+
+For mother's y:
+
+events same as brother's x.
+
+min_count starts as INF.
+
+x=1: current_sum=1 (events[1]=1), min_count=1, best_y=1.
+
+x=2: current_sum=2 (events[2]=1). current_sum is larger than min_count, so no change.
+
+x=3: current_sum=1 (events[3] =-1). current_sum is same as min_count, but x=3 is larger than best_y=1, so best_y remains 1.
+
+So best_y=1. Output is 2 1.
+
+Third test case: n=7, d=2, k=3.
+
+jobs = [(1,2), (1,3), (6,7)]
+
+events for brother's x:
+
+For each job:
+
+Job1 (1,2): a_i = max(1, 1-2+1) = max(1,0)=1. b_i = min(7-2+1=6, 2) =2. events[1] +=1, events[3] -=1.
+
+Job2 (1,3): a_i = max(1, 1-2+1)=1. b_i = min(6,3)=3. events[1] +=1, events[4] -=1.
+
+Job3 (6,7): a_i = max(1, 6-2+1)=5. b_i = min(6,7)=6. events[5] +=1, events[7] -=1.
+
+events array:
+
+events[1] = 1+1=2
+
+events[3] = -1
+
+events[4] = -1
+
+events[5] = 1
+
+events[7] = -1
+
+others are 0.
+
+Then, compute prefix sum for x from 1 to 7-2+1=6.
+
+x=1: current_sum += events[1] =2. current_sum=2. max_count=2, best_x=1.
+
+x=2: current_sum += events[2] =0. current_sum=2. same as max_count, best_x remains 1.
+
+x=3: current_sum += events[3] =-1. current_sum=1. less than max_count, no change.
+
+x=4: current_sum += events[4] =-1. current_sum=0. no change.
+
+x=5: current_sum += events[5] =1. current_sum=1. less than max_count.
+
+x=6: current_sum += events[6] =0. current_sum=1. same as before.
+
+So best_x is 1.
+
+For mother's y: same events. So min_count is 0.
+
+But wait, the code for mother's y would compute the minimum count. Let's see.
+
+events array is same as brother's x. So for x in 1 to 6.
+
+current_sum starts at 0.
+
+x=1: current_sum += events[1]=2. current_sum=2. min_count is INF, so min_count=2, best_y=1.
+
+x=2: current_sum += events[2]=0. current_sum=2. same as min_count. x=2 is larger than best_y=1, so no change.
+
+x=3: current_sum += events[3]=-1. current_sum=1. min_count is 2. current_sum is less than 2. So min_count=1, best_y=3.
+
+x=4: current_sum += events[4]=-1. current_sum=0. min_count=0, best_y=4.
+
+x=5: current_sum += events[5]=1. current_sum=1. min_count=0. current_sum is larger than min_count.
+
+x=6: current_sum += events[6]=0. current_sum=1. same as min_count. x=6 is larger than 4, so best_y remains 4.
+
+So best_y is 4. So output is 1 4. Which matches the sample.
+
+Yes.
+
+So the code seems correct.
+
+Now, let's implement this in Python.
+
+But note that in Python, for large n, using a list of size n+2 is manageable.
+
+But for n up to 1e5, the list will take O(1e5) space, which is acceptable.
+
+So the code should be as written above.
+
+Now, test the code with the sample input.
+
+The code should pass all the test cases.
+</think>
+
+To solve this problem, we need to determine the optimal start days for Robin's brother and mother's visits such that the brother's visit overlaps with the maximum number of distinct jobs, while the mother's visit overlaps with the minimum number of jobs. If there are multiple optimal days, we choose the earliest one for both.
+
+### Approach
+1. **Event Line Sweep**: For each job interval, we determine the range of start days (x) that would overlap with the job. This is done by calculating the valid range of x values that can overlap with each job interval.
+2. **Prefix Sum Calculation**: Using an event line sweep approach, we compute the number of overlapping jobs for each possible start day. This helps us efficiently determine the optimal start day for both the brother and the mother.
+3. **Maximize and Minimize Overlaps**: For the brother's visit, we find the start day that maximizes the number of overlapping jobs. For the mother's visit, we find the start day that minimizes the number of overlapping jobs.
+
+### Solution Code
+```python
+import sys
+
+def main():
+    input = sys.stdin.read
+    data = input().split()
+    idx = 0
+    t = int(data[idx])
+    idx += 1
+    results = []
+    for _ in range(t):
+        n = int(data[idx])
+        d = int(data[idx+1])
+        k = int(data[idx+2])
+        idx += 3
+        jobs = []
+        for __ in range(k):
+            l = int(data[idx])
+            r = int(data[idx+1])
+            jobs.append((l, r))
+            idx += 2
+        # Compute events for brother's x (max count)
+        events = [0] * (n + 2)
+        for l, r in jobs:
+            a_i = max(1, l - d + 1)
+            b_i = min(n - d + 1, r)
+            if a_i <= n - d + 1:
+                events[a_i] += 1
+                events[b_i + 1] -= 1
+        max_count = 0
+        best_x = 0
+        current_sum = 0
+        for x in range(1, n - d + 2):
+            current_sum += events[x]
+            if current_sum > max_count:
+                max_count = current_sum
+                best_x = x
+            elif current_sum == max_count:
+                if x < best_x:
+                    best_x = x
+        # Compute events for mother's y (min count)
+        events = [0] * (n + 2)
+        for l, r in jobs:
+            a_i = max(1, l - d + 1)
+            b_i = min(n - d + 1, r)
+            if a_i <= n - d + 1:
+                events[a_i] += 1
+                events[b_i + 1] -= 1
+        min_count = float('inf')
+        best_y = 0
+        current_sum = 0
+        for x in range(1, n - d + 2):
+            current_sum += events[x]
+            if current_sum < min_count:
+                min_count = current_sum
+                best_y = x
+            elif current_sum == min_count:
+                if x < best_y:
+                    best_y = x
+        results.append(f"{best_x} {best_y}")
+    print('\n'.join(results))
+
+if __name__ == "__main__":
+    main()
+```
+
+### Explanation
+1. **Reading Input**: The input is read in one go for efficiency, especially given the constraints.
+2. **Event Line Sweep**: For each job interval, we compute the range of valid start days (x) that would overlap with the job interval. This is done using two arrays to track events at the start and end of each job interval.
+3. **Prefix Sum Calculation**: Using a prefix sum array, we efficiently compute the number of overlapping jobs for each possible start day. This allows us to quickly determine the optimal start day for both the brother and the mother.
+4. **Maximize and Minimize Overlaps**: The optimal start days are determined by iterating through the valid range of start days and tracking the maximum and minimum overlaps, ensuring the earliest optimal start day in case of ties.
+
+This approach ensures that we efficiently determine the optimal start days for both visits within the constraints, providing the correct results in optimal time and space complexity.

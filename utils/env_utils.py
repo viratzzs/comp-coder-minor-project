@@ -30,7 +30,7 @@ class ModelHandler:
             model=model_name,
             load_format="auto",
             tensor_parallel_size=1,
-            gpu_memory_utilization=0.9,
+            gpu_memory_utilization=0.93,
             max_model_len=24576,
             trust_remote_code=True,
             enable_lora=adapter_path is not None,
