@@ -1,0 +1,1075 @@
+<think>
+Okay, let's tackle this problem. Hmm. The problem is about finding the minimum amount of gold the richest person needs to add so that more than half the population is unhappy. Unhappy means their wealth is strictly less than half the average.
+
+So first, I need to understand what the average is. The average is the sum of all a_i divided by n. Let's denote this as avg. The unhappy condition is a_i < avg / 2. So for each person, if their a_i is less than half the average, they are unhappy.
+
+But wait, the average is computed after adding x to the richest person. So the process is: find the maximum a_i, add x to it, then compute the average of the new array. Then check how many people are unhappy based on this new average.
+
+The goal is to find the smallest x such that more than n/2 people are unhappy. If no such x exists, output -1.
+
+So the steps I need to do for each test case:
+
+1. Compute the original average (without any x added). Then check if there's a possible x that makes more than half unhappy.
+
+But how do I compute x efficiently?
+
+Let me think. The average after adding x to the maximum a_i will be (sum + x) / n. Because the sum is the original sum (sum_a) plus x (since we add x to the max element). So sum_new = sum_a + x. The average is (sum_a + x) / n.
+
+But the problem is that the maximum element could be the same as the original max. So when we add x to the max, the new max is a_max + x. But if the original max is the same as the new max, then the max is still the same. But adding x to it will change the sum.
+
+So the key is to find x such that after adding x to the max, the new average (sum + x)/n is such that more than n/2 elements are less than half of that average.
+
+But how to find this x?
+
+Let's denote the original sum as S. The original average is S / n. The original max is m. So adding x to m gives the new max m + x. The new sum is S + x.
+
+The average after adding x is (S + x) / n.
+
+So the new average is (S + x)/n.
+
+Now, for each element in the array, we need to check if a_i < (S + x)/n * 0.5. Because the unhappy condition is a_i < avg / 2.
+
+So for each element, the condition becomes a_i < (S + x) / (2n).
+
+But since x is added to the max, the max is m + x. So the new array has elements sorted as (original elements except the max, then max + x).
+
+Wait, but the original elements are sorted. Wait, no. The original array can be in any order. But the max is the highest element. So when we add x to the max, the new max is m + x. The other elements are the same as before.
+
+So the elements are: original elements except the max, then max + x.
+
+So the new array's elements are:
+
+original elements (excluding the max) and the new max (m + x).
+
+So the elements are the same as the original array, but the max is increased by x. So the number of elements that are less than half the new average depends on how many elements are in the original array (excluding the max) that are less than half the new average, plus the new max (m + x) if it's less than half the new average.
+
+Wait, but the new max is m + x. So if m + x is less than half the new average, then it's also unhappy.
+
+So the total number of unhappy people is:
+
+(number of original elements (excluding the max) that are < (S + x)/(2n)) + (1 if (m + x) < (S + x)/(2n) else 0)
+
+But the original elements (excluding the max) are all the elements except the original max. So how many of them are less than (S + x)/(2n)?
+
+Let me denote the original array as A, with max element m. Then the original elements (excluding the max) are A[0..n-2], assuming we have elements in order.
+
+So the number of elements in the original array that are less than (S + x)/(2n) is the count of elements in A[0..n-2] that are less than (S + x)/(2n).
+
+So the problem reduces to finding x such that:
+
+count = number of elements in A[0..n-2] that are < (S + x)/(2n) + (1 if m + x < (S + x)/(2n) else 0) > n/2.
+
+But how do I compute this efficiently for all possible x?
+
+This seems tricky. Let's think of possible approaches.
+
+First, note that the new average (S + x)/n must be such that more than half of the elements are less than half of it. So for the original elements, excluding the max, their a_i must be less than (S + x)/(2n). Also, the new max m + x must be less than (S + x)/(2n) if it's included in the count.
+
+But how to find x such that the count exceeds n/2?
+
+Alternatively, perhaps we can model the required condition for x.
+
+Let me denote the new average as avg_new = (S + x)/n. Then the condition is:
+
+count_unhappy = (number of a_i < avg_new / 2) + (1 if (m + x) < avg_new / 2 else 0) > n/2.
+
+But avg_new = (S + x)/n. So the condition becomes:
+
+(number of a_i < (S + x)/(2n)) + (1 if (m + x) < (S + x)/(2n) else 0) > n/2.
+
+But since S is fixed for a test case, perhaps we can precompute S, m, and then for each possible x, compute the left-hand side.
+
+But x can be very large. How can we find the minimal x?
+
+Alternatively, maybe we can find the minimal x such that the new average is such that the required count is met.
+
+Let me think about the possible values of x.
+
+Let me denote that the original elements (excluding the max) are A = a_1, a_2, ..., a_{n-1} (sorted in any order, but the max is m, which is the maximum of A and the original max).
+
+Wait, no. The original array is A = a_1, a_2, ..., a_n. The original max is m = max(A). So the elements excluding the max are all elements except m. So the count of elements in A excluding m that are < (S + x)/(2n) is the number of elements in A excluding m that are less than (S + x)/(2n).
+
+But since S is fixed, perhaps we can precompute the sorted list of A excluding m. Let's sort A excluding m in non-decreasing order. Then, for a given x, the number of elements less than (S + x)/(2n) is the number of elements in this sorted list that are less than that value.
+
+So the problem becomes:
+
+For each possible x, compute the number of elements in sorted_A (excluding m) that are less than (S + x)/(2n), and then check if adding the new max (m + x) is less than (S + x)/(2n) or not. If so, add 1 to the count.
+
+Then check if the total count exceeds n/2.
+
+The minimal x that satisfies this condition is the answer.
+
+But how to find x efficiently?
+
+Let's consider that S is fixed. Let me denote that for a given x, the required value is (S + x) / (2n). Let me denote this as T = (S + x) / (2n). Then the condition becomes:
+
+count_less_than_T = number of elements in sorted_A excluding m that are < T, plus 1 if (m + x) < T, else 0.
+
+We need count_less_than_T > n/2.
+
+But how to find x that satisfies this condition.
+
+Let me think of T as a function of x. T increases as x increases. So as x increases, T increases. Therefore, the required count_less_than_T (which is the number of elements in sorted_A excluding m less than T) will increase as x increases, but maybe not in a linear way.
+
+But since the elements in sorted_A excluding m are sorted, the number of elements less than T is a non-decreasing function of T. So for each x, T increases, and the count_less_than_T increases or remains the same.
+
+So, the problem reduces to finding the minimal x such that the count_less_than_T plus (1 if m + x < T else 0) > n/2.
+
+But how can we find such x?
+
+Let me think of T as a function of x. For x increasing, T increases. So the minimal x would be the smallest x where the count_less_than_T plus the new max condition is greater than n/2.
+
+But how to find this x?
+
+Alternatively, perhaps we can binary search on x. Because as x increases, the required condition is likely to be met for higher x. So binary search over possible x values.
+
+But what is the possible range of x?
+
+The minimal x is 0 (if possible). The maximum x can be up to something. Let's think about the worst case.
+
+The maximum possible x is when the new average is such that the count_less_than_T is n/2. So when x is as large as needed to make the new average such that the count_less_than_T is n/2. But this is not clear.
+
+Alternatively, perhaps the minimal x is between 0 and some upper limit. Let's think about the maximum possible x. For example, when the new average is very large. But how to find the upper bound.
+
+But for binary search, we need to find an upper bound. Let's think of the worst case where the required condition is met when x is as small as possible. For example, when the original elements are all equal, then the count_less_than_T is n-1 elements (since all elements except the max are same as the max, so they are not less than T. Wait, no. Wait, the original elements (excluding the max) are all the same as the max? No. Wait, the original elements are A = [a_1, ..., a_n], and m is the maximum. So the elements excluding m are all elements except m. So if all elements are equal to m, then the elements excluding m are zero. So in that case, the count_less_than_T is zero. Then adding the new max (m + x) is m + x. So T = (S + x) / (2n). So m + x < T?
+
+But m = S / n, since S = n * m. So substituting:
+
+m + x < (S + x) / (2n) → m + x < (n * m + x) / (2n) → multiply both sides by 2n:
+
+2n(m + x) < n * m + x → 2n m + 2n x < n m + x → n m + 2n x < x → n m < x (1 - 2n) → which is impossible since x is non-negative and n is positive. So this condition can't be satisfied. So in this case, the count_less_than_T is zero, and the new max is m + x. So the total count is zero + 1 (if m + x < T) or zero (if not). So the total count is 1 if m + x < T. But since m + x = (S + x) / (n) + x - m? Wait, no. Wait S = n * m. So T = (n * m + x) / (2n) = (m + x/(2n)) / 2. So m + x is (m + x) = (m + x) = something. But in this case, the condition is m + x < T → m + x < (m + x/(2n)) / 2 → multiply both sides by 2:
+
+2m + 2x < m + x/(2n) → m + 2x < x/(2n) → m < -2x/(2n) → m < -x/n → which is impossible since m is positive and x is non-negative. So in this case, the new max is not less than T. So the count_less_than_T is zero, and the new max is not less than T. So the total count is zero. So for this case, it's impossible to have more than half unhappy. Hence, the answer is -1.
+
+So the upper bound for x is not clear, but perhaps we can find a way to binary search on possible x values.
+
+But how to find the upper bound for binary search? Let's think about the maximum possible x that could be needed.
+
+In the worst case, when the original array has all elements equal to the max. Then the count_less_than_T is zero. So the total count is zero (if the new max is not less than T) or one (if it is). For the count to be greater than n/2, we need one of these to be greater than n/2. But since n is at least 1, for n=1, the condition is impossible. For n=2, the count needs to be 1 (since n/2 is 1). So for n=2, the count_less_than_T is zero, and the new max is m + x. So m + x must be < T = (S + x) / (2n) → m + x < (2m + x) / 2 → 2m + 2x < 2m + x → x < 0 → impossible. So for n=2, the answer is -1. So the upper bound for x can't be larger than something. But perhaps we can find that the maximum x needed is up to something like (n * m) or similar.
+
+But perhaps it's better to find a way to compute the required x for each test case.
+
+Alternatively, maybe the minimal x is 0 or some small value. Let's see.
+
+Another approach: Let's compute the required condition for x=0.
+
+Compute T0 = (S + 0) / (2n) = S/(2n).
+
+Then count_less_than_T0 is the number of elements in sorted_A excluding m that are < T0.
+
+If count_less_than_T0 + (1 if m < T0 else 0) > n/2 → then x=0 is sufficient.
+
+If not, then we need to find x>0.
+
+But how?
+
+Let's think of the required condition:
+
+count_less_than_T + (1 if (m + x) < T else 0) > n/2.
+
+Let me denote T = (S + x) / (2n). Then:
+
+count_less_than_T = number of elements in sorted_A excluding m that are < T.
+
+So the total count is count_less_than_T + (1 if (m + x) < T else 0).
+
+We need this to be greater than n/2.
+
+Let me denote that the count_less_than_T is c. So the total count is c + (1 if m + x < T else 0).
+
+We need c + (1 if m + x < T else 0) > n/2.
+
+So for each x, compute T, check this condition.
+
+But how to find x?
+
+Let me think of possible scenarios.
+
+Case 1: The original array has all elements except m being less than T. Then the count_less_than_T is n-1 (since all elements except m are less than T). Then the condition becomes (n-1) + 1 > n/2 → n > n/2 → yes. So x=0 is sufficient.
+
+So in this case, the answer is 0.
+
+Case 2: Some elements in sorted_A excluding m are less than T, and others are not. Then the count_less_than_T is some c, and we need c + (1 if m + x < T else 0) > n/2.
+
+So for each x, compute T and check.
+
+But how to find x?
+
+Let's think of the required condition for x.
+
+Let me denote that T = (S + x) / (2n). Then:
+
+m + x < T → m + x < (S + x) / (2n) → 2n(m + x) < S + x → 2n m + 2n x < S + x → 2n m + 2n x < n m + x → (2n m - n m) + (2n x - x) < 0 → n m + x(2n - 1) < 0 → since m and x are non-negative, and n ≥1, this is only possible if x is negative. Which is impossible. Therefore, m + x is never less than T. Hence, the (1 if ...) is always 0.
+
+So the condition becomes count_less_than_T > n/2.
+
+Wait, that's a big insight!
+
+Because the condition m + x < T is impossible. Therefore, the new max (m + x) is always ≥ T. So the condition is count_less_than_T > n/2.
+
+So the problem reduces to: find the minimal x such that the number of elements in sorted_A excluding m that are < (S + x)/(2n) is greater than n/2.
+
+Because m + x ≥ T, so the new max is not less than T, so we don't add 1.
+
+So the problem becomes: find the minimal x ≥ 0 such that the count_less_than_T > n/2, where T = (S + x) / (2n).
+
+But how to find x?
+
+Now, T is a function of x. Since x is non-negative, T is non-decreasing. So as x increases, T increases.
+
+The count_less_than_T is the number of elements in sorted_A excluding m that are less than T. Since sorted_A excluding m is sorted, this count is a non-decreasing function of T.
+
+So the problem is to find the minimal x such that count_less_than_T > n/2.
+
+Because T increases with x, the count_less_than_T also increases. So for x increasing, the count_less_than_T increases. Therefore, the minimal x is the smallest x for which the count_less_than_T is > n/2.
+
+But how to find this x?
+
+We can perform a binary search over x. The minimal x is 0. The maximum x could be up to something like (n * m) or similar.
+
+But what is the upper bound for x?
+
+Let's think of the worst case where the count_less_than_T is exactly n/2. So T is such that exactly n/2 elements in sorted_A excluding m are less than T. The minimal x would be the minimal x that makes this possible.
+
+But how to find this x?
+
+Alternatively, since T is (S + x) / (2n), and S = sum_a, which is the sum of all elements (including the max m). So S = m + sum_other, where sum_other is the sum of elements excluding m.
+
+So T = (m + sum_other + x) / (2n).
+
+So T = (m + sum_other) / (2n) + x/(2n).
+
+So for x to be minimal, we need T to be as small as possible. Because then the count_less_than_T would be as small as possible, but we need it to be greater than n/2.
+
+So the minimal x would be the minimal x that makes T such that the count_less_than_T is > n/2.
+
+But how to find that x?
+
+Let me think of the count_less_than_T as a function of T. For each T, the count_less_than_T is the number of elements in sorted_other that are less than T.
+
+So the minimal x is the minimal x where T is such that count_less_than_T > n/2.
+
+But since T increases with x, the minimal x is the minimal x that makes T such that count_less_than_T > n/2.
+
+So the problem reduces to finding the minimal x where T is such that count_less_than_T > n/2.
+
+So how to find this x?
+
+We can perform a binary search on x. The lower bound is 0, the upper bound can be something like (n * m) or similar. But how to compute the upper bound?
+
+Let's think. For the count_less_than_T to be > n/2, the T must be larger than some value. For example, if all elements in sorted_other are greater than or equal to T, then count_less_than_T is 0. So T must be smaller than the minimal element in sorted_other.
+
+But sorted_other is sorted in non-decreasing order. So the minimal element in sorted_other is the first element. So T must be smaller than the first element in sorted_other. So the minimal T for which count_less_than_T is 0 is T < sorted_other[0].
+
+But sorted_other is the elements excluding the max m. So sorted_other is sorted in non-decreasing order.
+
+So for the count_less_than_T to be > n/2, T must be larger than some value. For example, if there are k elements in sorted_other that are less than T, then k must be > n/2.
+
+So the minimal x is the minimal x such that T is larger than the (n/2)th element in sorted_other.
+
+But how?
+
+Let me think. Suppose sorted_other is sorted in non-decreasing order. Let's say that the sorted_other has k elements. Then, the minimal T such that exactly k elements are less than T is the (k)th element in sorted_other.
+
+So for the count_less_than_T to be greater than n/2, T must be larger than the (ceil(n/2))th element in sorted_other.
+
+Wait, for example, if n is even, say n=4. Then n/2 is 2. So count_less_than_T must be > 2. So T must be larger than the second element in sorted_other (since the first two elements are less than T, and the third and fourth are not).
+
+So the minimal T is the third element in sorted_other. So T must be larger than that. So for x to be minimal, we need T to be as small as possible, which is just above the (ceil(n/2))-th element in sorted_other.
+
+So the minimal x is the minimal x that makes T = (S + x)/(2n) larger than the (ceil(n/2))-th element in sorted_other.
+
+So solving for x in this case.
+
+Let me denote that sorted_other is sorted in non-decreasing order. Let's compute the k-th element in sorted_other, where k = ceil(n/2). Let's call this value T_k.
+
+We need T_k < T < T_k + 1, but T is (S + x)/(2n). So we need to find the minimal x such that (S + x)/(2n) > T_k.
+
+Rearranging:
+
+S + x > 2n * T_k
+
+x > 2n * T_k - S
+
+So the minimal x is max(0, 2n * T_k - S + 1). Because x must be an integer, and x must be non-negative.
+
+Wait, but T is (S + x)/(2n). So x must be chosen such that T is strictly larger than T_k.
+
+So solving for x:
+
+(S + x) / (2n) > T_k → S + x > 2n * T_k → x > 2n * T_k - S.
+
+Since x must be an integer, the minimal x is the smallest integer greater than (2n * T_k - S). Which is (2n * T_k - S + 1), if 2n * T_k - S is not an integer. Wait, no. For example, if 2n*T_k - S is integer, then x must be at least 2n*T_k - S + 1. But if it's not an integer, then x must be at least 2n*T_k - S + 1. Wait, no. Let me think again.
+
+Let me denote that x must satisfy x > (2n*T_k - S). So the minimal x is the smallest integer greater than (2n*T_k - S). Which is floor(2n*T_k - S) + 1.
+
+But since x must be non-negative, if 2n*T_k - S is negative, then the minimal x is 0.
+
+So the minimal x is max(0, 2n*T_k - S + 1).
+
+Wait, but T_k is the k-th element in sorted_other. So for example, if n is even, k = n/2. So T_k is the (n/2)-th element in sorted_other.
+
+But sorted_other is the list of elements excluding the max. So the elements in sorted_other are sorted in non-decreasing order. So for example, sorted_other = [a_1, a_2, ..., a_{n-1}], sorted in non-decreasing order. Then T_k is a_{k} where k = ceil(n/2).
+
+So for example, if n is even, say 4, then k=2. So T_k is a_2. If n is odd, say 5, then k=3. So T_k is a_3.
+
+So for each test case:
+
+1. Compute S = sum of all elements.
+
+2. Compute the sorted_other list (elements excluding the max m).
+
+3. Find the k-th element in sorted_other, where k = ceil(n/2).
+
+4. Compute T_k = sorted_other[k-1] (since lists are zero-based).
+
+5. Compute the minimal x as max(0, 2n*T_k - S + 1).
+
+If this x is possible, then output it. Else, output -1.
+
+Wait, but why is this sufficient? Because when x is chosen to be this value, then T = (S + x)/(2n) is larger than T_k. So the count_less_than_T is the number of elements in sorted_other that are less than T. Since T is larger than T_k, the count_less_than_T is at least k (since the first k elements are less than T, and the rest are not). So if k > n/2, then count_less_than_T is at least k, which is > n/2. Hence, the condition is satisfied.
+
+But what if k is not larger than n/2? For example, if n is even, say 4, and k=2. Then n/2 is 2. So k = 2 is not larger than n/2. So the condition count_less_than_T > n/2 would require count_less_than_T > 2. But since k=2, the count_less_than_T is exactly 2. So the condition is not met. Hence, the minimal x is not found here. So this approach is not sufficient.
+
+Wait, this suggests that the previous approach is not correct. So what's wrong here?
+
+Ah! Because in this case, the count_less_than_T is exactly k elements, which is equal to n/2. So the condition is not met. Therefore, the minimal x must be larger than the current x computed.
+
+So the previous approach only works when k > n/2. Otherwise, we need to find x such that the count_less_than_T is > n/2.
+
+So the steps need to be adjusted.
+
+So the correct approach is:
+
+If k > n/2, then the minimal x is the minimal x such that T > T_k. So the previous calculation is valid.
+
+If k ≤ n/2, then the count_less_than_T can be k. So the condition is k > n/2 → which is impossible. So in this case, the answer is -1.
+
+Wait, no. Wait, the count_less_than_T is the number of elements in sorted_other that are less than T. So if k is the number of elements in sorted_other that are less than T, and k ≤ n/2, then the condition is not met. So in this case, it's impossible to have more than n/2 elements less than T. Hence, the answer is -1.
+
+So the algorithm is:
+
+For each test case:
+
+1. Compute S = sum of all elements.
+
+2. Compute the max m.
+
+3. Compute the sorted_other list (elements excluding m).
+
+4. If the length of sorted_other is 0 (i.e., n=1), then check if m < avg_new. But avg_new is (S + x)/n. Since n=1, avg_new = m + x. So the condition is m + x < avg_new = m + x → which is impossible. Hence, answer is -1.
+
+But wait, in this case, n=1. The average is m + x. The condition is that the single element (m + x) is less than half the average. So (m + x) < (m + x)/2 → multiply both sides by 2: 2(m + x) < m + x → m + x < 0 → impossible. Hence, answer is -1.
+
+So for n=1, answer is -1.
+
+So for n ≥ 2:
+
+Compute sorted_other.
+
+If the length of sorted_other is 0 (n=1), output -1.
+
+Else:
+
+Compute k = ceil(n/2).
+
+If the number of elements in sorted_other that are less than T is k, then if k > n/2, then the answer is the minimal x to make T > T_k.
+
+Else, the answer is -1.
+
+Wait, no. Because the count_less_than_T is exactly k. So for the condition count_less_than_T > n/2, we need k > n/2. So if k > n/2, then the answer is the minimal x such that T > T_k.
+
+Else, it's impossible. Hence, output -1.
+
+So the algorithm is:
+
+For each test case:
+
+If n == 1 → output -1.
+
+Else:
+
+Compute S = sum of all elements.
+
+Compute m = max of all elements.
+
+Compute sorted_other = list of elements excluding m, sorted in non-decreasing order.
+
+Compute k = ceil(n/2).
+
+If the length of sorted_other is less than k → impossible (since sorted_other has n-1 elements. For example, if n=2, sorted_other has 1 element, and k=1. So if n=2, k=1, sorted_other has 1 element. So the count_less_than_T is 1 (if T is larger than that element). So for n=2, the answer is possible.
+
+Wait, let's take an example. For n=2, sorted_other has one element. So k=1. So the count_less_than_T is 1 (if T is larger than that element). So the condition is 1 > 1 → no. So the answer is -1.
+
+Wait, but in that case, the count_less_than_T is 1, which is not greater than n/2 (1). So the answer is -1.
+
+So for n=2, the answer is -1.
+
+So in this case, the algorithm is correct.
+
+So the steps are:
+
+If n=1 → output -1.
+
+Else:
+
+Compute sorted_other = sorted list of elements excluding m.
+
+k = ceil(n/2).
+
+If the length of sorted_other is less than k → impossible. But since sorted_other has n-1 elements, and k is ceil(n/2), which is at least 1 (n ≥ 2), then n-1 ≥ k -1. For example, for n=2, k=1, sorted_other has 1 element. So it's possible.
+
+So compute the elements in sorted_other. For each element in sorted_other, check if it's less than T. But T is (S + x)/(2n). So we need to find the minimal x such that T is larger than the k-th element in sorted_other.
+
+But how to compute this?
+
+So sorted_other is sorted in non-decreasing order. So the k-th element is the (k)th element (since lists are zero-based). So sorted_other[k-1] is the k-th element.
+
+So the minimal T that is larger than this element is sorted_other[k-1] + 1e-9 (to avoid floating point errors). But since x must be an integer, we can find the minimal x such that (S + x) / (2n) > sorted_other[k-1].
+
+Solving for x:
+
+(S + x) / (2n) > sorted_other[k-1]
+
+Multiply both sides by 2n:
+
+S + x > 2n * sorted_other[k-1]
+
+x > 2n * sorted_other[k-1] - S
+
+So the minimal x is the smallest integer greater than (2n * sorted_other[k-1] - S). Which is (2n * sorted_other[k-1] - S + 1) if (2n * sorted_other[k-1] - S) is not an integer. But since 2n * sorted_other[k-1] is an integer (since sorted_other[k-1] is an integer), and S is an integer, then 2n * sorted_other[k-1] - S is an integer. Hence, the minimal x is max(0, 2n * sorted_other[k-1] - S + 1).
+
+If this x is possible (i.e., x ≥ 0), then output it. Else, output -1.
+
+So putting it all together:
+
+For each test case:
+
+if n == 1:
+
+    output -1
+
+else:
+
+    compute S = sum of all elements
+
+    compute m = max of all elements
+
+    sorted_other = sorted list of elements excluding m
+
+    k = ceil(n/2)
+
+    if len(sorted_other) < k:
+
+        output -1
+
+    else:
+
+        target = sorted_other[k-1]
+
+        required = 2 * n * target - S + 1
+
+        if required <= 0:
+
+            output -1
+
+        else:
+
+            output required
+
+But wait, why is this sufficient?
+
+Because when x = required, then T = (S + x) / (2n) = (S + required) / (2n). Since required = 2n * target - S + 1, then S + required = S + 2n * target - S + 1 = 2n * target + 1. So T = (2n * target + 1) / (2n) = target + 1/(2n). So T is larger than target.
+
+So the count_less_than_T is the number of elements in sorted_other that are less than T, which is k elements (since target is the k-th element, and T is larger than target). So count_less_than_T is k, which is greater than n/2 (since k = ceil(n/2) and n/2 is less than k). Hence, the condition is satisfied.
+
+Thus, this approach is correct.
+
+So now, the code can be written.
+
+Now, implement this in Python.
+
+First, read t test cases.
+
+For each test case:
+
+Read n.
+
+Read the list of a_i.
+
+Compute S = sum(a_i).
+
+Compute m = max(a_i).
+
+sorted_other = sorted(a_i without m)
+
+Wait, but how to compute the elements excluding m? Because the original a_i can have multiple elements equal to m. For example, if a_i = [3, 3, 3], then sorted_other is [3, 3].
+
+So sorted_other = sorted([x for x in a_i if x != m]) ?
+
+Wait no. Because the original a_i may have multiple elements equal to m. For example, if a_i = [5, 5, 3], then sorted_other is [3], because m is 5. So the elements excluding m are [3].
+
+But the code needs to sort the elements excluding m. So the code would be:
+
+sorted_other = sorted([x for x in a_i if x != m])
+
+But wait, if there are multiple elements equal to m, like [5,5,5], then sorted_other is empty. So for n=3, sorted_other has length 0, which is less than k=2. Hence, output -1.
+
+But in this case, the original a_i is [5,5,5]. So the average is 5. So for x=0, the new average is 5. So the count_less_than_T is 0 (since all elements are 5, which is equal to T=5). So the condition is 0 > n/2 → 0 > 1.5 → no. Hence, output -1.
+
+Which is correct.
+
+So the code for sorted_other is correct.
+
+Then compute k = ceil(n/2).
+
+If len(sorted_other) < k → output -1.
+
+Else:
+
+target = sorted_other[k-1]
+
+required = 2 * n * target - S + 1
+
+if required <=0 → output -1.
+
+Else, output required.
+
+But wait, what if required is zero?
+
+For example, if S is 2n * target - 1.
+
+Then required is 0. So x must be ≥ 0. So x=0 is acceptable.
+
+But when x=0, T = (S + x)/(2n) = (2n * target -1 + 0)/ (2n) = (2n * target -1) / (2n) = target - 1/(2n). Which is less than target. So the count_less_than_T is the number of elements in sorted_other that are less than T. Since T is less than target, the count_less_than_T is the number of elements in sorted_other less than T. Which is the number of elements in sorted_other less than target - 1/(2n). Since sorted_other is sorted, and target is the k-th element, the count_less_than_T is k-1 elements. So k-1 elements are less than target. So the count_less_than_T is k-1 elements. Which is less than k. So the condition is not met. Hence, required must be at least 1.
+
+So in this case, required is 0, but the answer is -1. Which is correct.
+
+So the code is correct.
+
+Now, implement this in Python.
+
+But for large n (up to 2e5 per test case), we need to process the elements efficiently.
+
+In Python, the code would be something like:
+
+import sys
+import math
+
+t = int(sys.stdin.readline())
+for _ in range(t):
+    n = int(sys.stdin.readline())
+    a = list(map(int, sys.stdin.readline().split()))
+    if n == 1:
+        print(-1)
+        continue
+    S = sum(a)
+    m = max(a)
+    sorted_other = sorted([x for x in a if x != m])
+    k = (n + 1) // 2
+    if len(sorted_other) < k:
+        print(-1)
+        continue
+    target = sorted_other[k-1]
+    required = 2 * n * target - S + 1
+    if required <= 0:
+        print(-1)
+    else:
+        print(required)
+
+But wait, what about when required is zero? For example, when 2n * target - S + 1 = 0. So required is zero. So the code would output -1, which is correct.
+
+But let's test the sample input.
+
+Sample input 1:
+
+6
+1
+2
+2
+2 19
+3
+1 3 20
+4
+1 2 3 4
+5
+1 2 3 4 5
+6
+1 2 1 1 1 25
+
+Sample output:
+
+-1
+-1
+0
+15
+16
+0
+
+Let's check the first test case:
+
+n=1 → output -1. Correct.
+
+Second test case:
+
+n=2, a = [2, 19]. m=19. sorted_other = [2]. k = 1. required = 2*2*2 - 21 +1 = 4*2 -21 +1 = 8-21+1= -10 → required is -10 → output -1. Correct.
+
+Third test case:
+
+n=3, a = [1,3,20]. m=20. sorted_other = [1,3]. k=2. target = 3. required = 2*3*3 - 24 +1 = 18 -24 +1 = -5 → output -1. But according to the sample output, the answer is 0.
+
+Wait, this is a problem. What's wrong here?
+
+Wait, the sample input says the third test case is:
+
+3
+
+1 3 20
+
+The expected output is 0.
+
+But according to our code:
+
+n=3, S=1+3+20=24. m=20. sorted_other is [1,3]. k = ceil(3/2) = 2. target is 3. required = 2*3*3 -24 +1 = 18 -24 +1 = -5. So output -1. But sample output is 0.
+
+This indicates a bug in the code.
+
+Wait, what's the correct answer for the third test case?
+
+The original array is [1,3,20]. The max is 20. The average is (1+3+20)/3 = 24/3 = 8. The unhappy condition is a_i < 8/2 = 4. So the elements less than 4 are 1 and 3. So two elements. Since n=3, the condition is two > 1.5 → yes. So the answer is 0. So the code is wrong.
+
+But according to our approach, the code would output -1. Which is wrong.
+
+What's wrong here?
+
+Ah! Because in our approach, we assumed that the count_less_than_T is k, which is 2. But in this case, the count_less_than_T is 2, which is equal to n/2 (3/2 = 1.5). So the code's condition is count_less_than_T > n/2 → 2 > 1.5 → yes. So the code should output required = max(0, ...) which in this case is 2*3*3 -24 +1 = -5. So required is negative, so output -1. But the correct answer is 0.
+
+So our approach is wrong.
+
+Hmm. So why is this happening?
+
+Because the previous logic assumed that the count_less_than_T is k elements, which is the k-th element in sorted_other. But in this case, the count_less_than_T is exactly k elements, which is 2 (k=2). So the condition is count_less_than_T > n/2 → 2 > 1.5 → yes. So the code should output required = 0.
+
+But according to our previous logic, the code would output required = -5. Which is wrong.
+
+So why is this happening?
+
+Because our previous approach assumed that the minimal x is the one that makes T larger than the k-th element. But in this case, the k-th element is 3. T is (S + x) / (2n) = (24 +x)/6.
+
+We need T to be larger than 3. So:
+
+(24 +x)/6 > 3 → 24 +x > 18 → x > -6 → since x is non-negative, x=0 is acceptable.
+
+So required is 0. Hence, the code should output 0.
+
+But according to our previous code, required is 2*3*3 - 24 +1 = 18 -24 +1 = -5. Which is incorrect.
+
+Ah! So the mistake is in the formula for required. The previous formula for required is 2n * target - S + 1. But in this case, target is 3, 2n*target is 6*3=18, S is 24. So 18 -24 +1 = -5. But the correct required is 0.
+
+So what's wrong here?
+
+The formula for required is supposed to be x such that (S + x) / (2n) > target. Which rearranged is x > 2n*target - S.
+
+But in this case, 2n*target - S = 6*3 -24 = 18-24 = -6. So x must be > -6. Since x is non-negative, the minimal x is 0.
+
+But the previous formula computes required as 2n * target - S + 1 → which in this case is -5. But the correct required is 0.
+
+Ah! Because the formula for required is x > (2n * target - S) → the minimal x is max(0, 2n * target - S + 1). But in this case, 2n * target - S is -6. So max(0, -6 +1) = max(0, -5) = 0. Which is correct.
+
+So the previous code had a mistake in the calculation of required. The correct formula is required = max(0, 2n * target - S + 1). So in this case, required is max(0, -6 +1) = max(0, -5) = 0. So the code should output 0.
+
+But why did the previous code compute required as 2n * target - S + 1?
+
+Because the formula is x > (2n * target - S). The minimal x is the smallest integer greater than (2n * target - S). Which is (2n * target - S + 1) if (2n * target - S) is not an integer. But in this case, 2n * target - S is -6, which is an integer. So the minimal x is (2n * target - S) + 1 = -6 +1 = -5. But x must be non-negative. So the minimal x is max(0, -5) = 0.
+
+Ah! So the formula should be:
+
+required = max(0, 2n * target - S + 1) if 2n * target - S is not an integer. Otherwise, required = max(0, 2n * target - S + 1) if the value is negative. But in this case, it's -6, so required is max(0, -6 +1) = max(0, -5) = 0.
+
+So the correct formula is required = max(0, 2n * target - S + 1).
+
+But why?
+
+Because the minimal x that satisfies x > (2n * target - S) is x = ceil(2n * target - S + 1e-9). But since x must be integer, we need to take the ceiling of (2n * target - S). But since 2n * target - S is an integer, the ceiling is (2n * target - S) + 1 if the value is negative.
+
+So the formula is required = max(0, 2n * target - S + 1).
+
+So the previous code had a mistake in the calculation of required. It should be:
+
+required = max(0, 2n * target - S + 1)
+
+So in the third test case:
+
+required = max(0, 6 * 3 -24 + 1) = max(0, 18-24+1) = max(0, -5) = 0. So the code outputs 0, which is correct.
+
+So the mistake was in the calculation of required. The correct formula is required = max(0, 2n * target - S + 1).
+
+So the code should be:
+
+required = max(0, 2 * n * target - S + 1)
+
+So the code should be:
+
+required = max(0, 2 * n * target - S + 1)
+
+Thus, the code needs to be adjusted.
+
+So the code in Python should be:
+
+required = max(0, 2 * n * target - S + 1)
+
+Now, let's re-calculate the third test case:
+
+target = 3, n=3, S=24.
+
+required = max(0, 2*3*3 -24 +1) = max(0, 18-24+1) = max(0, -5) = 0. Correct.
+
+Another test case: sample input 4:
+
+n=4, a = [1,2,3,4]. m=4. sorted_other = [1,2,3]. k = 2. target = 2.
+
+required = max(0, 2*4*2 - (1+2+3+4) +1) → 2*4*2 = 16, S=10. 16 -10 +1=7. So required is 7. So output is 7. But according to the sample output, the answer is 15.
+
+Wait, this indicates another problem.
+
+Wait, what is the sample input for the fourth test case?
+
+Sample input:
+
+4
+
+1 2 3 4
+
+Sample output: 15
+
+Let's compute what the code would output.
+
+n=4. S=1+2+3+4=10. m=4. sorted_other = [1,2,3]. k=2. target=2.
+
+required = max(0, 2*4*2 -10 +1) → 2*4*2=16, 16-10+1=7. So required is 7.
+
+So code outputs 7. But sample output is 15. So this is a problem.
+
+So what's wrong here?
+
+Let's re-calculate the required condition.
+
+The code's approach is that the minimal x is such that T = (S + x) / (2n) > target. In this case, target is 2. So:
+
+(S + x) / 8 > 2 → S + x > 16 → x > 16 - S = 16 -10 = 6 → x > 6 → minimal x is 7. So output 7.
+
+But the sample output is 15.
+
+This indicates a problem.
+
+But according to the sample explanation, after adding 15 gold to the max (4), the average becomes (10 + 15)/4 = 25/4 = 6.25. The half of this is 3.125. So the unhappy people are those with a_i < 3.125. The original elements are [1,2,3,4]. The max is now 19. The elements are [1,2,3,19]. The ones less than 3.125 are 1,2,3. So count_less_than_T is 3. n=4. 3 > 2 → yes. So the answer is 15.
+
+But according to our code, the answer is 7. Why?
+
+Because our code assumes that the count_less_than_T is k = 2 (sorted_other has 3 elements, sorted_other[k-1] = 2. So T must be larger than 2. But in reality, the count_less_than_T is 3 elements. Which is greater than k=2. So the code's logic is wrong.
+
+So why is the code's logic wrong?
+
+Because the code assumes that the count_less_than_T is k, but in reality, when T is larger than target, the count_less_than_T is the number of elements in sorted_other less than T. Which may be larger than k.
+
+So the previous approach is incorrect.
+
+So what's the mistake here?
+
+The code assumes that the count_less_than_T is k, but in reality, it's the number of elements in sorted_other less than T, which may be larger than k. So the previous logic is wrong.
+
+This explains why the third test case is handled incorrectly.
+
+So the previous approach is incorrect.
+
+This means that the entire approach needs to be re-evaluated.
+
+This is a critical error in the previous reasoning.
+
+So the initial assumption that the count_less_than_T is k is incorrect. In reality, the count_less_than_T is the number of elements in sorted_other less than T. Which can be larger than k.
+
+So the previous approach is incorrect.
+
+Thus, the entire solution must be rethought.
+
+This is a major problem. How to correctly compute the count_less_than_T?
+
+The count_less_than_T is the number of elements in sorted_other less than T. Since sorted_other is sorted in non-decreasing order, we can perform a binary search to find how many elements are less than T.
+
+So for each x, compute T = (S + x) / (2n), then find the number of elements in sorted_other less than T. If this number is greater than n/2, then x is a candidate.
+
+But how to find the minimal x?
+
+This seems like a binary search problem, but it's not straightforward.
+
+But given the time constraints, perhaps the only way to handle this is to binary search on x and for each x compute T, then compute the count_less_than_T.
+
+But for large n (up to 2e5), and large x (up to 1e12), this approach may be too slow.
+
+But given that the constraints for t are up to 1e4 and sum of n is up to 2e5, perhaps it's manageable.
+
+So the plan is:
+
+For each test case:
+
+If n == 1 → output -1.
+
+Else:
+
+Compute S = sum of all elements.
+
+Compute m = max of all elements.
+
+sorted_other = sorted list of elements excluding m.
+
+Compute k = ceil(n/2).
+
+If len(sorted_other) < k → output -1.
+
+Else:
+
+We need to find the minimal x ≥ 0 such that the number of elements in sorted_other less than T is > n/2, where T = (S + x) / (2n).
+
+This can be done by binary search on x.
+
+The minimal x is 0, and the maximal x is something like S + (some upper bound).
+
+But how to find the upper bound?
+
+For the worst case, when the count_less_than_T is exactly n/2.
+
+So the maximal x is when T is such that the count_less_than_T is n/2.
+
+But how to find this x?
+
+Alternatively, since T increases with x, the minimal x is the smallest x where the count_less_than_T is > n/2.
+
+So the binary search range is from low=0 to high=some upper bound.
+
+But what is the upper bound?
+
+Let's assume that the count_less_than_T is initially 0. So the minimal x is such that T is small enough to include enough elements.
+
+But this seems difficult to determine.
+
+Alternatively, we can set the upper bound to a large enough value, say 1e12, and perform the binary search.
+
+For each x in binary search:
+
+Compute T = (S + x) / (2n).
+
+Compute count_less_than_T using binary search on sorted_other.
+
+If count_less_than_T > n/2 → set high = x.
+
+Else → set low = x + 1.
+
+At the end, if low > high → output -1.
+
+But how to handle floating point precision?
+
+Because T is (S + x) / (2n), which can be a float. But since x is integer, S + x is integer, so T is (S + x) / (2n), which can be a float.
+
+To compute count_less_than_T, we can perform a binary search on the sorted_other list to find the largest element less than T.
+
+But in Python, we can use the bisect module.
+
+So the steps are:
+
+For a given x:
+
+Compute T = (S + x) / (2n).
+
+Use bisect.bisect_left to find the insertion point of T in sorted_other.
+
+The number of elements less than T is the insertion point.
+
+If this number is > n/2 → x is a candidate.
+
+So the binary search would find the minimal x.
+
+Thus, the code would look something like:
+
+low = 0
+
+high = some large value (like 1e12)
+
+answer = -1
+
+while low <= high:
+
+    mid = (low + high) // 2
+
+    T = (S + mid) / (2n)
+
+    count = bisect.bisect_left(sorted_other, T)
+
+    if count > n/2:
+
+        answer = mid
+
+        high = mid - 1
+
+    else:
+
+        low = mid + 1
+
+if answer == -1 → output -1 else output answer.
+
+But how to choose the upper bound?
+
+The upper bound can be set to a very large number, say 1e12, since for any x, the T = (S + x) / (2n) can be increased to infinity, and the count_less_than_T can increase.
+
+But what if x is larger than the upper bound? In that case, the binary search would not find it.
+
+But since the answer is guaranteed to exist (as per the problem statement), the upper bound can be set to a sufficiently large value.
+
+But in practice, for the given constraints, it's possible to set the upper bound to 1e12.
+
+So the code in Python would be:
+
+import sys
+import bisect
+
+t = int(sys.stdin.readline())
+for _ in range(t):
+    n = int(sys.stdin.readline())
+    a = list(map(int, sys.stdin.readline().split()))
+    if n == 1:
+        print(-1)
+        continue
+    S = sum(a)
+    m = max(a)
+    sorted_other = sorted([x for x in a if x != m])
+    k = (n + 1) // 2
+    if len(sorted_other) < k:
+        print(-1)
+        continue
+    low = 0
+    high = 10**12
+    answer = -1
+    while low <= high:
+        mid = (low + high) // 2
+        T = (S + mid) / (2 * n)
+        # Find the number of elements in sorted_other less than T
+        count = bisect.bisect_left(sorted_other, T)
+        if count > n / 2:
+            answer = mid
+            high = mid - 1
+        else:
+            low = mid + 1
+    print(answer if answer != -1 else -1)
+
+Let's test this code with the sample input.
+
+Sample input 4:
+
+n=4, a=[1,2,3,4]. m=4. sorted_other=[1,2,3]. k=2.
+
+S=10.
+
+binary search for x.
+
+The required condition is count_less_than_T > 2.
+
+Let's see what x=15 gives.
+
+T = (10 + 15) / (2*4) = 25/8 = 3.125.
+
+sorted_other is [1,2,3]. bisect_left([1,2,3], 3.125) → returns 3. count is 3 > 2 → yes. So answer is 15.
+
+For x=7:
+
+T = (10 +7)/8 = 17/8 = 2.125. bisect_left([1,2,3], 2.125) → returns 1 (since 2.125 is between 2 and 3). count is 1 < 2 → no. So the answer is 15.
+
+So the code would output 15.
+
+For x=7, the count_less_than_T is 1 < 2 → no. So the binary search would find the minimal x=15.
+
+Thus, the code is correct.
+
+Another test case: third test case.
+
+n=3, a=[1,3,20]. m=20. sorted_other=[1,3]. k=2. S=24.
+
+We need count_less_than_T > 1.5.
+
+Let's see what x=0 gives.
+
+T = (24 + 0)/6 = 4. bisect_left([1,3], 4) → returns 2. count=2 > 1.5 → yes. So the answer is 0.
+
+Thus, the code would output 0.
+
+This is correct.
+
+So the code now handles the third test case correctly.
+
+Thus, the correct approach is to perform a binary search on x, and for each x compute T and count_less_than_T using bisect_left.
+
+This approach is correct and efficient enough for the given constraints.
+
+Now, implement this code in Python.
+</think>
+
+To solve this problem, we need to determine the minimum amount of gold the richest person must find so that more than half of the population becomes unhappy. An unhappy person is defined as someone whose wealth is strictly less than half the average wealth of the entire population after adding the gold to the richest person.
+
+### Approach
+1. **Input Reading and Initial Checks**: Read the number of test cases and process each test case individually. If there's only one person, it's impossible to make them unhappy, so output -1 immediately.
+2. **Sum and Maximum Calculation**: For each test case, calculate the total wealth (sum) and the maximum wealth (maximum value in the array).
+3. **Sorted List of Other Weights**: Extract the list of weights excluding the maximum value and sort them in non-decreasing order.
+4. **Binary Search for Minimum Gold**: Use binary search to find the minimum amount of gold (x) needed such that the number of people with wealth less than half the average wealth is more than half the population. This involves checking the average wealth after adding x to the maximum value and using binary search to efficiently find the minimum x.
+
+### Solution Code
+```python
+import sys
+import bisect
+
+def main():
+    input = sys.stdin.read
+    data = input().split()
+    idx = 0
+    t = int(data[idx])
+    idx += 1
+    results = []
+    for _ in range(t):
+        n = int(data[idx])
+        idx += 1
+        a = list(map(int, data[idx:idx+n]))
+        idx += n
+        if n == 1:
+            results.append("-1")
+            continue
+        S = sum(a)
+        m = max(a)
+        sorted_other = sorted([x for x in a if x != m])
+        k = (n + 1) // 2
+        if len(sorted_other) < k:
+            results.append("-1")
+            continue
+        low = 0
+        high = 10**12
+        answer = -1
+        while low <= high:
+            mid = (low + high) // 2
+            T = (S + mid) / (2 * n)
+            count = bisect.bisect_left(sorted_other, T)
+            if count > n / 2:
+                answer = mid
+                high = mid - 1
+            else:
+                low = mid + 1
+        results.append(str(answer) if answer != -1 else "-1")
+    print("\n".join(results))
+
+if __name__ == "__main__":
+    main()
+```
+
+### Explanation
+1. **Reading Input**: The input is read all at once for efficiency, then split into manageable parts for processing each test case.
+2. **Initial Checks**: Directly handle cases with only one person, where it's impossible to make anyone unhappy.
+3. **Sum and Maximum Calculation**: Compute the total wealth (sum) and the maximum wealth (maximum value) for each test case.
+4. **Sorted List of Other Weights**: Exclude the maximum value from the list and sort the remaining weights to facilitate efficient range queries.
+5. **Binary Search**: Use binary search to find the minimum gold (x) required. For each midpoint value of x, compute the average wealth and use binary search to count how many people have wealth less than half of this average. Adjust the search bounds based on the count to find the minimum x that satisfies the condition.
+
+This approach ensures we efficiently narrow down the minimum amount of gold required using binary search and sorted list operations, making the solution both optimal and easy to understand.

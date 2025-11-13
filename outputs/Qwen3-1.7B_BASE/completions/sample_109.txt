@@ -1,0 +1,803 @@
+<think>
+Okay, let's see. The problem is about permutations and reachability. For each position i, we need to count the number of black nodes reachable from i. 
+
+First, I need to understand the reachability part. So, the permutation p is such that when you apply p repeatedly, you can reach certain numbers. For example, if p is [3,5,6,1,2,4], then starting from 1, you can reach 3, then 6, then 4. So F(1) would be the count of black nodes in this path (but since p starts from 1, maybe that's not the case). Wait, the example shows that 4 is reachable from 1. So for each i, we need to find all the nodes that can be reached by following p's steps, starting from i, and count how many of those nodes are colored black.
+
+But how do we model the reachability? Each node i can reach p_i, then p_p_i, etc. So the reachable set for i is the set of all nodes that can be reached by following the permutation p's arrows starting from i. So for each i, we need to find the set of nodes in the permutation's cycle that i is part of, and then count how many of those are black.
+
+Wait, no. Because the permutation is a directed graph where each node has exactly one outgoing edge (since each p_i is unique and forms a permutation). So each node is part of exactly one cycle. So for each cycle, all nodes in the cycle can reach each other. So for any i in the cycle, all nodes in the cycle are reachable from i. So the reachability set for i is the entire cycle that i is in.
+
+So the problem reduces to: for each cycle in the permutation, count the number of black nodes in that cycle, and for each node in the cycle, assign the count of black nodes in the cycle. Then output all those counts in order.
+
+Wait, but how? Because each cycle has a certain number of black nodes. So for each node in the cycle, F(i) would be the count of black nodes in the cycle. So if a cycle has m black nodes, then every node in the cycle contributes m to F(i) for each i in the cycle.
+
+So the steps would be:
+
+1. For each test case:
+   a. Find all cycles in the permutation p.
+   b. For each cycle, count the number of black nodes (each p_i is in the cycle, but the color is s_i).
+   c. For each node in the cycle, assign the count of black nodes in the cycle as F(i).
+
+So the main steps are to find all cycles and their counts of black nodes.
+
+So the plan is:
+
+For each test case:
+
+- Read n, the permutation p, and the string s.
+
+- For each node i from 1 to n, if it hasn't been visited yet, start a traversal (following p) and find the cycle. During this traversal, mark each node as visited. For each cycle, count how many s_i are '0' (black) and store that count.
+
+- For each node in the cycle, set F(i) to the count of black nodes in the cycle.
+
+But wait, how do we process the nodes? For example, in a cycle like 1 → 2 → 3 → 1. Then the count is the number of black nodes in positions 1, 2, 3. So all three nodes in the cycle will have F(i) equal to this count.
+
+So the approach is to process each cycle once, and for each node in the cycle, assign the cycle's black count.
+
+So the steps:
+
+- For each test case:
+
+   - Initialize a visited array (or set) to track which nodes have been processed.
+
+   - For each node i from 1 to n:
+
+      - If i is not visited, start a traversal from i, following the permutation p.
+
+      - For the traversal, collect all nodes in the cycle.
+
+      - Count how many of these nodes have s_i as '0' (black).
+
+      - For each node in the cycle, set F(i) to this count.
+
+      - Mark all nodes in the cycle as visited.
+
+So the key part is to find all cycles and count the black nodes in each.
+
+Now, how to implement this efficiently.
+
+The permutation is a permutation of numbers from 1 to n. So each node has exactly one outgoing edge (p_i). So the graph is a collection of cycles and trees leading to cycles. But since each node has exactly one outgoing edge, the graph is made of cycles and trees leading into cycles. However, since each node is part of exactly one cycle (since the permutation is a permutation), the traversal will always end up in a cycle once the node is visited.
+
+So for each node, the cycle it's part of is the first cycle we encounter when traversing from it.
+
+Thus, for each node, we can process it once, and mark all nodes in its cycle as visited.
+
+So the implementation steps would be:
+
+Initialize visited as a list of booleans (n+1 elements, indexes 0..n, 0 unused).
+
+For i from 1 to n:
+
+   if not visited[i], start traversal:
+
+      create a list cycle_nodes.
+
+      current = i
+
+      while current not in visited:
+
+         mark current as visited.
+
+         add current to cycle_nodes.
+
+         current = p[current-1] (since p is 0-based in the array, but the nodes are 1-based).
+
+      Now, current is in the cycle. So the cycle_nodes list is the cycle that contains current.
+
+      count_black = sum(1 for x in cycle_nodes if s[x-1] == '0')
+
+      for each node in cycle_nodes:
+
+         F[i] = count_black
+
+So in the code, we need to process each cycle once.
+
+Now, the problem constraints are tight. For n up to 2e5, and t up to 1e4, the code needs to be O(n) per test case.
+
+So the code will process each test case in O(n) time.
+
+Now, the implementation.
+
+In Python, for each test case, read n, then the list p, then the string s.
+
+Then process each node.
+
+But for large n (like 2e5), we need to make sure that the code is efficient.
+
+So, the steps in code:
+
+Read t test cases.
+
+For each test case:
+
+   Read n.
+
+   Read p as list of integers (since p is 1-based, but stored as 0-based in the array).
+
+   Read s as a string.
+
+   Initialize visited as a list of False, size n+1 (since nodes are 1-based).
+
+   Initialize F as a list of 0s, size n+1.
+
+   For i from 1 to n:
+
+      if not visited[i], then start the traversal.
+
+      current = i
+
+      cycle_nodes = []
+
+      while current not visited:
+
+         visited[current] = True
+
+         cycle_nodes.append(current)
+
+         current = p[current - 1]  # since p is 0-based in the array, but current is 1-based.
+
+      # Now current is part of the cycle.
+
+      # Count the number of '0's in s for the cycle_nodes.
+
+      count_black = sum(1 for x in cycle_nodes if s[x-1] == '0')
+
+      # Assign F[i] = count_black for all nodes in cycle_nodes.
+
+      for node in cycle_nodes:
+
+         F[node] = count_black
+
+   Then output the F list.
+
+Wait, but in the code, the cycle_nodes list is built by appending current each time. So the cycle_nodes will be the nodes in the cycle, starting from i, then following p until it loops back.
+
+But in the code, after the loop, current is part of the cycle. So the cycle_nodes list contains all the nodes in the cycle, and the current is the last node in the cycle. So the cycle_nodes list is the cycle.
+
+So for example, if the cycle is 1 → 2 → 3 → 1, then the cycle_nodes will be [1, 2, 3], and current is 1 again. So the loop stops when current is already visited.
+
+But in the code, the loop is:
+
+current = i
+
+while current not visited:
+
+   mark current as visited.
+
+   add to cycle_nodes.
+
+   current = p[current-1]
+
+So for the cycle 1 → 2 → 3 → 1, the loop starts with current=1, which is not visited. So it adds 1 to cycle_nodes, marks it as visited. Then current becomes p[0] = 2. Then 2 is not visited, added to cycle_nodes, current becomes p[1] =3. Then 3 is not visited, added. current becomes p[2] =1. Now current is 1, which is already visited, so the loop ends.
+
+So the cycle_nodes list is [1,2,3], and current is 1, which is in the list.
+
+So the code correctly captures the cycle.
+
+Once the cycle is found, the code counts how many '0's are in s for the cycle_nodes. Then for each node in cycle_nodes, F[node] is set to this count.
+
+So this approach should work.
+
+Now, test case examples.
+
+Take the first sample input:
+
+5
+
+1
+
+1
+
+0
+
+The permutation is [1], and the s is '0'.
+
+So the cycle is [1]. count_black is 1 (s[0] is '0'). So F[1] = 1. Output is 1.
+
+Another sample:
+
+5
+
+1 2 4 5 3
+
+10101
+
+So permutation is [1, 2,4,5,3]. So the cycle is 1 → 2 → 4 → 5 → 3 → 1. So the cycle_nodes is [1,2,4,5,3]. s is '10101', so positions 0 (1), 1 (2), 3 (4), 4 (5), 2 (3). So s[0] is '1', s[1] is '0', s[3] is '0', s[4] is '1', s[2] is '1'. So the count_black is 2 (s[1] and s[3] are '0'). So each node in the cycle (1,2,4,5,3) will have F(i) = 2. So output is 0 1 1 1 1.
+
+Wait, no. Wait the cycle is 1 → 2 →4 →5 →3 →1. So the nodes in the cycle are 1,2,4,5,3. The s is 10101, which is for positions 0-4 (since s is length 5). So:
+
+s[0] = '1' (node 1)
+
+s[1] = '0' (node 2)
+
+s[2] = '1' (node 4)
+
+s[3] = '0' (node 5)
+
+s[4] = '1' (node 3)
+
+So count_black is 2 (nodes 2 and 5). So F(1) = 2, F(2)=2, F(4)=2, F(5)=2, F(3)=2. So the output is 2 2 2 2 2. But the sample output is 0 1 1 1 1. Wait, this contradicts. Wait no, the sample input for the second case is:
+
+Sample input:
+
+5
+
+1 2 4 5 3
+
+10101
+
+Which is the permutation p = [1,2,4,5,3], and s is 10101.
+
+Wait the first node is 1 (s[0] is 1?), but the s is given as '10101', so for each node i (1-based), s[i-1] is the color.
+
+So node 1: s[0] = '1' (white?), node 2: s[1] = '0' (black?), node 4: s[3] = '0', node 5: s[4] = '1', node 3: s[2] = '1'.
+
+So the count_black is 2 (nodes 2 and 4). So for each node in the cycle (1,2,4,5,3), their F is 2. So the output should be 2 2 2 2 2. But the sample output for this test case is 0 1 1 1 1. Wait this suggests that my reasoning is wrong.
+
+Wait the sample output for the second test case is:
+
+0 1 1 1 1 
+
+But according to my analysis, the count_black is 2. So why is the sample output different?
+
+Wait maybe I made a mistake in the problem statement. Let me recheck the sample input and output.
+
+The sample input for the second test case is:
+
+5
+
+1 2 4 5 3
+
+10101
+
+Which is n=5, permutation p is [1,2,4,5,3], and s is '10101'.
+
+So s is 10101, which is 5 characters.
+
+So for each node i (1-5):
+
+i=1 → s[0] = '1' → white (s is 1 for black, 0 for white? Wait the problem says: if s_i is 0, the number p_i is colored black. So s_i=0 → black, s_i=1 → white. So in the sample input, the s is '10101' → for i=1, s_i=1 → white (so p_i is 1, which is white). So the count_black is the number of 0s in s. So for the cycle [1,2,4,5,3], the s values are:
+
+i=1 → s[0] = '1' (white)
+
+i=2 → s[1] = '0' (black)
+
+i=4 → s[3] = '0' (black)
+
+i=5 → s[4] = '1' (white)
+
+i=3 → s[2] = '1' (white)
+
+So the count_black is 2 (nodes 2 and 4). So F(1) is 2, F(2) is 2, F(4) is 2, F(5) is 2, F(3) is 2. So the output for this case would be 2 2 2 2 2. But the sample output is 0 1 1 1 1.
+
+Wait this contradicts. So clearly, my understanding is wrong.
+
+Hmm, perhaps I misunderstood the problem. Let me re-read the problem statement.
+
+Problem statement:
+
+Sakurako defines the function F(i) as the number of black integers that are reachable from i.
+
+So for each i, F(i) is the count of black integers in the reachable set from i.
+
+So for i=1, the reachable set is all nodes in the cycle (since the cycle is connected). So if there are two black nodes in the cycle, F(1) is 2. But according to the sample output, the output for the second test case is 0 1 1 1 1. Which suggests that for each i, F(i) is the count of black nodes in the cycle.
+
+But why is the sample output 0 1 1 1 1?
+
+Wait maybe the sample input is different. Let me check the sample input again.
+
+The sample input for the second test case is:
+
+5
+
+1 2 4 5 3
+
+10101
+
+Wait the s is 10101. So the s is:
+
+s[0] = '1' → p_i=1 is white.
+
+s[1] = '0' → p_i=2 is black.
+
+s[2] = '1' → p_i=4 is white.
+
+s[3] = '0' → p_i=5 is black.
+
+s[4] = '1' → p_i=3 is white.
+
+So in the cycle [1,2,4,5,3], the black nodes are 2 and 5 (s[1] and s[3] are 0). So the count_black is 2. So the output should be 2 2 2 2 2.
+
+But the sample output for this case is 0 1 1 1 1. So why?
+
+Ah, perhaps I made a mistake in the permutation. Let me check the permutation again.
+
+The second test case's input is:
+
+5
+
+1 2 4 5 3
+
+10101
+
+So the permutation p is [1,2,4,5,3], which is 1-based.
+
+So p[0] =1 (node 1), p[1] =2 (node 2), p[2] =4 (node4), p[3]=5 (node5), p[4]=3 (node3).
+
+So the cycle is 1 → 2 → 4 → 5 → 3 → 1.
+
+Wait, let's check:
+
+1 → p[0] =1 → loop.
+
+So the cycle is 1,2,4,5,3.
+
+So the count_black is 2 (nodes 2 and 5). So the output should be 2 2 2 2 2.
+
+But the sample output is 0 1 1 1 1. So there's a contradiction here. This suggests that my reasoning is wrong. So where is the mistake?
+
+Wait maybe the permutation is not [1,2,4,5,3], but [1,2,4,5,3] is the permutation, but perhaps the indices are different. Or perhaps I misread the input.
+
+Wait the input for the second test case is:
+
+5
+
+1 2 4 5 3
+
+10101
+
+So the permutation is 1,2,4,5,3. So the first element is 1, second 2, third 4, fourth 5, fifth 3.
+
+But then the cycle is 1 → 2 →4 →5 →3 →1. So the cycle is 1,2,4,5,3.
+
+But according to the sample output, the F(1) is 0. Which suggests that in this cycle, there are 0 black nodes. Which contradicts with the analysis.
+
+So what's wrong here?
+
+Ah! Oh wait! Wait the sample output for the second test case is:
+
+0 1 1 1 1 
+
+Which is for test case 2. So for each node i in 1..5, F(i) is 0,1,1,1,1. So for i=1, F(1)=0. Which implies that in the cycle containing i=1, there are 0 black nodes. But according to our analysis, there are 2 black nodes. So why is that?
+
+This suggests that my understanding of the problem is incorrect.
+
+Let me re-examine the problem statement.
+
+The problem statement says: the function F(i) is the number of black integers that are reachable from i.
+
+But maybe the reachability is not the entire cycle, but the reachable nodes when following the permutation p, starting from i, and then applying p again and again. But perhaps the cycle is not the entire set, but only the nodes reachable from i through p.
+
+But since each node is part of exactly one cycle, then any node reachable from i must be in the same cycle. So the previous reasoning holds.
+
+So why is the sample output for the second test case different?
+
+Alternatively, perhaps the permutation is read in a different way. For example, maybe the permutation p is read as a list of p_i, but the indices are 0-based in the array. For example, in the second test case, the p array is [1,2,4,5,3], which corresponds to p_1=1, p_2=2, p_3=4, p_4=5, p_5=3. So the permutation is correct.
+
+Wait maybe the s is read as a string of 5 characters, but the nodes are 1-based. So for node 1, s[0] is the first character. For node 2, s[1], etc.
+
+So in the second test case, the s is '10101', so:
+
+s[0] = '1' → node 1 is white (s_i=1 → white?), but the problem says that s_i=0 → black. So node 1 is white (s_i=1), node 2 is black (s_i=0), node 4 is white (s_i=1?), node 5 is black (s_i=0), node 3 is white (s_i=1).
+
+Wait no, the sample input is '10101', which is 5 characters. So for node 1: s_1 is the first character (s[0] is '1'), node 2: s_2 is the second character (s[1] is '0'), node 3: s_3 is third character (s[2] is '1'), node 4: s_4 is fourth character (s[3] is '0'), node 5: s_5 is fifth character (s[4] is '1').
+
+So the black nodes are 2 and 4. So the count_black is 2. So the output should be 2 2 2 2 2.
+
+But the sample output is 0 1 1 1 1. So why?
+
+This suggests that there's a mistake in the way I'm processing the permutation or the s string.
+
+Alternatively, perhaps the permutation is read in a different way. For example, maybe the permutation is read as p_1, p_2, ..., p_n, but the permutation is stored as a list of p_i, with indices 0-based. So for the second test case, the permutation is [1,2,4,5,3], which is 0-based indices. So p_1 is 1, p_2 is 2, etc. So the permutation is correct.
+
+Wait maybe the problem defines the permutation as p_1, p_2, ..., p_n, where p_i is the value of the i-th element. So the permutation is [1,2,4,5,3], which is the same as before.
+
+So why is the sample output for this case 0 1 1 1 1?
+
+Let me look at the sample output again.
+
+The sample output for the second test case is:
+
+0 1 1 1 1 
+
+So F(1) = 0, F(2)=1, F(3)=1, F(4)=1, F(5)=1.
+
+So for i=1, F(i)=0. Which means that there are 0 black nodes reachable from i=1. So why?
+
+If the cycle is 1 → 2 →4 →5 →3 →1, and the black nodes are 2 and 4, then why is F(1)=0?
+
+Wait maybe the cycle is not 1 →2 →4 →5 →3 →1, but something else. Let me retrace the steps.
+
+Let's simulate the traversal for the second test case.
+
+Start with i=1.
+
+current = 1.
+
+Mark 1 as visited.
+
+Add to cycle_nodes: [1].
+
+current = p[0] = 1 (since p is [1,2,4,5,3]).
+
+current is 1, which is already visited. So loop ends.
+
+So the cycle_nodes is [1], and current is 1. So the cycle is [1]. So the count_black is the number of black nodes in the cycle_nodes, which is 1 (since s[0] is '1', which is white). So F(1) should be 1. But in the sample output, it's 0. So this contradicts.
+
+Wait this suggests that the cycle is [1], but why?
+
+Wait no. Because when we start with i=1, the current is set to i=1. Then we check if current is visited. Initially, it's not, so we process it.
+
+Wait no. The code is:
+
+for i in 1 to n:
+
+   if not visited[i], then:
+
+      current = i
+
+      cycle_nodes = []
+
+      while current not visited:
+
+         mark as visited
+
+         add to cycle_nodes
+
+         current = p[current-1]
+
+So for i=1, current is 1.
+
+current is not visited (initially, all are not visited). So:
+
+mark 1 as visited.
+
+add to cycle_nodes → [1]
+
+current = p[0] = 1 → which is already visited. So loop ends.
+
+So the cycle_nodes is [1]. So the count_black is 1 (s[0] is '1' → white). So F(1) is 1. But the sample output says it's 0.
+
+This suggests that the code is wrong. But the sample output is 0 1 1 1 1. So why?
+
+Ah! Wait the problem says that the function F(i) is the number of black integers that are reachable from i. But in the sample input, for i=1, the reachable set is [1], which has s_i=1 (white). So F(1) should be 0. But why?
+
+This suggests that the problem defines the color as '0' for black, but in the sample input, the color of node 1 is '1' (white). So the count_black is 0. But according to our analysis, the count_black is 1 (node 1 is white, so s_i=1 → white). But the sample output shows F(1)=0.
+
+This is a contradiction. So why is the sample output different?
+
+Wait maybe the problem defines the color as '0' for white and '1' for black. So s_i=0 means black, s_i=1 means white.
+
+But in the sample input, the s is '10101'. So:
+
+s[0] = '1' → black.
+
+s[1] = '0' → white.
+
+s[2] = '1' → black.
+
+s[3] = '0' → white.
+
+s[4] = '1' → black.
+
+So the count_black is 3 (nodes 1, 2, 4, 5, 3? No, wait:
+
+Wait for the cycle_nodes [1], the s[0] is '1' → black. So count_black is 1. So F(1)=1. But the sample output says 0.
+
+This suggests that the problem statement is different from what I thought.
+
+Alternatively, perhaps the problem defines the color as '0' for black and '1' for white. But in the sample input, the s is '10101', which would have:
+
+s[0] = '1' → white (so black count is 0), s[1] = '0' → black (count 1), s[2] = '1' → white (count 1), s[3] = '0' → black (count 2), s[4] = '1' → white (count 2).
+
+So the count_black for the cycle [1] is 1 (only node 1 is white, but wait if s[0] is '1', then node 1 is white. So count_black is 0. But in this case, the cycle is [1], and the count_black is 0. So F(1) =0.
+
+Ah! This would explain the sample output.
+
+So the problem defines the color as follows: if s_i is '0', the number p_i is black. If s_i is '1', the number p_i is white. So '0' is black, '1' is white.
+
+So the count_black is the number of '0's in the s string for the nodes in the cycle.
+
+So in the second test case, the s is '10101' → for the cycle [1], the count_black is 1 (only node 1 has s_i=1 → white? No, wait the count_black is the number of black nodes in the cycle. So if a node is white, it's not counted as black.
+
+Wait the count_black is the number of black nodes in the cycle. So for node 1, if s_i is '1', then it's white, so not counted as black. So in the cycle [1], the count_black is 0. Hence F(1)=0. Which matches the sample output.
+
+Ah! That's the mistake. I had misunderstood the color mapping. The problem says that the color is '0' for black, '1' for white. So the count_black is the number of '0's in the s string for the nodes in the cycle.
+
+So the code should count the number of '0's in s for each cycle_nodes.
+
+So in the second test case, for the cycle [1], the s[0] is '1' → not counted as black. So F(1)=0.
+
+For the cycle [2,4,5,3], the s values are:
+
+s[1] = '0' → black.
+
+s[3] = '0' → black.
+
+s[4] = '1' → white.
+
+s[2] = '1' → white.
+
+So count_black is 2. So F(2)=2, F(4)=2, F(5)=2, F(3)=2. So the output for this case would be 0 2 2 2 2. But the sample output is 0 1 1 1 1.
+
+Wait this is confusing. What's the correct count_black?
+
+Wait the cycle_nodes in the second test case is [1], and s[0] is '1' → white. So count_black is 0. So F(1)=0.
+
+For the cycle_nodes [2,4,5,3], the s values are:
+
+node 2: s[1] = '0' → black.
+
+node 4: s[3] = '0' → black.
+
+node 5: s[4] = '1' → white.
+
+node 3: s[2] = '1' → white.
+
+So count_black is 2. So F(2)=2, F(4)=2, F(5)=2, F(3)=2. So the output for this case would be 0 2 2 2 2. But the sample output is 0 1 1 1 1. So this is still not matching.
+
+Hmm, I'm really confused now. Let me recheck the sample input and output.
+
+Sample input for test case 2:
+
+n=5
+
+p = [1,2,4,5,3]
+
+s = '10101'
+
+Sample output is 0 1 1 1 1.
+
+So for i=2, F(2)=1. For i=3, F(3)=1. For i=4, F(4)=1. For i=5, F(5)=1. For i=1, F(1)=0.
+
+So for i=2, the count_black is 1. For i=3, count_black is 1. For i=4, count_black is 1. For i=5, count_black is 1. For i=1, count_black is 0.
+
+So for the cycle containing i=2, which is [2,4,5,3], the count_black is 1. For i=2, F(2)=1. So what's the s values for these nodes?
+
+s for i=2 is '0' → black.
+
+s for i=4 is '0' → black.
+
+s for i=5 is '1' → white.
+
+s for i=3 is '1' → white.
+
+So count_black is 2, but F(2)=1. This is impossible.
+
+So there must be a mistake in the analysis.
+
+Wait maybe the cycle is not [2,4,5,3], but [2,4,5,3,1]. But how?
+
+Wait the code for the second test case would process i=1 first.
+
+current = 1, not visited.
+
+mark as visited.
+
+cycle_nodes = [1].
+
+current = p[0] = 1 → already visited.
+
+So the cycle is [1]. count_black is 0.
+
+Then i=2 is processed.
+
+current = 2, not visited.
+
+mark as visited.
+
+cycle_nodes = [2].
+
+current = p[1] = 2 → already visited.
+
+So the cycle is [2]. count_black is 1 (since s[1] is '0' → black).
+
+So F(2)=1.
+
+Then i=3 is processed.
+
+current=3, not visited.
+
+mark as visited.
+
+cycle_nodes = [3].
+
+current = p[2] =4.
+
+current=4 is not visited.
+
+mark as visited.
+
+cycle_nodes = [3,4].
+
+current = p[3] =5.
+
+current=5 is not visited.
+
+mark as visited.
+
+cycle_nodes = [3,4,5].
+
+current = p[4] =3 → already visited.
+
+So the cycle is [3,4,5]. count_black is 2 (nodes 4 and 5 are in this cycle, s[3] is '0' and s[4] is '1'? No, wait s is '10101' for the 5 characters. For node 4, which is in the cycle, the index is 3 (since 4-1=3). So s[3] is '0' → black. Node 5 is s[4] = '1' → white. So count_black is 1. So F(3)=1.
+
+Then i=4 is processed. But it's already visited.
+
+i=5 is processed. Already visited.
+
+So the output for this test case is 0 1 1 1 1. Which matches the sample.
+
+Ah! So the cycle for i=2 is [2], count_black is 1. For i=3, the cycle is [3,4,5], count_black is 1 (node 4 is in this cycle, s[3] is '0', node 5 is s[4] is '1' → so count_black is 1. So F(3)=1.
+
+So the code must be correct. My earlier analysis was wrong because I thought the cycle for i=3 was [3,4,5,3], but in reality, when i=3 is processed, the cycle is [3,4,5], because after processing 3, current becomes 4, then 5, then 3 (which is visited), so the cycle is [3,4,5].
+
+So the code is correct, and the mistake was in my earlier analysis where I thought the cycle for i=3 was longer.
+
+So the code is correct.
+
+So the mistake was in my earlier analysis where I thought the cycle for i=3 is [3,4,5,3], but in reality, after processing 3, current becomes 4, which is not visited. Then 4 is processed, current becomes 5 (not visited), then 5 is processed, current becomes 3 (visited). So the cycle is [3,4,5].
+
+Thus, the code is correct.
+
+Now, the code needs to be implemented correctly.
+
+Now, the code in Python.
+
+Read t test cases.
+
+For each test case:
+
+Read n.
+
+Read the next line as list p, which is n integers, 1-based.
+
+Read the string s.
+
+Initialize visited as a list of False for n+1 elements.
+
+Initialize F as a list of 0s for n+1 elements.
+
+For i from 1 to n:
+
+   if not visited[i]:
+
+      current = i
+
+      cycle_nodes = []
+
+      while current not in visited:
+
+         visited[current] = True
+
+         cycle_nodes.append(current)
+
+         current = p[current-1]
+
+      # Now current is in visited.
+
+      count_black = sum(1 for x in cycle_nodes if s[x-1] == '0')
+
+      for node in cycle_nodes:
+
+         F[node] = count_black
+
+Output F[1], F[2], ..., F[n]
+
+Now, in Python, the visited list can be a list of booleans. For n up to 2e5, it's manageable.
+
+But for n=2e5, the list of size 2e5+1 is acceptable.
+
+Now, implement this.
+
+But for large n, using a list of booleans is efficient.
+
+So the code:
+
+Read t.
+
+for _ in range(t):
+
+    n = int(input())
+
+    p = list(map(int, input().split()))
+
+    s = input().strip()
+
+    visited = [False] * (n + 1)
+
+    F = [0] * (n + 1)
+
+    for i in range(1, n + 1):
+
+        if not visited[i]:
+
+            current = i
+
+            cycle_nodes = []
+
+            while not visited[current]:
+
+                visited[current] = True
+
+                cycle_nodes.append(current)
+
+                current = p[current - 1]
+
+            # Now current is in visited.
+
+            count_black = sum(1 for x in cycle_nodes if s[x-1] == '0')
+
+            for node in cycle_nodes:
+
+                F[node] = count_black
+
+    print(' '.join(map(str, F[1:]))) # Output F[1], F[2], ..., F[n]
+
+But wait, in Python, for large n (like 2e5), the list of visited and F may take some time, but it's manageable.
+
+Testing the second test case:
+
+n=5, p = [1,2,4,5,3], s = '10101'.
+
+For i=1, not visited. current =1.
+
+cycle_nodes = [1]. current becomes p[0] =1. visited[1] is True.
+
+count_black is sum(1 for x in [1] if s[0] == '0') → s[0] is '1' → 0. So F[1]=0.
+
+For i=2, not visited. current=2. cycle_nodes = [2], current becomes p[1]=2. visited[2] is True. count_black is sum(1 for x in [2] if s[1] == '0') → s[1] is '0' → count_black=1. So F[2]=1.
+
+For i=3, not visited. current=3. cycle_nodes = [3], current becomes p[2]=4. current=4 not visited. cycle_nodes becomes [3,4]. current becomes p[3]=5. current=5 not visited. cycle_nodes becomes [3,4,5]. current becomes p[4]=3. visited[3] is True. count_black is sum(1 for x in [3,4,5] if s[x-1] == '0') → s[2] is '1', s[3] is '0', s[4] is '1'. So 1 (only x=4). So F[3]=1.
+
+For i=4, already visited.
+
+For i=5, already visited.
+
+So the output is 0 1 1 1 1 → matches the sample.
+
+Thus, the code is correct.
+
+Now, implement this in Python.
+
+But note that in Python, for large n, using a list of booleans may be slow, but it's manageable.
+
+Now, the code.
+</think>
+
+```python
+import sys
+
+def main():
+    input = sys.stdin.read
+    data = input().split()
+    idx = 0
+    t = int(data[idx])
+    idx += 1
+    results = []
+    for _ in range(t):
+        n = int(data[idx])
+        idx += 1
+        p = list(map(int, data[idx:idx + n]))
+        idx += n
+        s = data[idx]
+        idx += 1
+        visited = [False] * (n + 1)
+        F = [0] * (n + 1)
+        for i in range(1, n + 1):
+            if not visited[i]:
+                current = i
+                cycle_nodes = []
+                while not visited[current]:
+                    visited[current] = True
+                    cycle_nodes.append(current)
+                    current = p[current - 1]
+                count_black = sum(1 for x in cycle_nodes if s[x - 1] == '0')
+                for node in cycle_nodes:
+                    F[node] = count_black
+        results.append(' '.join(map(str, F[1:])))
+    print('\n'.join(results))
+
+if __name__ == "__main__":
+    main()
+```

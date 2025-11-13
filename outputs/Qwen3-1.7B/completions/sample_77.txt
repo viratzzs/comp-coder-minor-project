@@ -1,0 +1,1598 @@
+<think>
+Okay, let's tackle this problem. Hmm, the problem statement is a bit complex. Let me try to understand it step by step.
+
+So, the problem involves an array a of length n. For each element in a, we generate a cyclic shift c_i. Then, we create array b by concatenating all these c_i's. Then, for each query, we need to find the sum of a subarray of b from l to r.
+
+But wait, the problem says that the array b is formed by concatenating all the cyclic shifts. Let's think about how that works.
+
+For example, if a is [1,2,3], then the cyclic shifts would be:
+
+c1 is [1,2,3], c2 is [2,3,1], c3 is [3,1,2]. Then b is the concatenation of these three, so [1,2,3,2,3,1,3,1,2]. So for the first test case, the sample input is 3 3, and the output for query 1-9 is 18, which is the sum of all elements. Let's check that: 1+2+3+2+3+1+3+1+2 = 18. Yep.
+
+The challenge here is that for each query, we need to compute the sum of a subarray of b, which is of length up to n². But with n up to 2e5, and q up to 2e5, we can't compute each query naively by iterating through the elements. That would be O(q * n²) time, which is way too slow.
+
+So, we need a smarter approach. Let's think about how to compute the sum of a range in b efficiently.
+
+First, let's figure out the structure of b. Each c_i is a cyclic shift of a. So, for each i, c_i is a rotation of a. For example, the first shift is a itself, the second is a shifted by one, etc.
+
+But when you concatenate all c_i's, the total length of b is n * n. So, for each position in b, we need to find which c_i it belongs to, and which element in that c_i it is.
+
+But how can we model this? Let's think about the positions in b. Each c_i is a length n array. So, for each position in b, say position k (starting from 0?), we can find which c_i it's part of, and which element in that c_i.
+
+But for each query, we need to sum from l to r in the b array. Let's think about how to represent the sum of a range in b.
+
+Let me think of the problem in terms of the original array a and how each shift contributes to the sum.
+
+Let me think about the structure of b. Each c_i is a cyclic shift of a. So, for the i-th shift, the elements are a[i], a[i+1], ..., a[n-1], a[0], a[1], ..., a[i-1]. Wait, but the indices are 1-based or 0-based? Well, the problem says that the array a is given as a_1, a_2, ..., a_n. So, the shifts are cyclic, so for the first shift, the elements are a_1, a_2, ..., a_n. For the second shift, it's a_2, a_3, ..., a_n, a_1. And so on.
+
+So, for each shift i (from 1 to n), the c_i is the array where the first element is a_{i}, then a_{i+1}, etc. So, for the i-th shift, the elements are a_i, a_{i+1}, ..., a_n, a_1, a_2, ..., a_{i-1}.
+
+So, when we concatenate all the c_i's, the array b is of length n^2. Each c_i is of length n.
+
+Now, for each position in b, which is part of which c_i? Let's think of the positions as 1-based. For example, the first c_1 is positions 1 to n. The second c_2 is positions n+1 to 2n, and so on.
+
+So, for a given position k in b (1-based), which c_i does it belong to? The c_i starts at position i * n, and ends at (i+1)*n - 1. Wait, no. Wait, for i=1, the first c_1 is positions 1..n. Then c_2 is positions n+1 to 2n. So, for the i-th shift, the starting position is i * n, and the ending position is (i+1)*n -1. So, for each position in b, the i-th shift is the one that contains it if the position is in [i * n, (i+1)*n -1]. But for the first shift, i=1, the starting position is 1 * n = n. Wait, no. Wait, for i=1, the first c_1 is positions 1 to n. So the starting position is 1, and the ending is n. Then the next shift is positions n+1 to 2n. So for the i-th shift, the positions are from i to n + i -1. So the starting position is i, and the ending is n + i -1. So for the i-th shift, the positions are from i to n + i -1. So, the total length is n.
+
+But for the array b, the total length is n * n. So for each position in b, which is in the range [1, n^2], we can find which shift it belongs to. For example, for position k, the shift is (k-1) // n + 1. Because for k=1, (1-1)//n = 0, so shift 1. For k= n, (n-1)//n = 0, shift 1. For k = n+1, (n+1-1)//n = n//n = 1, so shift 2. So yes, the shift is (k-1) // n + 1. Then, the index within the shift is (k-1) % n + 1. Because for the shift i, the positions are from i to i + n - 1. So the position k in the shift is (k - i) + 1, but that's not helpful. Wait, for the shift i, the positions are i, i+1, ..., i + n -1. So for a position k in the b array, the shift is i = (k-1) // n + 1. Then, the position within the shift is (k - 1) % n + 1. Because for example, when k is 1, (1-1) is 0, mod n is 0, plus 1 is 1. So the position within the shift is 1, which is correct.
+
+So, for each element in b, the shift is determined by the position, and the index within the shift is determined by the position. So, for the element in position k of b, it's part of the shift i = (k-1) // n + 1, and the index in that shift is (k - 1) % n + 1. But the shift i is the original shift. So, the original array a is shifted, and the element in the shift is a's element at position (original index) = (index within the shift - 1) mod n + 1? Wait, no. Let's think: the original array a is a_1, a_2, ..., a_n. For the shift i, the elements are a_i, a_{i+1}, ..., a_n, a_1, a_2, ..., a_{i-1}. So, for the shift i, the element at position j (within the shift) is a_{i + j -1} mod n. Wait, for j=1, it's a_i. For j=2, a_{i+1}, etc. But when j exceeds n, it wraps around. So, for the shift i, the element at position j (within the shift) is a_{(i + j -1) mod n + 1}? Wait, maybe not. Let's think of the shift as a circular array. For example, shift 1 is [a1, a2, a3, ..., an]. Shift 2 is [a2, a3, ..., an, a1]. So for the j-th element in the shift (1-based), it's a_{ (i + j -1) mod n + 1 }? Wait, no. For shift i, the first element is a_i, the second a_{i+1}, ..., the nth element is a_{i + n -1} mod n. Wait, but if i + n -1 is larger than n, then mod n would give the correct index. For example, i=3, n=3. Then, j=3: i + j -1 = 3 +3 -1 =5, mod 3 is 2. So a_2. Which is correct. So for the j-th element in the shift i, the value is a_{ (i + j -1) mod n }? Wait, but the original array is 1-based. So, for example, if i=3, j=3, then (3 +3 -1) mod 3 = 5 mod 3 is 2. So the value is a_2. Which is correct.
+
+But the original array is 1-based. So, for the j-th element in the shift i, the value is a[ (i + j -1) mod n ] if (i + j -1) mod n is not zero. Wait, but (i + j -1) mod n could be zero. For example, i=1, j= n. Then (1 + n -1) mod n = n mod n = 0. So, the value is a_0? Which is not correct. Wait, but in that case, the j-th element is a_n. So, perhaps the formula is (i + j -1 -1) mod n +1? Let me think again.
+
+Alternatively, the shift i is a rotation of the array a. So, the element at position j in the shift is a_{ (i-1 + j-1) mod n + 1 } ?
+
+Wait, maybe it's easier to think of the shift as a circular array. For example, the shift i is the array a shifted by i-1 positions. So, for example, the first shift (i=1) is the original array. The second shift (i=2) is the array shifted by 1 position. So, for the j-th element in the shift i, the value is a[ (i-1 + j-1) mod n + 1 ] ?
+
+Wait, let's take i=2, j=1. Then (i-1 + j-1) = 1 + 0 = 1 mod n. Then +1 is 2. So a_2. Which is correct. For j=2, (i-1 + j-1) = 1 + 1 = 2 mod n. +1 is 3. So a_3. Which is correct. For j=n, (i-1 + j-1) = 1 + n-1 = n mod n = 0. +1 is 1. So a_1. Which is correct. So yes, the formula for the value in the shift i, j-th position is a[ (i-1 + j-1) mod n + 1 ].
+
+But since in Python, the list is 0-based, maybe we can adjust this. Let's think in terms of 0-based arrays.
+
+Let me rephrase. Let's consider the original array a as 0-based. Then, for the shift i (1-based), the j-th element (1-based) in the shift is a[ (i-1 + j-1) mod n ] ?
+
+Wait, for example, i=1, j=1: (0 + 0) mod 3 = 0. So a[0] which is a_1 (original array is 1-based, but in 0-based it's a[0] = a_1). So yes.
+
+So, for the shift i (1-based), and the j-th element (1-based) in the shift, the value is a[ (i-1 + j-1) mod n ].
+
+But in the problem, the array a is given as 1-based. So, when we process the shifts, we need to adjust accordingly.
+
+But perhaps for the purposes of the problem, we can model the array as 0-based. Let me think.
+
+So, the key idea is that for each position in b, which is in the i-th shift, and the j-th position within that shift, the value is a[ (i-1 + j-1) mod n ].
+
+But since the shift is a cyclic shift, the value is a[(i-1 + j-1) mod n].
+
+But for the problem, the sum of a subarray in b is the sum of elements from l to r in the b array. So, for each query l and r, we need to compute the sum of elements in positions l to r (inclusive) in b.
+
+But how can we compute that efficiently?
+
+Let's think about the structure of b. Each element in b is part of a shift. So, for each query, the sum is the sum of elements in the shifts that are included in the range l to r.
+
+But the problem is that for each query, we can't iterate through all elements. So we need a way to precompute some information that allows us to compute the sum quickly.
+
+Let me think about the sum of elements in the b array. Since each element in b is part of a shift, and each shift contributes n elements. So, the sum of all elements in b is sum(a) * n^2. But that's not directly helpful for the queries.
+
+But for a query [l, r], the sum is the sum of elements in the shifts that are covered by l to r.
+
+So, the approach would be to find for the query l and r, which shifts are involved in that range, and for each shift, how many elements are in that range, and sum the corresponding elements.
+
+But how to find that?
+
+Let me think of the positions in the b array as being grouped into shifts. For example, each shift contributes n elements. So, the first shift is positions 1 to n, the second shift is n+1 to 2n, and so on.
+
+So, for a given query l to r, we can find how many full shifts are in the range, and then the remaining elements.
+
+But how to compute the sum of elements in the range l to r?
+
+Let me think of the following steps:
+
+For a given query l and r:
+
+1. Find the start shift (i_start) and end shift (i_end) of the range l to r.
+
+But how?
+
+For example, the first shift is positions 1 to n. The second shift is n+1 to 2n. So, the start shift is determined by the first position in the range. The end shift is determined by the last position in the range.
+
+But for a range l to r, the number of shifts is (r - l + 1) // n + 1? Or perhaps not. Let's think.
+
+The number of shifts is the number of times the shifts cover the range. For example, if l is 1 and r is n, then it's one shift. If l is 1 and r is 2n, then two shifts.
+
+So, the first shift starts at position 1, and ends at position n. The second shift starts at position n+1, ends at 2n. So, for a given range l to r, the start shift is i_start = (l - 1) // n + 1. The end shift is i_end = (r - 1) // n + 1.
+
+But then, for each shift between i_start and i_end, we can compute the number of elements in that shift that are in the range l to r.
+
+But how?
+
+Let me think of the total number of elements in the range l to r as total = r - l + 1.
+
+The number of full shifts is (i_end - i_start + 1) - 1, but perhaps not. Let me think again.
+
+Alternatively, for the entire range l to r, the shifts are from i_start to i_end, and each shift contributes some elements.
+
+So, for each shift i in [i_start, i_end], the elements in the shift that are in the range l to r can be calculated as follows:
+
+For the shift i, the positions in the shift are from i * n to (i+1)*n -1. But the range l to r is a certain interval. So, for shift i, the elements in the shift that are in the range l to r are:
+
+If the entire shift is within l to r, then all n elements.
+
+Else, the elements are from the start of the shift to the end of the range, and then from the start of the range to the end of the shift.
+
+But perhaps a better way is to calculate for each shift i, the number of elements in the range l to r that belong to that shift.
+
+Let me think of the start and end positions for the shift i.
+
+The start position of the shift i is s_i = i * n. The end position is e_i = (i+1) * n - 1.
+
+But the actual range l to r can be split into parts. For example, for shift i, the elements in the range l to r are:
+
+If l > e_i: then no elements in this shift.
+
+If r < s_i: then no elements in this shift.
+
+Otherwise, the elements in the shift are from max(l, s_i) to min(r, e_i). The number of elements is min(r, e_i) - max(l, s_i) + 1. If this is positive, then we add that number of elements.
+
+But how to compute this for all shifts in the range i_start to i_end?
+
+So, for the query l to r:
+
+- Find the start shift i_start and end shift i_end.
+
+Then, for each shift from i_start to i_end:
+
+- Compute the overlap between the shift's positions and the query's l to r.
+
+- For each such shift, compute the number of elements in the overlap, and multiply by the corresponding value in the shift.
+
+But how to compute the sum of the elements in the shifts?
+
+But the problem is that for each shift, the elements are a certain value, and for each element in the shift, the value is a[(i-1 + j-1) mod n], where j is the position within the shift.
+
+But for each shift i, the elements in the shift are positions from i * n to (i+1)*n -1. So, for each element in the shift, the position in the shift is j (from 1 to n), and the value is a[ (i-1 + j -1) mod n ].
+
+But since the original array is a, and the shift is a rotation, the value for the j-th position in the shift i is a[ (i-1 + j-1) mod n ].
+
+But in code, since the array is 0-based, perhaps we can model this as:
+
+For a given shift i (1-based), and j-th position (1-based) in the shift, the value is a[ (i-1 + j -1) % n ].
+
+But since the original array is 0-based, the formula is a[ (i-1 + j -1) % n ].
+
+So, for the shift i, the elements are a[ (i-1 + j -1) % n ] for j from 1 to n.
+
+But how can we precompute this?
+
+But for each query, we need to compute the sum of elements in the range l to r of b. So, for each shift i, the sum of elements in the range of the shift that is in the query's range.
+
+But how to compute this quickly?
+
+Let's think about the following approach:
+
+For each query, we need to find the sum of all elements in the range l to r of b. Let's split the query into the shifts that are fully contained in the range, and the partial shifts.
+
+But for each shift, the elements in the range can be calculated as follows:
+
+For shift i, the start position in the b array is s_i = i * n, and end position is e_i = (i+1)*n -1.
+
+The number of elements in this shift that are in the query's range is:
+
+count = max(0, min(r, e_i) - max(l, s_i) + 1)
+
+But for each such count, we need to compute the sum of the elements in that part of the shift.
+
+But how to compute the sum of the elements in the shift's part?
+
+For the shift i, the elements are a[ (i-1 + j -1) mod n ] for j from 1 to n. But since j is 1-based, and the mod is n, the formula can be rewritten as:
+
+For j in 1..n, the value is a[ (i-1 + j -1) mod n ].
+
+But since (i-1 + j -1) mod n = (i + j - 2) mod n.
+
+But for j in 1..n, the value is a[ (i + j - 2) mod n ].
+
+But since (i + j - 2) mod n can be written as (i-2 + j) mod n. But perhaps this is not helpful.
+
+Alternatively, for a given shift i, the elements in the shift are a[ (i-1 + j-1) mod n ] for j=1..n. Which is a[ (i-1 + j-1) mod n ] = a[ (i + j - 2) mod n ].
+
+But since the original array is a 0-based array, the index is (i + j - 2) mod n. However, since j ranges from 1 to n, (i + j - 2) can be from (i-1) to (i + n - 2). So, mod n.
+
+But for each shift i, the elements in the shift are a[ (i-1 + j-1) mod n ] for j=1 to n. Which is the same as a[ (i-1 + j-1) mod n ] for j in 1..n.
+
+But since j ranges from 1 to n, the (i-1 + j-1) mod n is the same as (i + j - 2) mod n.
+
+But how to compute the sum of the elements in the part of the shift that is in the query's range.
+
+Let me think of the shift i as contributing a sequence of elements. For example, the elements of the shift are a[ (i-1 + j-1) mod n ] for j=1 to n. Which is the same as a[ (i-1 + j -1) mod n ].
+
+But since j ranges from 1 to n, the elements of the shift are a[ (i-1) + j -1 ] mod n, which is a[ (i-1 + j -1) mod n ].
+
+But this is equivalent to a[ (i + j - 2) mod n ].
+
+So, for the shift i, the elements are a[ (i + j - 2) mod n ] for j=1..n.
+
+But for a given shift i, the elements in the query's range are a certain part of this sequence.
+
+But how can we precompute the sum for any possible range of j in the shift?
+
+This seems challenging. For example, for a given shift i, the elements are a[ (i + j - 2) mod n ] for j=1..n. Which can be rewritten as a[ (i - 2 + j) mod n ].
+
+But for j from 1 to n, this is equivalent to the original array a rotated by i-1 positions. So, the elements of the shift i are the same as the original array shifted by (i-1) positions.
+
+But for each shift, the elements are a shifted array. So, the sum of a certain part of the shift can be computed as the sum of a certain part of the shifted array.
+
+But how to compute this quickly?
+
+Let me think of the sum of the elements in the shift i's part that are in the query's range.
+
+Suppose that for the shift i, the elements in the query's range are from position p to q in the shift (where p and q are the start and end positions in the shift). Then, the sum is the sum of the elements in the shifted array from position p to q.
+
+But since the shifted array is a rotation of the original array, the sum of the elements from p to q in the shifted array is the same as the sum of the elements in the original array from (p - (i-1) mod n) to (q - (i-1) mod n) ?
+
+Wait, perhaps not. Let me think again.
+
+The shift i is a rotation of the original array. So, for example, the elements of the shift i are a[ (i-1) + 0 ] mod n, a[ (i-1) + 1 ] mod n, ..., a[ (i-1) + n-1 ] mod n.
+
+But the original array is a[0], a[1], ..., a[n-1]. So, for the shift i, the elements are:
+
+a[ (i-1 + 0) mod n ] = a[ i-1 ]
+
+a[ (i-1 + 1) mod n ] = a[ i ]
+
+...
+
+a[ (i-1 + n-1) mod n ] = a[ (i-1 + n-1) mod n ] = a[ (i-1 + n -1) mod n ] = a[ (i + n - 2) mod n ].
+
+But since n is the length of the array, (i + n - 2) mod n = (i - 2) mod n. Wait, no. For example, if i is 3 and n is 3, then (i + n - 2) = 3 +3 -2 =4 mod 3 is 1. Which is a[1], which is correct.
+
+So, the elements of the shift i are a[ (i-1 + j) mod n ] for j in 0..n-1. Wait, j is 0-based?
+
+Wait, earlier we said that j is 1-based in the shift. So, for j in 1..n, the 0-based index is j-1. So, the formula for the shift i is:
+
+element at position j (1-based) in the shift is a[ (i-1 + (j-1)) mod n ].
+
+Which is a[ (i-1 + j -1) mod n ] = a[ (i + j - 2) mod n ].
+
+So, for j in 0..n-1 (0-based), the element is a[ (i + j - 2) mod n ].
+
+But this is equivalent to a[ (i-2 + j) mod n ].
+
+But this is the same as the original array shifted by i-2 positions. So, the shift i is the original array shifted by (i-2) positions.
+
+But how can we compute the sum of a certain part of the shift i?
+
+Let me think of the shift i as a circular array. So, for the shift i, the elements are the original array rotated by (i-1) positions. So, the sum of a certain range in the shift i is the same as the sum of the original array's elements in a certain range, but rotated.
+
+But how to compute this?
+
+Alternatively, for the shift i, the elements are a rotated array. So, the sum of the elements from position p to q in the shift is the same as the sum of the elements from (p - (i-1) mod n) to (q - (i-1) mod n) in the original array, but adjusted for the circular nature.
+
+But this seems complicated.
+
+Another approach: precompute for each possible shift, the prefix sums of the original array. Then, for any range in the shift, we can compute the sum quickly.
+
+But how?
+
+Let me think. For the shift i, the elements are a rotated array. So, the sum of the first k elements in the shift is the sum of the original array's elements from (i-1) to (i-1 + k -1) mod n.
+
+But this depends on the position in the shift. So, for example, if the shift i is the original array rotated by (i-1) positions, then the sum of the first k elements in the shift is the sum of the original array's elements from (i-1) to (i-1 + k -1) mod n.
+
+But this is the same as the sum of the original array's elements in the range [ (i-1) mod n, (i-1 + k -1) mod n ].
+
+But since the original array is a circular array, the sum can be computed using prefix sums.
+
+So, if we precompute the prefix sums of the original array, then for any range [a, b] (0-based, with a <= b), the sum is prefix[b] - prefix[a-1], if a > 0. If a is 0, then it's prefix[b].
+
+But since the array is circular, we need to handle cases where the range wraps around the array.
+
+So, for a given range in the original array, say [start, end], where start <= end, the sum is prefix[end] - prefix[start-1] if start > 0. If end < start, then it's prefix[n] - prefix[start-1] + prefix[end].
+
+So, for the shift i, the elements are a rotated array. So, the sum of the elements from position p to q in the shift is the sum of the original array's elements from (i-1 + p - 1) mod n to (i-1 + q -1) mod n.
+
+Wait, no. Let me rephrase. For the shift i, the elements are a rotated array. So, the first element is a[i-1], the second is a[i], ..., the nth element is a[i-1 + n -1] mod n = a[i-2] mod n.
+
+So, for the shift i, the elements are a[i-1], a[i], ..., a[i-2], and so on.
+
+So, the sum of the elements from position p to q in the shift (1-based) is the sum of the original array's elements from (i-1 + p - 1) mod n to (i-1 + q - 1) mod n, but adjusted for the circular nature.
+
+But since the shift is a rotation of the original array, the sum of the elements in a certain range of the shift can be computed as the sum of the original array's elements in a certain range, which can be calculated with the prefix sums.
+
+So, for example, if the shift i has elements in the range [p, q] (1-based), then the corresponding positions in the original array are:
+
+start = (i-1 + p -1) mod n
+
+end = (i-1 + q -1) mod n
+
+But since the original array is circular, we can compute the sum of the original array's elements from start to end, which is the same as the sum of the original array's elements from start to end, with wrap-around if needed.
+
+But how to compute that?
+
+Let me think of the original array's prefix sums as precomputed. Let's say we have a prefix array pre where pre[0] = 0, pre[1] = a[0], pre[2] = a[0] + a[1], etc., up to pre[n] = sum of all elements.
+
+Then, the sum of elements from index l to r (inclusive) in the original array (0-based) is:
+
+if l <= r: pre[r+1] - pre[l]
+
+else: pre[n] - pre[l] + pre[r+1]
+
+So, for the shift i, the sum of a certain range in the shift is the sum of the original array's elements in the range [start, end], where start and end are computed based on the shift i and the query's range.
+
+So, for the shift i, the elements in the query's range are from position p to q in the shift (1-based), which translates to the original array's positions:
+
+start = (i-1 + p -1) mod n
+
+end = (i-1 + q -1) mod n
+
+But since the original array is circular, we can compute the sum of the original array's elements from start to end, which is:
+
+if start <= end: pre[end+1] - pre[start]
+
+else: pre[n] - pre[start] + pre[end+1]
+
+But wait, the original array's elements are from 0 to n-1. So, for example, if start is 3 and end is 5, then it's the sum of elements 3,4,5. But if start is 3 and end is 0 (for n=5), then it's elements 3,4,0.
+
+So, for the shift i, the sum of the elements in the query's range is the sum of the original array's elements from start to end, where start and end are computed as (i-1 + p -1) mod n and (i-1 + q -1) mod n.
+
+But how to compute this for the given p and q?
+
+But this seems manageable. So, the steps for a query l to r are:
+
+1. Determine the start shift i_start and end shift i_end.
+
+   i_start = (l-1) // n + 1
+
+   i_end = (r-1) // n + 1
+
+2. For each shift i from i_start to i_end:
+
+   a. Find the start and end positions in the shift (p and q) that are in the query's range.
+
+   b. Compute the number of elements in this shift that are in the range (count = max(0, min(r, e_i) - max(l, s_i) + 1)).
+
+   c. For this count, compute the sum of the elements in the shift's part.
+
+But how to compute the sum of the elements in the shift's part?
+
+For the shift i, the elements in the query's range are from p to q (in the shift's positions). So, for the shift i, the start and end in the shift are p and q, which are 1-based positions. So, the corresponding original array indices are:
+
+start_original = (i-1 + p -1) mod n
+
+end_original = (i-1 + q -1) mod n
+
+But since the original array is circular, the sum is:
+
+if start_original <= end_original:
+
+   sum = pre[end_original + 1] - pre[start_original]
+
+else:
+
+   sum = pre[n] - pre[start_original] + pre[end_original + 1]
+
+But wait, the original array's indices are 0-based, and the pre array is 1-based. So, for example, pre[0] = 0, pre[1] = a[0], pre[2] = a[0] + a[1], etc.
+
+So, the sum of elements from start_original to end_original (inclusive) is:
+
+if start_original <= end_original:
+
+   pre[end_original + 1] - pre[start_original]
+
+else:
+
+   pre[n] - pre[start_original] + pre[end_original + 1]
+
+But this is the sum of the original array's elements in that range. Which is the same as the sum of the elements in the shift's part.
+
+So, for each shift i, the sum of the elements in the query's range for that shift is this value multiplied by the number of elements in the part of the shift that is in the query's range.
+
+Wait, no. Because for each shift i, the elements in the query's range are a certain number of elements. For example, if the shift has 3 elements in the query's range, then the sum is the sum of those 3 elements. Which is the sum computed as above.
+
+So, for each shift i, the sum of the elements in the query's range is the sum of the original array's elements from start_original to end_original, which is computed as above, multiplied by 1 (since each element in the shift is one element). But wait, no. The sum is already the sum of the elements in the query's range of the shift. So, for each shift i, the sum is computed as the sum of the elements in the query's range of the shift.
+
+But how to compute that for each shift i?
+
+So, the plan is:
+
+For each query l and r:
+
+   Compute i_start and i_end as before.
+
+   For each shift i in i_start to i_end:
+
+      Compute the start and end positions in the shift (p and q) that are in the query's range.
+
+      Compute the number of elements in this part: count = max(0, min(r, e_i) - max(l, s_i) + 1)
+
+      If count is 0, skip.
+
+      Else:
+
+         Compute the sum of the elements in this part of the shift (as described above).
+
+         Add this sum to the total.
+
+But the problem is that for large n and q, this approach would be O(q * (i_end - i_start + 1)), which could be O(q * n) in the worst case. For example, if each query is on the entire array, then for each query, we have O(n) shifts. With q up to 2e5, this would be O(2e5 * 2e5) = 4e10 operations, which is way too slow.
+
+So, this approach is not feasible for the given constraints.
+
+We need a better way.
+
+Alternative approach: precompute for each possible shift, the prefix sums of the original array. Then, for any range in the shift, compute the sum quickly. But how?
+
+Wait, but the problem is that for each query, the shifts can be up to O(n) in number, and for each shift, we need to compute the sum of a certain range. So, the total time per query is O(number of shifts in the query's range), which could be O(n) per query, leading to O(nq) time.
+
+But with n and q up to 2e5, this is not feasible.
+
+Alternative idea: find a way to represent the sum of the entire b array as a function of the original array and the shifts, and find a way to compute the sum of a range in b using some mathematical formula.
+
+But how?
+
+Let me think about the sum of the entire b array. The sum of all elements in b is sum(a) * n^2.
+
+But for a query l to r, the sum is the sum of the elements in the b array from l to r.
+
+But how to find this sum quickly?
+
+Let me think of the b array as being composed of n shifts, each of length n. So, the total number of elements is n^2.
+
+But the sum of the elements in the b array is sum(a) * n^2.
+
+But for a query l to r, the sum is the sum of the elements in the b array in the range.
+
+But how to model this?
+
+Let me think of the b array as being made of n*n elements, each of which is part of a shift. For each shift i, the elements are a certain part of the original array.
+
+But perhaps there's a way to model the sum of a range in the b array as a combination of the original array's elements and their positions in the shifts.
+
+Another idea: for each element in the original array, how many times does it appear in the b array, and in which positions?
+
+But for example, each element a[i] appears in the b array exactly n times, once for each shift. But in which positions?
+
+For example, in the first shift, a[i] appears in position i (1-based). In the second shift, a[i] appears in position i + n - 1 (if i is 1-based). Wait, no. For the shift i, the elements are a[i-1], a[i], ..., a[i-2] (mod n). So, for each element a[i], it appears in the shift i, in the position j where j = i-1 + (original index of a[i] in the original array) ?
+
+Wait, this is getting complicated. Let me think of the original array as a[0], a[1], ..., a[n-1].
+
+For each shift i, the elements are a[i-1], a[i], ..., a[n-1], a[0], a[1], ..., a[i-2].
+
+So, for the original array, each element a[k] appears in exactly n shifts. For example, in shift 1, a[k] is in position k (1-based). In shift 2, it's in position k + 1 (if k + 1 <= n), otherwise in position 1 (if k + 1 > n). Wait, no. For example, in shift i, the element a[k] is in the position j = (i-1 + (k - 0)) mod n + 1? Not sure.
+
+But perhaps for each element a[k], it appears in exactly n shifts. For each shift i, a[k] appears once in the shift. So, for the entire b array, each element a[k] appears exactly n times, and in different positions.
+
+But for the sum of a range in the b array, we need to know how many times each a[k] is included in the range.
+
+But how to compute this?
+
+For example, for a given query l to r, the sum is the sum of all a[k] multiplied by the number of times they appear in the range, where the count is the number of times a[k] appears in the range.
+
+But how to compute this?
+
+Let me think of the following:
+
+Each element a[k] appears in exactly n different positions in the b array. For each occurrence, the position in the b array is determined by the shift i and the position j in the shift.
+
+But for a given a[k], how many times does it appear in the range l to r of the b array?
+
+But this seems complicated.
+
+But perhaps we can model the problem as follows: for each query l to r, the sum is the sum over all elements a[k] of (number of times a[k] appears in the range l to r) * a[k].
+
+So, the problem reduces to, for each a[k], compute how many times it appears in the range l to r of the b array, and multiply by a[k].
+
+But how to compute this?
+
+Let's think about the positions where a[k] appears in the b array. For each a[k], it appears in exactly n positions in the b array. Each occurrence is in a different shift i and position j in that shift.
+
+For each occurrence of a[k] in the b array, the position in the b array is s = i * n + j, where i is the shift (1-based), and j is the position within the shift (1-based). So, for each occurrence of a[k], the position in the b array is s = i * n + j, where i is the shift and j is the position in the shift.
+
+But for each a[k], the occurrences in the b array are:
+
+For each shift i, the j-th position in the shift is such that the element a[k] is in that position.
+
+But how to find for a given a[k], the number of times it appears in the range l to r of the b array?
+
+This seems challenging, but perhaps we can find for each a[k], the positions in the b array where it appears, and then for a query l to r, count how many of these positions fall into the range.
+
+But for n up to 2e5, and each a[k] having n occurrences, this would be O(n^2) time, which is not feasible.
+
+Alternative idea: for each a[k], find the positions in the b array where it appears. Then, for each query, count how many of these positions are in the range l to r. But again, this is O(n^2) time.
+
+So, this approach is not feasible.
+
+Hmm. Back to the original idea of processing each query by iterating over the shifts, but trying to find a way to optimize it.
+
+Let me think again about the number of shifts in the query range. For example, if the query's l and r are such that the number of shifts is small, like O(1), then this approach is feasible. But for large queries, it's not.
+
+But what is the maximum number of shifts in a query?
+
+The maximum number of shifts in a query is when the query's l and r are such that the entire range covers all shifts. For example, if n is 2e5, then the query's l=1 and r= n^2, which covers n shifts. So, for each query, the number of shifts is O(n), leading to O(nq) time, which is not feasible.
+
+But given that the sum of n across all test cases is 2e5, and the sum of q is 2e5, the total time would be O(nq) = 4e10, which is way too slow.
+
+So, this approach is not feasible.
+
+We need a smarter way.
+
+Alternative idea: precompute for each position in the b array, the contribution of each element in the original array. But again, not sure.
+
+Another observation: the sum of the elements in the b array from l to r is equal to the sum of all elements in the original array multiplied by the number of times they appear in the range l to r of the b array.
+
+But how to compute this?
+
+Let me think of the following: for each element a[k], how many times does it appear in the range l to r of the b array?
+
+Each occurrence of a[k] in the b array is in a certain shift i and position j in the shift.
+
+The position in the b array is s = i * n + j.
+
+So, for a given a[k], we need to find how many s in the range l to r.
+
+But how to find this?
+
+For each a[k], the occurrences in the b array are:
+
+For each shift i (1..n), the j-th position in the shift (1-based) where the element is a[k].
+
+But how to find for each a[k], the positions in the b array where it appears?
+
+Let me think of the positions in the b array where a[k] appears.
+
+For a[k], in the shift i, the position j in the shift is such that the element is a[k]. The shift i is determined by the position j in the shift. For example, in the shift i, the element a[k] is at position j = (k + i - 1) mod n + 1? No, earlier analysis shows that for shift i, the element a[k] is in the position j in the shift where j = (i + k - 2) mod n + 1? Or something like that.
+
+Alternatively, for a[k] to appear in the shift i, the shift i must be such that the element is a[k], which is the same as the original array's element a[k].
+
+So, for each shift i, the element a[k] appears in the shift i at position j = (i-1 + k - 1) mod n + 1? Or something like that.
+
+Wait, earlier analysis said that for shift i, the j-th position (1-based) in the shift has value a[ (i-1 + j-1) mod n ].
+
+So, for this to be equal to a[k], we need (i-1 + j-1) mod n = k.
+
+Which implies that i-1 + j-1 = k + m * n, for some integer m.
+
+But since j is between 1 and n, i is between 1 and n, we can find for each i, j such that i-1 + j-1 = k + m * n.
+
+But this is complicated.
+
+Alternatively, for a given k, the positions in the b array where a[k] appears are:
+
+For each shift i, the j-th position in the shift where the element is a[k]. For this, the j-th position in the shift is such that (i-1 + j-1) mod n = k.
+
+Which implies that j = (k - (i-1) + 1) mod n + 1.
+
+Wait, solving for j:
+
+i-1 + j-1 ≡ k mod n → j ≡ k - i + 2 mod n → j ≡ (k - i + 2) mod n.
+
+But j must be between 1 and n. So for each i, j is (k - i + 2) mod n + 1? Or perhaps j = (k - i + 1) mod n + 1?
+
+This is getting too complicated. Maybe there's a better way.
+
+Let me think of the positions in the b array where a[k] appears. For each shift i, there is exactly one position j in the shift where the element is a[k], which is j = (k + i - 1) mod n + 1? Or something like that.
+
+Alternatively, for the shift i, the elements are a[i-1], a[i], ..., a[n-1], a[0], a[1], ..., a[i-2]. So, the element a[k] appears in the shift i at position j = (k - i + 1) mod n + 1?
+
+For example, if k = i-1, then j = 1.
+
+If k = i, then j = 2.
+
+If k = n, then j = n - i + 1 + 1 = n -i + 2? Not sure.
+
+Alternatively, for the shift i, the element a[k] is in position j = (k - i + 1) mod n + 1. But I'm not sure.
+
+Alternatively, think of the shift i as the original array rotated by (i-1) positions. So, the element a[k] is at position j in the shift i if j = (k - (i-1)) mod n + 1.
+
+Wait, if the original array is rotated by (i-1) positions, then the element a[k] is at position j in the shift i if j = (k - (i-1)) mod n + 1. Let me test with an example.
+
+Example: a = [1, 2, 3], i=2. The shift i=2 is [2, 3, 1]. For k=0 (a[0] = 1), which is the original array's first element. In the shift i=2, the element 1 is at position 3 (1-based). So, (k - (i-1)) mod n + 1 = (0 - 1) mod 3 + 1 = (-1) mod 3 = 2 + 1 = 3. Which matches. For k=1 (a[1] = 2), in the shift i=2, it's at position 1. (1 - 1) mod 3 + 1 = 0 + 1 = 1. Correct. For k=2 (a[2] = 3), in the shift i=2, it's at position 2. (2-1) mod 3 + 1 = 1 + 1 = 2. Correct.
+
+Yes! So, for the shift i, the element a[k] appears at position j = (k - (i-1)) mod n + 1.
+
+So, for each shift i and for each k, the position in the b array where a[k] appears is s = i * n + j, where j = (k - (i-1)) mod n + 1.
+
+But this is for the shift i. So, for each k, the positions in the b array where a[k] appears are:
+
+For each shift i, j = (k - (i-1)) mod n + 1. So, the position in the b array is s = i * n + j.
+
+But how to find for a given query l to r, how many times a[k] appears in this range.
+
+But for each query, we need to find the number of occurrences of a[k] in the range l to r of the b array.
+
+But this seems like a lot of work.
+
+But perhaps we can precompute for each k, the positions in the b array where a[k] appears, and then for each query, perform a binary search on these positions to count how many are in the range.
+
+But for each k, the positions are n in number, and for each query, checking for each k would be O(n) time per query, which is again not feasible.
+
+But with the sum of n across all test cases being 2e5, and the sum of q being 2e5, this would be O(2e5 * 2e5) = 4e10 operations, which is way too slow.
+
+So, this approach is not feasible.
+
+Alternative idea: find a way to represent the sum of the query range in terms of the original array's elements and their positions in the shifts.
+
+Let me think about the entire b array. Each element in the b array is part of a shift i and a position j in the shift. The sum of the elements in the b array from l to r is the sum of all elements in the b array in that range.
+
+But for each element in the b array, it is part of a shift i and position j. So, the sum can be expressed as the sum over all shifts i and positions j in the shift, of the element a[ (i-1 + j-1) mod n ].
+
+But how to express this sum for a range l to r?
+
+Let me think of the b array as a sequence of n^2 elements. Each element is part of a shift i and position j. So, for the query l to r, the sum is the sum of all elements in the b array in that range.
+
+But this is equivalent to the sum of all elements in the shifts i from i_start to i_end, and for each such shift, the sum of the elements in the range of positions in the shift that are in the query's range.
+
+So, the problem reduces to, for each query, compute the sum for each shift in the range i_start to i_end, and for each such shift, compute the sum of the elements in the range of the shift.
+
+But how to compute this sum quickly for each shift?
+
+For a shift i, the elements are a[ (i-1 + j-1) mod n ] for j=1..n. So, for the shift i, the elements are the original array rotated by i-1 positions.
+
+So, the sum of the elements in the shift i's part of the query's range is the sum of the original array's elements in a certain range, which can be computed using the prefix sums.
+
+But how to compute this sum for a given range of the shift i?
+
+Let me think of the shift i's elements as a circular array. So, for the query's range in the shift i, which is from position p to q (1-based in the shift), the corresponding range in the original array is from (i-1 + p -1) mod n to (i-1 + q -1) mod n.
+
+But this is the same as the original array's range from start to end, where start = (i-1 + p -1) mod n, end = (i-1 + q -1) mod n.
+
+So, the sum is the sum of the original array's elements from start to end, which can be computed using the prefix sums.
+
+But how to compute this for each shift i and query range?
+
+So, the plan is:
+
+For each query l to r:
+
+   i_start = (l-1) // n + 1
+
+   i_end = (r-1) // n + 1
+
+   total_sum = 0
+
+   for i in range(i_start, i_end + 1):
+
+      s_i = i * n
+
+      e_i = (i + 1) * n - 1
+
+      # find the overlap between l and r and the shift i
+
+      start_pos_in_shift = max(l, s_i)
+
+      end_pos_in_shift = min(r, e_i)
+
+      if start_pos_in_shift > end_pos_in_shift:
+
+          continue
+
+      count = end_pos_in_shift - start_pos_in_shift + 1
+
+      # compute the sum of the elements in this part of the shift
+
+      # for the shift i, the start and end in the shift are start_pos_in_shift and end_pos_in_shift (1-based)
+
+      # the corresponding original array indices are:
+
+      start_original = (i-1 + start_pos_in_shift - 1) % n
+
+      end_original = (i-1 + end_pos_in_shift - 1) % n
+
+      # compute the sum of the original array from start_original to end_original
+
+      if start_original <= end_original:
+
+          sum_part = pre[end_original + 1] - pre[start_original]
+
+      else:
+
+          sum_part = pre[n] - pre[start_original] + pre[end_original + 1]
+
+      total_sum += sum_part * count
+
+   print(total_sum)
+
+Wait, no. Because for the shift i, the count is the number of elements in the query's range, and the sum_part is the sum of the elements in the shift's range. So, the total_sum is the sum_part multiplied by count. Wait, no. Because sum_part is already the sum of the elements in the shift's range. So, for count elements, the sum is sum_part * 1, since each element in the shift's range contributes sum_part. No, no. The sum_part is the sum of the elements in the shift's range. So, for count elements, the sum is sum_part. Because each element in the range contributes to the sum_part.
+
+Yes. So, the total_sum is the sum of sum_part for each shift i in the range.
+
+But this is the same as the sum of the elements in the query's range of the b array.
+
+But how to compute this?
+
+Yes, this is the correct approach.
+
+But the problem is that for each query, this approach is O(number of shifts in the query range), which could be O(n) per query, leading to O(nq) time.
+
+But given the constraints, this might be too slow.
+
+But let's think about the constraints. For example, if n is 2e5 and q is 2e5, then O(nq) is 4e10 operations, which is way too slow.
+
+But perhaps there's a way to optimize this.
+
+Let me think about the number of shifts in the query range. For example, the number of shifts in the query range is:
+
+i_start = (l-1) // n + 1
+
+i_end = (r-1) // n + 1
+
+The number of shifts is i_end - i_start + 1.
+
+But for a query where l=1 and r=n^2, the number of shifts is n, and for each shift, the range is 1 to n, 2n to 3n, etc.
+
+But for large n, this is O(n) per query.
+
+But with the sum of n across all test cases being 2e5, and sum of q being 2e5, this would be O(2e5 * 2e5) = 4e10 operations, which is way too slow for Python.
+
+So, this approach is not feasible.
+
+We need a different idea.
+
+Let me think about the sum of the entire b array. For each query, the sum is the sum of the elements in the range l to r of the b array.
+
+But what if we precompute for each possible position in the b array, the contribution of each element in the original array?
+
+But this seems impossible.
+
+Alternative idea: note that the sum of the b array's elements from l to r is equal to the sum of all elements in the original array multiplied by the number of times they appear in the range l to r of the b array.
+
+But how to compute this?
+
+For example, each element a[k] appears in the b array n times, once in each shift. So, the total sum of the b array is sum(a) * n^2.
+
+But for a query l to r, the sum is the sum of a[k] multiplied by the number of times a[k] appears in the range l to r.
+
+So, the problem reduces to, for each query, compute for each a[k], the number of times it appears in the range l to r of the b array.
+
+But how to compute this?
+
+Let me think of the positions where a[k] appears in the b array. For each a[k], these are n positions in the b array, each in a different shift.
+
+For each such position, it is in the form s = i * n + j, where i is the shift and j is the position within the shift.
+
+For a given a[k], the positions in the b array where it appears are:
+
+For each shift i, j = (k - (i-1)) mod n + 1.
+
+So, for a given a[k], the positions in the b array are:
+
+s = i * n + j, where i ranges from 1 to n, and j = (k - (i-1)) mod n + 1.
+
+But how to find, for a given query l to r, how many of these s are in [l, r]?
+
+This is equivalent to finding the number of i in 1..n, such that the s for i is in [l, r].
+
+But how to compute this efficiently?
+
+For each a[k], the positions in the b array where it appears are:
+
+s = i * n + j, where j = (k - (i-1)) mod n + 1.
+
+But j is between 1 and n.
+
+So, for each i, j = (k - (i-1) + 1) mod n + 1? Or (k - i + 2) mod n + 1?
+
+Wait, earlier analysis shows that j = (k - (i-1)) mod n + 1.
+
+But since j is between 1 and n, this can be rewritten as j = ((k - i + 1) mod n) + 1.
+
+But this is getting complex.
+
+But for a given a[k], the positions in the b array where it appears are:
+
+For i from 1 to n, j = (k - (i-1)) mod n + 1.
+
+But this can be rewritten as j = (k - i + 1) mod n + 1.
+
+But this is the same as j = (k - i + 1) % n + 1.
+
+But for each i, j is in 1..n.
+
+So, for each i, the s is i * n + j.
+
+So, for a given a[k], the s values are:
+
+s = i * n + ((k - i + 1) % n + 1).
+
+But this is for i from 1 to n.
+
+But how to find for a query l to r, how many of these s are in the range.
+
+This seems like a challenging problem.
+
+But perhaps we can find for each a[k], the range of i's that would make s fall into [l, r].
+
+But for each a[k], this is a range of i's, and for each i, the s is i * n + ((k - i + 1) % n + 1).
+
+But this is complicated.
+
+Another observation: the s for a[k] in shift i is i * n + j, where j = (k - (i-1)) mod n + 1.
+
+But since j is between 1 and n, this can be rewritten as:
+
+s = i * n + (k - (i-1) + 1) mod n + 1.
+
+But this is not helpful.
+
+Alternatively, for a given a[k], the s for shift i is:
+
+s = i * n + ((k - i + 1) % n + 1).
+
+But this can be simplified to:
+
+s = i * n + (k - i + 1) % n + 1.
+
+But this is still complex.
+
+Another idea: for a given a[k], the positions in the b array where it appears are:
+
+For each i in 1..n, the s is i * n + ((k - i + 1) % n + 1).
+
+But this can be rewritten as:
+
+s = i * n + ((k + 1 - i) % n + 1).
+
+But this is still complex.
+
+But perhaps we can find for a given a[k], the range of i's that would make s fall into [l, r].
+
+But how?
+
+Let me think of the s for a[k] in shift i as:
+
+s = i * n + j, where j is between 1 and n.
+
+But j = (k - i + 1) % n + 1.
+
+So, for a given i, s is i * n + ((k - i + 1) % n + 1).
+
+But this is equal to i * n + (k - i + 1 + 1) % n + 1?
+
+No, it's ((k - i + 1) % n + 1).
+
+But this is getting too complicated.
+
+At this point, I'm stuck. Maybe I should look for a pattern or a mathematical formula that can be applied.
+
+Let me think about the sum of the query range in the b array.
+
+The b array is composed of n shifts, each of length n. So, the total number of elements is n^2.
+
+For each query l to r, the sum is the sum of the elements in the b array from l to r.
+
+But the sum can be expressed as the sum of all elements in the original array multiplied by the number of times they appear in the query range.
+
+But how to compute this?
+
+Let me think of the sum as the sum over all elements in the original array of (number of times it appears in the query range) * a[k].
+
+So, if I can find for each a[k], the number of times it appears in the query range, then multiply by a[k], and sum all.
+
+But how to compute the number of times a[k] appears in the query range?
+
+Let me think of the positions where a[k] appears in the b array as a set of n positions. For each query, I need to count how many of these positions fall into the range l to r.
+
+But how to do this efficiently?
+
+For each a[k], the positions in the b array where it appears are:
+
+For each shift i, j = (k - i + 1) mod n + 1.
+
+So, for each i, the position is i * n + j.
+
+But for a given k, this is a set of n positions.
+
+But for a query l to r, the number of times a[k] appears in the range is the number of i in 1..n such that i * n + j is in [l, r], where j = (k - i + 1) mod n + 1.
+
+But this is still complex.
+
+But perhaps for a given k, the positions in the b array where a[k] appears can be represented as a range in the b array.
+
+For example, for a[k], the positions are in the form of i * n + j, where j = (k - i + 1) mod n + 1.
+
+But this is equivalent to j = (k - i + 1) % n + 1.
+
+Let me try to find a pattern for the positions of a[k] in the b array.
+
+For example, for a[k], the positions in the b array are:
+
+For i=1: j = (k - 1 + 1) % n + 1 = k % n + 1. Since k is between 0 and n-1, k % n is k, so j = k + 1.
+
+So, the position is 1 * n + (k + 1) = n + k + 1.
+
+For i=2: j = (k - 2 + 1) % n + 1 = (k - 1) % n + 1.
+
+So, position is 2n + (k - 1 + 1) = 2n + k.
+
+For i=3: j = (k - 3 + 1) % n + 1 = (k - 2) % n + 1.
+
+Position is 3n + (k - 2 + 1) = 3n + k -1.
+
+...
+
+For i=n: j = (k - n + 1) % n + 1 = (k - n + 1 + n) % n = (k + 1) % n + 1? No, let's compute it.
+
+Wait, for i=n, j = (k - n + 1) mod n + 1.
+
+k is between 0 and n-1, so k - n + 1 = -n + k + 1.
+
+Mod n, this is (-n + k + 1) mod n = (k + 1 - n) mod n.
+
+But since n is positive, this is equivalent to (k + 1) mod n.
+
+So, j = (k + 1) mod n + 1. But since k + 1 is between 1 and n, this is k + 1 + 1? No, wait.
+
+Wait, for i=n, j = (k - n + 1) mod n + 1.
+
+Let me compute this for k = 0:
+
+k = 0, i = n: (0 - n + 1) mod n = (1 - n) mod n = 1 - n + n = 1. So, j = 1 + 1 = 2. So, position is n * n + 2.
+
+But for k=0, the original array is a[0], and in the shift n, the element a[0] is at position j = (0 - n + 1) mod n + 1 = (1 - n) mod n + 1 = 1 + 1 - n = 2 - n? No, this is getting too complex.
+
+But the key point is that for each a[k], the positions in the b array where it appears are:
+
+s = i * n + ((k - i + 1) % n + 1) for i in 1..n.
+
+But this is complex to handle.
+
+At this point, I'm stuck and need to look for a different approach.
+
+Let me think of the original problem again. The sum of the query range is the sum of all elements in the b array from l to r.
+
+But the b array is the concatenation of all cyclic shifts of a. So, for each element in a, it appears exactly n times in the b array.
+
+So, the total sum of the b array is sum(a) * n^2.
+
+But for a query, the sum is the sum of a[k] multiplied by the number of times it appears in the range l to r.
+
+So, if I can find for each a[k], the number of times it appears in the range l to r, then multiply by a[k], and sum all.
+
+But how to find this count?
+
+Let me think of the positions where a[k] appears in the b array. For each such position, it is in the form s = i * n + j, where j is in 1..n, and i is in 1..n.
+
+But for a given a[k], the positions s are:
+
+s = i * n + j, where j = (k - i + 1) mod n + 1.
+
+But this is equivalent to j = (k - i + 1 + n) % n + 1? No, it's (k - i + 1) mod n + 1.
+
+But this is getting too complex.
+
+Another idea: for a given a[k], the positions in the b array where it appears are the positions s = i * n + (k - i + 1) mod n + 1.
+
+But this is equal to s = i * n + (k + 1 - i) mod n + 1.
+
+But this is still complex.
+
+But perhaps for a given a[k], the positions in the b array where it appears can be expressed as s = i * n + (k + 1 - i) mod n + 1.
+
+But this is still complex.
+
+At this point, I think I need to proceed with the initial approach, even though it may be O(nq) time, and see if it can be optimized.
+
+But given the time constraints, perhaps the initial approach is the only way, and we need to implement it with optimizations.
+
+Let me proceed with the initial approach, and see if it can be optimized.
+
+So, the code would be:
+
+Read t test cases.
+
+For each test case:
+
+   Read n, q.
+
+   Read the array a.
+
+   Compute the prefix sums of a.
+
+   For each query:
+
+      l, r = map(int, input().split())
+
+      i_start = (l-1) // n + 1
+
+      i_end = (r-1) // n + 1
+
+      total = 0
+
+      for i in range(i_start, i_end + 1):
+
+          s_i = i * n
+
+          e_i = (i + 1) * n - 1
+
+          start_pos_in_shift = max(l, s_i)
+
+          end_pos_in_shift = min(r, e_i)
+
+          if start_pos_in_shift > end_pos_in_shift:
+
+              continue
+
+          count = end_pos_in_shift - start_pos_in_shift + 1
+
+          # compute start_original and end_original
+
+          start_original = (i-1 + start_pos_in_shift - 1) % n
+
+          end_original = (i-1 + end_pos_in_shift - 1) % n
+
+          if start_original <= end_original:
+
+              sum_part = pre[end_original + 1] - pre[start_original]
+
+          else:
+
+              sum_part = pre[n] - pre[start_original] + pre[end_original + 1]
+
+          total += sum_part * count
+
+      print(total)
+
+But this code has a problem: for the start_original and end_original, the modulo operation may not be correct. Let me check.
+
+For example, if start_original is (i-1 + start_pos_in_shift - 1) % n.
+
+But start_pos_in_shift is the position in the shift, which is between 1 and n. So, start_pos_in_shift - 1 is between 0 and n-1.
+
+So, (i-1 + start_pos_in_shift - 1) is between (i-1) + 0 and (i-1) + n-1.
+
+But i is between 1 and n, so i-1 is between 0 and n-1.
+
+So, (i-1) + start_pos_in_shift - 1 is between 0 + 0 = 0 and n-1 + n-1 = 2n-2.
+
+Mod n, this is (i-1 + start_pos_in_shift - 1) % n.
+
+But since start_pos_in_shift is between 1 and n, start_pos_in_shift -1 is between 0 and n-1.
+
+So, the value is between 0 and 2n-2.
+
+Mod n, this is between 0 and n-1.
+
+So, start_original is in 0 to n-1, which is correct.
+
+So, the code for start_original and end_original is correct.
+
+But for the sum_part, the code uses the prefix sums, which are 1-based.
+
+So, the code should work.
+
+But for large n and q, this code may not pass the time constraints.
+
+But given the problem statement, this is the only approach I can think of.
+
+Now, let's test this code against the first example.
+
+First test case:
+
+n=3, q=3
+
+a = [1, 2, 3]
+
+prefix = [0, 1, 3, 6]
+
+For the query 1 9:
+
+i_start = (1-1) // 3 + 1 = 0 + 1 = 1
+
+i_end = (9-1) // 3 + 1 = 8 // 3 = 2 + 1 = 3.
+
+So i ranges from 1 to 3.
+
+For i=1:
+
+s_i = 1*3 = 3, e_i = 3*3 -1 = 8.
+
+start_pos_in_shift = max(1, 3) = 3.
+
+end_pos_in_shift = min(9, 8) = 8.
+
+count = 8-3 + 1 = 6.
+
+start_original = (0 + 3-1) % 3 = (2) % 3 = 2.
+
+end_original = (0 + 8-1) % 3 = 7 % 3 = 1.
+
+start_original = 2, end_original = 1.
+
+So, start_original > end_original. So, sum_part = pre[3] - pre[2] + pre[1+1] = pre[3] - pre[2] + pre[2] = pre[3] = 6.
+
+So, sum_part is 6, count is 6, total += 6*6 = 36.
+
+For i=2:
+
+s_i = 2*3 = 6, e_i = 9.
+
+start_pos_in_shift = max(1, 6) = 6.
+
+end_pos_in_shift = min(9, 9) = 9.
+
+count = 9-6 + 1 = 4.
+
+start_original = (1 + 6-1) % 3 = (1 + 5) % 3 = 6 % 3 = 0.
+
+end_original = (1 + 9-1) % 3 = (9) % 3 = 0.
+
+start_original = 0, end_original = 0. So sum_part is pre[0+1] - pre[0] = 1 - 0 = 1. count is 4, total += 1 * 4 = 4.
+
+For i=3:
+
+s_i = 3*3 = 9, e_i = 12.
+
+start_pos_in_shift = max(1, 9) = 9.
+
+end_pos_in_shift = min(9, 12) = 9.
+
+count = 1.
+
+start_original = (2 + 9-1) % 3 = (2 + 8) % 3 = 10 % 3 = 1.
+
+end_original = (2 + 9-1) % 3 = 10 % 3 = 1.
+
+sum_part is pre[1+1] - pre[1] = 1 - 1 = 0? Wait, no.
+
+Wait, start_original is 1, end_original is 1. So, sum_part is pre[1+1] - pre[1] = pre[2] - pre[1] = 3-1 = 2.
+
+So, total += 2 * 1 = 2.
+
+Total is 36 + 4 + 2 = 42? But the correct answer is 18.
+
+Wait, this indicates a problem in the code.
+
+Wait, what is the correct sum for the first test case query 1-9?
+
+The b array is [1,2,3,2,3,1,3,1,2].
+
+Sum is 1+2+3+2+3+1+3+1+2 = 18.
+
+But according to the code, the total is 36 + 4 + 2 = 42. Which is wrong.
+
+So, there's a mistake in the code.
+
+Let me re-examine the code.
+
+For i=1, the shift is 1, which is the first shift, positions 1-3.
+
+start_pos_in_shift = 3, end_pos_in_shift = 8.
+
+count is 6.
+
+start_original is (i-1 + start_pos_in_shift -1) % n = (0 + 3-1) % 3 = 2 % 3 = 2.
+
+end_original is (0 + 8-1) % 3 = 7 % 3 = 1.
+
+So, start_original is 2, end_original is 1. So, start_original > end_original.
+
+sum_part = pre[3] - pre[2] + pre[2] = pre[3] = 6.
+
+count is 6. So, sum_part is 6, and 6 * 6 = 36.
+
+But the actual sum for this part is the sum of the elements in positions 3-8 of the b array.
+
+The b array for this part is positions 3-8: 3, 2, 3, 1, 3, 1.
+
+Sum is 3+2+3+1+3+1 = 13.
+
+But according to the code, it's 6 * 6 = 36. This is incorrect.
+
+So, the code is wrong.
+
+What is the mistake here?
+
+The mistake is in the calculation of the sum_part.
+
+For the shift i=1, the start_pos_in_shift is 3, end_pos_in_shift is 8. So, the number of elements is 6.
+
+The corresponding original array indices are start_original = 2, end_original = 1.
+
+But since start_original > end_original, the sum_part is pre[n] - pre[start_original] + pre[end_original + 1].
+
+pre is [0, 1, 3, 6].
+
+pre[n] is 6.
+
+start_original is 2, end_original is 1.
+
+So, the sum_part is 6 - pre[2] + pre[1+1] = 6 - 3 + 3 = 6.
+
+But the actual sum of the elements in the shift's range is 3 + 2 + 3 + 1 + 3 + 1 = 13.
+
+But according to the code, it's 6.
+
+So, what is wrong?
+
+The code is calculating the sum_part as the sum of the original array's elements from start_original to end_original, but in this case, start_original is 2, end_original is 1.
+
+Which is the sum of elements from 2 to 1, which is 0, since start_original > end_original.
+
+But the code is using the formula:
+
+if start_original <= end_original:
+
+   sum_part = pre[end_original + 1] - pre[start_original]
+
+else:
+
+   sum_part = pre[n] - pre[start_original] + pre[end_original + 1]
+
+But in this case, the sum_part is 6 - 3 + 3 = 6.
+
+But the actual sum of the elements in the shift's range is 13.
+
+So, what is the mistake here?
+
+The mistake is in the calculation of start_original and end_original.
+
+Let me re-calculate start_original and end_original for i=1, start_pos_in_shift=3, end_pos_in_shift=8.
+
+For i=1, the shift is the first shift, which is [1, 2, 3].
+
+The positions in the shift are 1, 2, 3 (1-based). So, the start_pos_in_shift is 3, which is the 3rd position in the shift.
+
+For this position, the original array index is (i-1 + start_pos_in_shift -1) % n = (0 + 3-1) % 3 = 2 % 3 = 2.
+
+So, the original array index is 2, which is a[2] = 3.
+
+The end_pos_in_shift is 8, which is the 8th position in the b array. The shift i=1 has positions 1-3, so the 8th position in the b array is outside of this shift. Wait, no! For i=1, the shift is positions 1-3. So, the end_pos_in_shift is 8, which is outside of the shift. But the code is calculating start_pos_in_shift = max(1, s_i=3) = 3, and end_pos_in_shift = min(9, e_i=8) = 8. So, the code is assuming that the shift i=1 has positions from 3 to 8, which is not correct.
+
+Wait, this is the mistake!
+
+The code is incorrect in the calculation of the start_pos_in_shift and end_pos_in_shift.
+
+The shift i is the i-th shift, which has positions from i * n to (i+1)*n - 1.
+
+But for i=1, n=3, this is 1*3=3 to 2*3-1=5. So, the positions in the shift are 3,4,5.
+
+But the code is using s_i = i * n = 3, and e_i = (i+1)*n -1 = 5.
+
+But in the code, for i=1, the code computes start_pos_in_shift = max(l, s_i) = max(1, 3) = 3, and end_pos_in_shift = min(r, e_i) = min(9, 5) = 5.
+
+So, the code's calculation for i=1 is incorrect. The code's calculation of e_i is (i+1)*n -1 = 5, but the code's current code has e_i = (i+1)*n -1, which is correct.
+
+But in the previous calculation, I had e_i as 8, which was wrong.
+
+So, the code's calculation of e_i is correct. But in the previous example, I had a mistake in the calculation of e_i.
+
+So, let's re-calculate the code for the first test case.
+
+For i=1, e_i = 3*2-1 = 5.
+
+So, start_pos_in_shift is max(1, 3) = 3.
+
+end_pos_in_shift is min(9, 5) = 5.
+
+count = 5-3 +1 = 3.
+
+So, for i=1, the count is 3.
+
+start_original = (0 + 3-1) % 3 = 2.
+
+end_original = (0 + 5-1) % 3 = 4 % 3 = 1.
+
+So, start_original is 2, end_original is 1. start_original > end_original.
+
+sum_part = pre[3] - pre[2] + pre[1+1] = 6 - 3 + 3 = 6.
+
+So, sum_part is 6, count is 3. So, total += 6 * 3 = 18.
+
+For i=2:
+
+s_i = 2*3 = 6.
+
+e_i = 3*3 -1 = 8.
+
+start_pos_in_shift = max(1, 6) = 6.
+
+end_pos_in_shift = min(9, 8) = 8.
+
+count = 8-6 +1 = 3.
+
+start_original = (1 + 6-1) % 3 = (1 + 5) % 3 = 6 % 3 = 0.
+
+end_original = (1 + 8-1) % 3 = 8 % 3 = 2.
+
+start_original is 0, end_original is 2.
+
+sum_part is pre[3] - pre[0] + pre[2+1] = 6 - 0 + 3 = 9.
+
+So, total += 9 * 3 = 27.
+
+For i=3:
+
+s_i = 3*3 = 9.
+
+e_i = 3*3 -1 = 8? No, i=3, e_i = (3+1)*3 -1 = 12 -1 = 11.
+
+Wait, no. For i=3, the shift is the third shift. The positions in the shift are 3*3 = 9 to (3+1)*3-1 = 11. But r is 9, so end_pos_in_shift is min(9, 11) = 9.
+
+count = 9-9 +1 = 1.
+
+start_original = (2 + 9-1) % 3 = (2 + 8) % 3 = 10 % 3 = 1.
+
+end_original = (2 + 9-1) % 3 = 10 % 3 = 1.
+
+sum_part is pre[1+1] - pre[1] = 3-1 = 2.
+
+total += 2 * 1 = 2.
+
+Total is 18 + 27 + 2 = 47. But the correct answer is 18.
+
+This indicates that there's a mistake in the code.
+
+But the correct sum is 18, but according to the code, it's 18 + 27 + 2 = 47. So, clearly, the code is wrong.
+
+This suggests that there's a mistake in the way the code calculates the start_original and end_original, or the sum_part.
+
+Let me re-calculate the sum_part for i=1.
+
+For i=1, the shift is positions 3-5 (1-based). The query l=1, r=9. So, the range in the shift is 3-5, which is 3 elements. The sum of these elements is a[2], a[0], a[1] (since the shift is [1,2,3], and the positions 3,4,5 are 3, 2, 1, respectively? No, wait the shift i=1 is [1,2,3], so the positions 3,4,5 in the b array are 3, 2, 1? No, the b array is [1,2,3,2,3,1,3,1,2]. So, positions 3-5 are 3, 2, 3. Wait, let's see:
+
+b is:
+
+1 (pos 1), 2 (2), 3 (3), 2 (4), 3 (5), 1 (6), 3 (7), 1 (8), 2 (9).
+
+So, for i=1, the shift is positions 3-5, which are 3 (pos3), 2 (pos4), 3 (pos5). Sum is 3 + 2 + 3 = 8.
+
+But according to the code, the sum_part is 6.
+
+What is the code's calculation for this?
+
+start_original is 2, end_original is 1.
+
+So, the code is calculating the sum of the original array from start_original=2 to end_original=1, which is 0, and using the formula pre[n] - pre[start_original] + pre[end_original + 1] = 6 - 3 + 3 = 6.
+
+But the actual sum is 3 + 2 + 3 = 8.
+
+So, the code is incorrect.
+
+What is the mistake here?
+
+The mistake is in the calculation of start_original and end_original.
+
+For i=1, the shift is positions 3-5 (1-based). The start_pos_in_shift is 3, end_pos_in_shift is 5.
+
+The corresponding original array indices are:
+
+start_original = (i-1 + start_pos_in_shift -1) % n = (0 + 3-1) % 3 = 2 % 3 = 2.
+
+end_original = (i-1 + end_pos_in_shift -1) % n = (0 + 5-1) % 3 = 4 % 3 = 1.
+
+So, start_original is 2, end_original is 1.
+
+But the original array is [1,2,3]. The sum of the original array's elements from start_original=2 to end_original=1 is the sum of the elements from 2 to 1, which is the sum of a[2] (3) + a[1] (2) + a[0] (1)? No, because it's a circular array.
+
+Wait, the original array is 0-based. The start_original is 2, end_original is 1. So, the range is from 2 to 1, which is a circular range. So, the sum is a[2] + a[1] + a[0] = 3 + 2 + 1 = 6. But the actual sum is 3 + 2 + 3 = 8. So, this is wrong.
+
+Ah! The mistake is in the calculation of the original array indices. For the shift i=1, the elements are a[0], a[1], a[2] (for i=1, the shift is [1,2,3], which is a[0], a[1], a[2] in the original array.
+
+So, the positions in the shift are 1, 2, 3 (1-based). The element at position 3 in the shift is a[2], which is 3. The element at position 4 in the shift is a[0], which is 1. The element at position 5 is a[1], which is 2.
+
+Wait, no. For the shift i=1, the elements are a[0], a[1], a[2]. So, position 1: a[0], position 2: a[1], position 3: a[2]. So, in the b array, the positions 3-5 are 3 (a[2]), 2 (a[1]), 3 (a[0])? No, this is not correct.
+
+Wait, the shift i=1 is the original array [1,2,3], so the elements are:
+
+position 1: 1 (a[0])
+
+position 2: 2 (a[1])
+
+position 3: 3 (a[2])
+
+So, the shift i=1 is [1,2,3]. So, the positions in the b array for this shift are 3, 4, 5, which are 1, 2, 3, respectively? No, wait the b array is constructed by concatenating all shifts. So, the first shift is [1,2,3], which is positions 1-3. The second shift is [2,3,1], positions 4-6. The third shift is [3,1,2], positions 7-9.
+
+So, for i=1, the positions 3-5 in the b array are 3 (a[2]), 2 (a[1]), 3 (a[0])? No, wait the first shift is [1,2,3], so positions 1-3 are 1,2,3. So, position 3 is 3. Position 4 is the second shift's first element, which is 2. Position 5 is the second shift's second element, which is 3. So, the positions 3-5 in the b array are 3, 2, 3. Sum is 8.
+
+But according to the code, the start_original is 2, end_original is 1, and the sum_part is 6. So, why is this?
+
+Because the code is calculating the sum of the original array's elements from start_original=2 to end_original=1, which is a[2] + a[1] + a[0] = 3 + 2 + 1 = 6, but the actual sum is 3 + 2 + 3 = 8.
+
+So, the code is incorrect.
+
+The mistake is in the calculation of the original array indices for the shift's part.
+
+The code assumes that for the shift i, the elements are a[(i-1 + j-1) mod n], where j is the position in the shift. But for the shift i, the j-th position in the shift is (i-1 + j-1) mod n.
+
+But for the shift i=1, j=3 (position in the shift), the original array index is (i-1 + j-1) mod n = (0 + 2) mod 3 = 2, which is correct (a[2] = 3). For j=4, it's (0 + 3) mod 3 = 0, which is a[0] = 1. For j=5, it's (0 + 4) mod 3 = 1, which is a[1] = 2.
+
+So, the sum of the elements in the shift's part (positions 3-5) is a[2] + a[0] + a[1] = 3 + 1 + 2 = 6. But this is not correct, because the actual elements are 3, 2, 3.
+
+Wait, this is a contradiction. What is the correct sum?
+
+The elements in the shift i=1, positions 3-5 are 3, 2, 3. Sum is 8.
+
+But according to the code, it's 3 + 1 + 2 = 6. So, what is wrong?
+
+Ah! The code is calculating the original array indices for the shift's positions, but the shift's positions are not the same as the original array's indices.
+
+Wait, for the shift i=1, the j-th position in the shift is (i-1 + j-1) mod n.
+
+For j=3, it's (0 + 2) mod 3 = 2, which is a[2] = 3. Correct.
+
+For j=4, it's (0 + 3) mod 3 = 0, which is a[0] = 1. But in the b array, position 4 is the second shift's first element, which is 2. So, this is incorrect.
+
+This indicates a mistake in the calculation of the original array indices.
+
+Wait, the shift i=1 is the first shift, which is [1, 2, 3]. So, for the j-th position in the shift, the element is a[ (i-1 + j-1) mod n ].
+
+For i=1, j=1: (0 + 0) mod 3 = 0 → a[0] = 1.
+
+j=2: (0 + 1) mod 3 = 1 → a[1] = 2.
+
+j=3: (0 + 2) mod 3 = 2 → a[2] = 3.
+
+So, the shift i=1's elements are 1, 2, 3, which are in positions 1-3 of the b array. So, the positions 3-5 of the b array are part of the second shift (i=2), not i=1.
+
+But in the code, for i=1, the shift is positions 3-5, which is incorrect. The code's calculation of s_i = i * n = 3, e_i = (i+1)*n -1 = 5. So, the shift i=1's positions are 3-5, but this is incorrect. The correct positions for shift i=1 are 1-3.
+
+So, the code is incorrectly calculating the start_pos_in_shift and end_pos_in_shift.
+
+This is the root of the problem.
+
+The code assumes that for shift i, the positions are i * n to (i+1)*n -1, but this is incorrect.
+
+The correct positions for shift i are from i * n to (i+1)*n -1? No. For example, for i=1, n=3, the positions are 1-3. For i=2, it's 4-6. For i=3, it's 7-9. So, the positions for shift i are i * n to (i+1)*n -1, but this is only true if the shift is 1-based. But in the code, the start_pos_in_shift is max(l, i * n), and end_pos_in_shift is min(r, (i+1)*n -1).
+
+But in the first test case, for i=1, the positions are 1-3, so the code is correct. But the code's calculation of the start_pos_in_shift for i=1 is 3, which is correct. But the end_pos_in_shift is 5, which is incorrect. Wait, no, for i=1, the end_pos_in_shift is (i+1)*n -1 = 2*3 -1 = 5. So, the positions for shift i=1 are 3-5, but this is incorrect. The correct positions are 1-3.
+
+Ah! This is the mistake. The code is calculating the positions for the shift i as i * n to (i+1)*n -1, but this is incorrect. The correct positions for the shift i are from i to (i + n -1), which is 1-based.
+
+So, for shift i, the positions in the b array are from i to i + n -1.
+
+So, the code's calculation of s_i = i * n and e_i = (i+1)*n -1 is incorrect. It should be s_i = i, e_i = i + n -1.
+
+This is the key mistake.
+
+So, the code's calculation of s_i and e_i is wrong.
+
+The correct calculation is:
+
+For shift i, the positions in the b array are from i to i + n - 1.
+
+So, s_i = i, e_i = i + n - 1.
+
+So, for i=1, s_i = 1, e_i = 1 + 3 - 1 = 3.
+
+For i=2, s_i = 2, e_i = 2 + 3 - 1 = 4.
+
+For i=3, s_i = 3, e_i = 3 + 3 -1 = 5.
+
+Wait, but this would make the positions for shift i=1 as 1-3, shift i=2 as 4-6, shift i=3 as 7-9. Which is correct.
+
+So, the code's calculation of s_i and e_i is wrong. It should be s_i = i, e_i = i + n - 1.
+
+So, the code's calculation of s_i and e_i is incorrect.
+
+This explains why the code was giving incorrect results.
+
+So, the correct calculation for s_i and e_i is:
+
+s_i = i
+
+e_i = i + n - 1
+
+So, for the first test case, for i=1, s_i=1, e_i=3.
+
+For i=2, s_i=2, e_i=4.
+
+For i=3, s_i=3, e_i=5.
+
+So, for the query l=1, r=9, the i_start is (1-1)//3 +1 = 0 +1 = 1, i_end is (9-1)//3 +1 = 8//3 = 2 +1 = 3.
+
+So, i ranges from 1 to 3.
+
+For i=1:
+
+s_i = 1, e_i = 3.
+
+start_pos_in_shift = max(1, 1) = 1.
+
+end_pos_in_shift = min(9, 3) = 3.
+
+count = 3-1 +1 = 3.
+
+start_original = (0 + 1-1) % 3 = 0 % 3 = 0.
+
+end_original = (0 + 3-1) % 3 = 2 % 3 = 2.
+
+start_original = 0, end_original = 2.
+
+sum_part is pre[3] - pre[0] + pre[3] = 6 - 0 + 3 = 9?
+
+Wait, no. The code's calculation for start_original and end_original is:
+
+start_original = (i-1 + start_pos_in_shift -1) % n = (0 + 1-1) % 3 = 0.
+
+end_original = (0 + 3-1) % 3 = 2.
+
+Since start_original (0) <= end_original (2), sum_part = pre[3] - pre[0] = 6 - 0 = 6.
+
+count is 3, so total += 6 * 3 = 18.
+
+For i=2:
+
+s_i = 2, e_i = 4.
+
+start_pos_in_shift = max(1, 2) = 2.
+
+end_pos_in_shift = min(9, 4) = 4.
+
+count = 4-2 +1 = 3.
+
+start_original = (1 + 2-1) % 3 = (1 + 1) % 3 = 2.
+
+end_original = (1 + 4-1) % 3 = (4) % 3 = 1.
+
+start_original = 2, end_original = 1. start_original > end_original.
+
+sum_part = pre[3] - pre[2] + pre[2] = 6 - 3 + 3 = 6.
+
+count is 3, total += 6 * 3 = 18.
+
+For i=3:
+
+s_i = 3, e_i = 5.
+
+start_pos_in_shift = max(1, 3) = 3.
+
+end_pos_in_shift = min(9, 5) = 5.
+
+count = 5-3 +1 = 3.
+
+start_original = (2 + 3-1) % 3 = (2 + 2) % 3 = 4 % 3 = 1.
+
+end_original = (2 + 5-1) % 3 = 6 % 3 = 0.
+
+start_original = 1, end_original = 0. start_original > end_original.
+
+sum_part = pre[3] - pre[1] + pre[1] = 6 - 1 + 1 = 6.
+
+count is 3, total += 6 * 3 = 18.
+
+Total is 18 + 18 + 18 = 54, which is still not correct.
+
+But the correct sum is 18.
+
+This indicates that there's still a mistake.
+
+Wait, the sum for i=1 is 3 elements: a[0], a[1], a[2] = 1+2+3 = 6. So, 6 * 3 = 18.
+
+For i=2, the positions are 2-4 in the b array, which are 2, 3, 1. Sum is 2+3+1 = 6. 6 * 3 = 18.
+
+For i=3, the positions are 3-5 in the b array, which are 3, 2, 3. Sum is 3+2+3 = 8. But according to the code, the sum_part is 6.
+
+So, why is this?
+
+Let me re-calculate for i=3.
+
+For i=3, the shift is positions 3-5 in the b array.
+
+start_pos_in_shift = 3, end_pos_in_shift = 5.
+
+start_original = (i-1 + start_pos_in_shift -1) % n = (2 + 3-1) % 3 = 4 % 3 = 1.
+
+end_original = (2 + 5-1) % 3 = 6 % 3 = 0.
+
+So, start_original = 1, end_original = 0.
+
+sum_part = pre[3] - pre[1] + pre[1] = 6 - 1 + 1 = 6.
+
+But the actual sum of the elements in the shift's range is a[1] + a[0] + a[2] = 2 + 1 + 3 = 6.
+
+But the actual elements in the b array for positions 3-5 are 3, 2, 3. Sum is 8.
+
+So, why is the code calculating 6?
+
+Because the code is calculating the sum of the original array's elements from start_original=1 to end_original=0, which is a[1] + a[0] + a[2] = 2 + 1 + 3 = 6. But the actual elements are 3, 2, 3, which is 8.
+
+This suggests that the code is still incorrect.
+
+But why is there a discrepancy?
+
+Because the code is calculating the sum of the original array's elements from start_original to end_original, but the actual elements in the shift's range are a[ (i-1 + j-1) mod n ] for j in the shift's range.
+
+For i=3, the shift is the third shift, which is [3, 1, 2]. The positions in the shift are 3, 4, 5, which are 3, 1, 2.
+
+So, the elements are a[2], a[0], a[1] = 3, 1, 2. Sum is 6.
+
+But in the b array, the positions 3-5 are 3 (a[2]), 2 (a[1]), 3 (a[0]? No, the third shift is [3, 1, 2], so position 3 in the b array is 3 (a[2]), position 4 is 1 (a[0]), position 5 is 2 (a[1]). So, the sum is 3 + 1 + 2 = 6.
+
+But the code is calculating 6, which is correct.
+
+So, the total sum is 18 + 18 + 6 = 42. But the correct answer

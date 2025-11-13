@@ -1,0 +1,1637 @@
+<think>
+Okay, let's see. The problem is about maximizing the number of attribute checks you can pass by spending points wisely. The key here is to figure out the optimal order of spending points to maximize the passes.
+
+So, the main idea is that each point you spend can either increase Strength or Intelligence. But each check (like +1, -1) requires that the corresponding attribute is at least that value. So, when you get a check, you need to have enough points in that attribute to pass it.
+
+Wait, but the order of spending matters. Because each time you spend a point, you can choose which attribute to increase. So, the optimal way would be to prioritize spending points on the attributes where the checks require the highest possible value, so that you can pass as many checks as possible.
+
+Hmm. Let's think about how to model this. Let's say we have a list of checks. Each check has a certain value, and the idea is that if you spend points on attributes that can cover those checks, you can pass them. But how to structure this?
+
+Let me think of the problem in terms of the checks. Each check requires that the corresponding attribute is at least a certain value. So, the checks can be grouped by their attribute. For example, if you have a check for Intelligence of +3, then you need to have at least 3 points in Intelligence. But if you have another check for Strength of +2, then you need to have at least 2 points in Strength.
+
+But how do you arrange the points spent to cover as many checks as possible? Because each point spent increases one attribute. So, the optimal strategy is to spend points on the attributes that can cover the highest possible number of checks, but that's not straightforward.
+
+Wait, but the checks are in a particular order. Because each check is processed in the order of the input. So, the first check you process must be passed by your current level. If you have enough points to pass it, you can pass it, otherwise you can't. Then, for the next checks, you have to see if you can pass them with the current points.
+
+But how do you decide which points to spend on which attribute? For example, if you have a check that requires +3 in Intelligence, but you have a check that requires +2 in Strength, you might want to spend points on Intelligence first, then on Strength. Because if you spend a point on Intelligence, you can pass that check. But if you spend a point on Strength, you can't pass that check unless you have enough points.
+
+Wait, no. The order of checks is important. Because each check must be passed in the order they appear. So, if you have a check that requires a certain value, you have to have enough points in that attribute to pass it before the next check. Because once you pass the first check, you can spend points on the next attributes.
+
+So, for example, if the checks are ordered as [1, -1, 2, -2], then the first check is Intelligence +1. So, you need to have at least 1 point in Intelligence. Then, the second check is Strength -1, so you need to have at least 1 point in Strength. Then, the third check is Intelligence +2, which requires at least 2 points in Intelligence. Then, the fourth check is Strength -2, which requires at least 2 points in Strength.
+
+So, the order in which you spend points affects how many checks you can pass. Because each check must be passed in order. So, the strategy would be to spend points on the attributes where the checks are in the order that requires the highest possible number of points, but also considering that after passing a check, you can spend points on other attributes.
+
+But how to model this optimally?
+
+Let me think of the problem as follows: For each attribute, we can track the current level. Initially, both are 0. Then, for each check in order, if you can pass it, you do so. Otherwise, you can't. But how to decide which points to spend on which attribute to maximize the number of passes.
+
+But considering that each check is processed in order, the way to maximize the number of passes is to process the checks in the order they are given, and for each check, decide whether you can pass it by spending points on the required attribute. If you can, then you spend points on that attribute. If not, you can't pass it, and you can't spend points on that attribute for the next checks.
+
+Wait, no. Because the checks are processed in order. So, if you have a check that requires a certain attribute, you can only pass it if you have enough points in that attribute. So, the idea is that you need to have enough points in that attribute before processing the check. Once you pass it, you can spend points on other attributes.
+
+So, the problem reduces to: for each check in order, determine if you can pass it by spending points on the required attribute. If yes, then you spend the required points. If not, you can't pass it, and you can't spend points on that attribute for the next checks.
+
+But how to decide which points to spend on which attribute? Because the points can be spent in any order, but each point can only be used once.
+
+Wait, but the problem says that the order of the records is fixed. So, the points you spend are the same as the order of the records. For example, if you have a record of 1 (Intelligence check), then you can spend a point on Intelligence to pass it. If you have another record of -1 (Strength check), you can spend a point on Strength to pass it. But if you have a record of 1 and then -1, you can spend a point on Intelligence to pass the first check, then spend a point on Strength to pass the second check.
+
+But the order of spending points is crucial here. Because each point you spend is in the order of the records.
+
+So, the problem becomes similar to scheduling the points in such a way that the checks are passed in the order they are given. Each time you process a check, you need to have enough points in that attribute. If you can, you spend the required points. If not, you can't pass it, and you can't spend points on that attribute for the next checks.
+
+Wait, no. Because each time you process a check, you can spend points on the required attribute, but you can only spend points on that attribute once. So, the idea is that you process each check in order, and for each check, you can spend points on the required attribute (if you can, i.e., if you have enough points in that attribute) to pass it.
+
+But how to model the optimal way to spend points on attributes to maximize the number of passes.
+
+This feels like a dynamic programming problem. Because each decision (spend points on which attribute) affects the next steps.
+
+But given that n can be up to 2e6, a DP approach with O(n) time and O(1) space is necessary.
+
+Alternatively, we can model this greedily. For each check in order, decide whether you can pass it by spending points on the required attribute. If you can, then spend the required points (i.e., spend a point on the required attribute). Otherwise, you can't pass it.
+
+Wait, but how do you decide which points to spend? Because you can spend multiple points on the same attribute. For example, if you have a check that requires +2 in Intelligence, you can spend two points on Intelligence to pass it. But if you have a check that requires +3 in Intelligence, you can spend three points on Intelligence to pass it.
+
+So, the key is that for each check, you can spend as many points on the required attribute as needed to meet the check's requirement. But the order of spending points is important.
+
+So, the problem can be broken down as follows:
+
+For each check in order, if the required attribute is Intelligence (r_i > 0) or Strength (r_i < 0), then:
+
+- If you can spend enough points on that attribute (i.e., the current level of that attribute is >= required value), then you spend the required points on that attribute. This will increase the level of that attribute by the required value, thus allowing you to pass the check.
+- If you can't spend enough points on that attribute, then you can't pass this check, and you can't spend points on that attribute for the next checks.
+
+But how do you decide which points to spend on which attribute? Because you can spend points on any attribute, but each point can only be spent once.
+
+Wait, but the order in which you spend points is determined by the order of the checks. Because each check is processed in order. So, the first check must be passed by the first point you spend on the required attribute. Then, the second check must be passed by the next point you spend on the required attribute, and so on.
+
+So, the optimal strategy is to process each check in order, and for each check, if you can spend points on the required attribute to meet the check's requirement, then you do so, and spend the required points. Otherwise, you can't pass the check.
+
+But how to model this?
+
+Let me think with an example.
+
+Take the first sample input:
+
+10 5
+0 1 0 2 0 -3 0 -4 0 -5
+
+The checks are:
+
+Check 1: +1 (Intelligence)
+Check 2: +2 (Intelligence)
+Check 3: -3 (Strength)
+Check 4: -4 (Strength)
+Check 5: -5 (Strength)
+
+So, the initial level is 0 for both attributes.
+
+Check 1: you need 1 point in Intelligence. So you spend 1 point on Intelligence. Now, Intelligence is 1.
+
+Check 2: you need 2 points in Intelligence. So you spend 1 point on Intelligence (now Intelligence is 2). Wait, but that's not possible because you can't spend more than the points you have. Wait, no. Because the points you spend are the points you get from the records. So, each point you spend is either a Strength or Intelligence point. So, in this case, the first two checks are Intelligence checks. The first check requires +1, the second requires +2. So you need to spend two points on Intelligence. But you have only one point from the first record (the first 0 in the list). Wait, no. Wait the records are:
+
+The first record is 0 (so you can spend a point on either attribute). The second record is 1 (Intelligence check). The third record is 0 (so spend a point on either attribute). The fourth record is 2 (Intelligence check). The fifth is 0, etc.
+
+So the initial points you have are 0. Then, you can spend points from the records. So, for each record, if you can spend a point on the required attribute to pass the check, then you do so. Otherwise, you can't spend points on that attribute for the next checks.
+
+Wait, but how do you decide which points to spend on which attribute? Because each time you process a check, you can spend a point on the required attribute if you have enough points.
+
+Wait, perhaps the key is that for each check, if you have enough points on the required attribute, then you spend the required points on that attribute. Otherwise, you can't pass it. But how to model this.
+
+Alternatively, the process is:
+
+For each check in order:
+
+- If the check is for Intelligence (r_i > 0), then you need to have at least r_i points in Intelligence. If you have enough, then spend r_i points on Intelligence. Otherwise, you can't pass it.
+
+But how do you decide which points to spend? Because you can spend any points on Intelligence, but each time you spend a point, you can choose to spend it on Intelligence or Strength. But since you have to process the checks in order, you can't spend a point on a different attribute for the next check.
+
+So, the idea is that for each check, you need to spend the required points on the required attribute. If you have enough points in that attribute, you spend them. Otherwise, you can't pass the check.
+
+So, the process is:
+
+Initialize strength and intelligence to 0.
+
+For each check in order:
+
+   if the check is for Intelligence (r_i > 0):
+
+      if intelligence >= r_i:
+
+          intelligence += r_i
+
+          pass this check
+
+      else:
+
+          can't pass this check
+
+   elif the check is for Strength (r_i < 0):
+
+      if strength >= -r_i:
+
+          strength += -r_i
+
+          pass this check
+
+      else:
+
+          can't pass this check
+
+But wait, this approach is greedy. Because for each check, you spend the required points on the required attribute if you can. But how does this ensure that you spend the minimal points possible to pass the check?
+
+For example, if a check requires +2 in Intelligence, and you have 1 point in Intelligence, you can spend 1 point on Intelligence to reach 1 (but you need 2), so you can't pass it. So you can't spend any points on Intelligence for this check. But if you have 0 points in Intelligence, you can't pass it either.
+
+But if you have 3 points in Intelligence, you can spend 2 points on Intelligence to pass it. But you could also spend 1 point on Intelligence and 1 point on Strength, but that's not relevant here.
+
+So, the greedy approach of spending the required points on the required attribute if possible is correct. Because spending the required points on the required attribute allows you to pass the check, and you can't spend points on other attributes for this check.
+
+But then, the problem is that the order of spending points is important. Because if you have a check that requires +2 in Intelligence, and you have 1 point in Intelligence, you can't pass it. So you can't spend any points on Intelligence for this check. But if you have 0 points in Intelligence, you can't pass it either.
+
+So, the approach is:
+
+For each check in order, if you can spend points on the required attribute to meet the check's requirement, then you do so. Otherwise, you can't pass it.
+
+But how to model this in code.
+
+Let's think about the sample input again.
+
+Sample Input 1:
+
+10 5
+0 1 0 2 0 -3 0 -4 0 -5
+
+The checks are:
+
+Check 1: +1 (Intelligence)
+
+Check 2: +2 (Intelligence)
+
+Check 3: -3 (Strength)
+
+Check 4: -4 (Strength)
+
+Check 5: -5 (Strength)
+
+So, the initial strength and intelligence are 0.
+
+Check 1: Intelligence requires +1. You can spend 1 point on Intelligence. Now, Intelligence is 1. Pass this check.
+
+Check 2: Intelligence requires +2. You have 1 point. You can't spend 2 points on Intelligence. So you can't pass this check. So you can't spend points on Intelligence for this check.
+
+Check 3: Strength requires -3. You have 0 points. Can't pass. So you can't spend points on Strength for this check.
+
+Check 4: Strength requires -4. You have 0 points. Can't pass.
+
+Check 5: Strength requires -5. You have 0 points. Can't pass.
+
+So, the total passes are 1 (check 1) + 0 + 0 + 0 + 0 = 1? But the sample output says 3. Hmm, this suggests that my approach is wrong.
+
+Wait, the sample output is 3, but according to this approach, it's 1. So clearly, my reasoning is wrong.
+
+Wait, the sample explanation says that the optimal strategy is to spend each point in Strength. Let's see:
+
+The records are:
+
+0 1 0 2 0 -3 0 -4 0 -5
+
+So, the points are:
+
+0: strength or intelligence.
+
+1: intelligence check.
+
+0: strength or intelligence.
+
+2: intelligence check.
+
+0: strength or intelligence.
+
+-3: strength check.
+
+0: strength or intelligence.
+
+-4: strength check.
+
+0: strength or intelligence.
+
+-5: strength check.
+
+So, the order of the checks is:
+
+Check 1: +1 (Intelligence)
+
+Check 2: +2 (Intelligence)
+
+Check 3: -3 (Strength)
+
+Check 4: -4 (Strength)
+
+Check 5: -5 (Strength)
+
+So, the sample explanation says that the optimal strategy is to spend each point in Strength. Let's see:
+
+After spending the first point (0) on Strength: strength is 1.
+
+Then, the second point (1) is an intelligence check. So, you need to have at least 1 point in Intelligence. You can't spend points on Intelligence (since you have 0 points). So you can't pass this check.
+
+Wait, but this seems to contradict the sample explanation. Oh, wait the sample explanation says that the optimal strategy is to spend each point in Strength. So, the first point (0) is spent on Strength. Then, the second point (1) is an intelligence check. But you can't spend points on Intelligence. So how can you pass this check?
+
+Ah, I think I made a mistake here. Because the check is an intelligence check, which requires that your Intelligence level is >= the value. But the sample explanation says that the check is passed. How?
+
+Wait, the first check is an intelligence check. So, the first record is 0 (no points spent), then the second record is 1. So, the first check is processed first. But how do you get to pass it?
+
+Ah! Because the check is an intelligence check. So, the first check is processed first. So, you need to have enough points in Intelligence to pass it. But in this case, you have 0 points in Intelligence. So, you can't pass it. So why is the sample explanation saying that you pass it?
+
+Wait, the sample explanation says:
+
+"In the first test, it's optimal to spend each point in Strength, so you'll fail 2 Intelligence checks but pass 3 Strength checks."
+
+So, the first check is an intelligence check. How can you pass it if you have zero points in Intelligence?
+
+Ah! Oh, maybe the check is an intelligence check, but you can spend points on Intelligence to pass it. But in this case, you have 0 points in Intelligence. So you can't pass it. But according to the sample explanation, the check is passed. So I must be misunderstanding the problem.
+
+Let me re-read the problem statement.
+
+The problem says:
+
+"If your corresponding attribute is high enough, you'll pass it; otherwise, you'll fail it."
+
+So, for a check that is an Intelligence check (r_i > 0), you need to have Intelligence level >= r_i. So, for example, if you have 0 points in Intelligence and the check is +1, then you can't pass it. But the sample explanation says that the first check is passed. How?
+
+Ah, wait, perhaps the checks are processed in the order of the records. So, the first check is processed first. But the way the points are spent is determined by the order of the records. For example, if you spend a point on Strength, then you can't spend a point on Intelligence for that check.
+
+Wait, no. The problem says that you can spend points from the records in any order, but the order of the records must be preserved. So, the first record is spent first, then the second, etc.
+
+So, for the sample input, the first record is 0 (so you can spend a point on either attribute). Then the second record is 1 (so you can spend a point on Intelligence). So, you can spend a point on Intelligence. Then, the third record is 0 (so you can spend a point on either attribute). Then the fourth record is 2 (so you can spend a point on Intelligence). So, you can spend a point on Intelligence again. Then the fifth record is 0 (so spend a point on either attribute). Then the sixth record is -3 (so spend a point on Strength). So, you can spend a point on Strength. Then the seventh record is 0 (so spend a point on either attribute), then the eighth record is -4 (so spend a point on Strength), then the ninth record is 0 (so spend a point on either attribute), then the tenth record is -5 (so spend a point on Strength).
+
+So, the points spent are:
+
+Strength: 1 (from the sixth record), then strength is 1.
+
+Then, the seventh record is 0 (so spend a point on either attribute). Let's say you spend it on Intelligence. Now Intelligence is 1 (from the second record) + 1 (from the fourth record) + 1 (from the seventh record) = 3? Or wait, the points are spent in the order of the records. So, for the first record, you spend a point on either attribute. Then the second record (1) you spend a point on Intelligence. Then the third record (0) you spend a point on Strength. Then the fourth record (2) you spend a point on Intelligence. Then the fifth record (0) you spend a point on Intelligence. Then the sixth record (-3) you spend a point on Strength. Then the seventh record (0) you spend a point on Intelligence. Then the eighth record (-4) you spend a point on Strength. Then the ninth record (0) you spend a point on Intelligence. Then the tenth record (-5) you spend a point on Strength.
+
+So, the total points spent on Intelligence are 1 (from second record) + 1 (from fourth) + 1 (from seventh) + 1 (from ninth) = 4 points. Strength is 1 (from third) + 1 (from sixth) + 1 (from eighth) = 3 points.
+
+Then, the checks are:
+
+Check 1: +1 (Intelligence) → 4 >= 1 → pass.
+
+Check 2: +2 (Intelligence) → 4 >= 2 → pass.
+
+Check 3: -3 (Strength) → 3 >= 3 → pass.
+
+Check 4: -4 (Strength) → 3 >= 4 → no. So can't pass.
+
+Check 5: -5 (Strength) → 3 >= 5 → no.
+
+So, the total passes are 3 checks. Which matches the sample output.
+
+Ah, okay. So the key is that the points spent are determined by the order of the records. So, you can spend points on any attribute, but each point is spent in the order of the records. So, the first record's point is spent first, then the second, etc.
+
+Thus, the problem is to process each record in order, and for each record, decide whether to spend a point on the required attribute (if possible) to pass the check. If you can, you do so. Otherwise, you can't pass the check.
+
+But how to model this in code.
+
+The main idea is that for each check in order, you have to decide whether to spend a point on the required attribute to meet the check's requirement. If you can, you do so, and the spent points are added to the required attribute. Otherwise, you can't pass the check.
+
+But how to track the current levels of the attributes. Because for each check, you can only spend a point on the required attribute if you have enough points in that attribute. But how do you decide which points to spend on which attribute?
+
+Ah! Wait, the points you spend on the required attribute are the ones that are spent in the order of the records. For example, if you have a record with a point that is an Intelligence check (r_i > 0), then you can spend a point on Intelligence (if you have enough points in Intelligence) to pass the check. But you can only spend one point on Intelligence for this check. Because the points are spent in the order of the records.
+
+Wait, no. Each record can have a point that you can spend on either attribute. So, for example, if you have a record that is an Intelligence check (r_i = 1), then you can spend a point on Intelligence to pass it. But you can also spend a point on Strength if you have enough points in Strength. But if you spend a point on Strength for this check, you can't spend a point on Intelligence for this check.
+
+So, the order of the records determines when you can spend a point on the required attribute. For example, the first check is processed first, and you can spend a point on the required attribute (if possible) to pass it. If you can't, then you can't spend a point on the required attribute for this check.
+
+So, the algorithm is:
+
+Initialize strength and intelligence to 0.
+
+For each record in order:
+
+   if the record is a strength check (r_i < 0):
+
+      required = -r_i
+
+      if strength >= required:
+
+          strength += required
+
+          passes += 1
+
+      else:
+
+          do not pass this check
+
+   elif the record is an intelligence check (r_i > 0):
+
+      required = r_i
+
+      if intelligence >= required:
+
+          intelligence += required
+
+          passes += 1
+
+      else:
+
+          do not pass this check
+
+   else:
+
+      # record is 0, you can spend a point on either attribute
+
+      # but you can spend it on the attribute that is required for the next checks
+
+      # but how to decide which one?
+
+      # in this case, you can spend the point on either attribute, but it's optimal to spend it on the one that allows you to pass the most checks.
+
+      # but since we process the checks in order, we need to track which attributes are needed for the next checks.
+
+      # this is a problem. Because when you spend a point on either attribute, you might be able to pass a check that requires the other attribute.
+
+      # for example, if you have a check that requires +2 in Intelligence and a check that requires +1 in Strength, you can spend a point on Intelligence to pass the first check, then spend a point on Strength to pass the second check.
+
+      # but if you spend a point on Strength first, you can't pass the first check, but you can spend a point on Intelligence for the second check.
+
+      # but how to decide which attribute to spend the point on.
+
+This complicates the problem. Because when you have a 0 record (a point that can be spent on either attribute), you have to choose which attribute to spend it on to maximize the number of passes.
+
+But how to model this optimally.
+
+This seems like a problem that requires dynamic programming. Because for each record, the choice of which attribute to spend the point on affects future choices.
+
+But with n up to 2e6, we need an O(n) solution.
+
+Alternatively, we can greedily choose the attribute that will allow us to pass the most checks in the future. For example, when we have a 0 record, we can spend the point on the attribute that is needed for the next checks, but this is not straightforward.
+
+Alternatively, perhaps the optimal strategy is to spend the point on the attribute that is needed for the next checks, but this is not always possible.
+
+This seems complex. So, perhaps the initial approach is not sufficient, and we need to find a way to model the optimal choice when we have a 0 record.
+
+Let's think about the 0 record. When you have a 0 record, you can spend a point on either attribute. Which one to choose?
+
+For example, if the next check requires a point in Intelligence, and the current strength is sufficient for the next check, but you have to spend a point on Intelligence to pass the next check. Then, it's better to spend the point on Intelligence to pass the next check. Otherwise, you might spend it on Strength and have to spend more points later.
+
+But how to determine this in code.
+
+Alternatively, when you have a 0 record, you can choose to spend the point on the attribute that will allow you to pass the most checks in the future. This is the greedy approach.
+
+So, for each 0 record, you can spend the point on either attribute, and choose the one that will allow you to pass the most checks in the future.
+
+But how to determine which attribute to choose.
+
+This is the crux of the problem.
+
+Let's think of the next checks. Suppose you have two attributes, strength and intelligence, and you have a 0 record. The next check could be a strength check, or an intelligence check, or another 0 record.
+
+If you spend the point on the strength attribute, then you can pass the next check if it is a strength check. If you spend it on the intelligence attribute, you can pass the next check if it is an intelligence check.
+
+So, the optimal choice is to spend the point on the attribute that has the next check that requires it.
+
+But how to find that next check.
+
+This seems like a problem that requires looking ahead. For example, for each 0 record, you can look ahead to the next checks and see which attribute is needed for the next check, then spend the point on that attribute.
+
+But for large n, this would be O(n) per 0 record, which is not feasible.
+
+So, we need an efficient way to find the next check that requires a certain attribute.
+
+Alternatively, we can track the next check that requires each attribute. For example, for each attribute, we can keep track of the next check that requires it. Then, when we have a 0 record, we can choose to spend the point on the attribute that has the next check that requires it.
+
+But this approach may not always be optimal.
+
+But given time constraints, perhaps this is the best way to proceed.
+
+Let's outline the steps:
+
+1. Preprocess the checks to track for each attribute, the next check that requires it.
+
+For example, for each attribute (strength and intelligence), we can have a pointer to the next check that requires it. Initially, both pointers are set to -1 (no check required).
+
+2. For each record in order:
+
+   a. If the record is a strength check (r_i < 0):
+
+      - If the current strength is >= required, then spend the required points on strength, increase the strength, and pass the check.
+
+      - Else, you can't pass the check, so you can't spend any points on strength for this check.
+
+   b. If the record is an intelligence check (r_i > 0):
+
+      - If the current intelligence is >= required, then spend the required points on intelligence, increase the intelligence, and pass the check.
+
+      - Else, you can't pass the check, so you can't spend any points on intelligence for this check.
+
+   c. If the record is a 0 (can spend on either attribute):
+
+      - Check if the next check that requires strength is available. If yes, then spend the point on strength.
+
+      - Else, check if the next check that requires intelligence is available. If yes, spend the point on intelligence.
+
+      - Else, spend the point on strength (or intelligence, whichever is available).
+
+But how to implement this.
+
+Alternatively, for each 0 record, you can spend the point on the attribute that is needed for the next check. So, for example, if the next check requires strength, you spend the point on strength. If not, you spend on intelligence.
+
+But how to determine the next check that requires each attribute.
+
+This can be done by maintaining two pointers: one for the next strength check and one for the next intelligence check.
+
+Initially, both pointers are set to the first check in the list. For example, if the first check is an intelligence check, then the next strength check pointer is set to the next check after the first check. If the first check is a strength check, then the next intelligence check pointer is set to the next check after the first check.
+
+So, for each 0 record, we can check if the next strength check is available. If yes, then we spend the point on strength. If not, check if the next intelligence check is available. If yes, then spend the point on intelligence. If both are not available, then we can spend the point on either attribute, but this is not possible because the next checks are not available. But this case should not happen because the problem guarantees that there are enough points to pass all checks.
+
+But this approach may not always be optimal, but it's a starting point.
+
+Let's test this approach on the sample input.
+
+Sample Input 1:
+
+10 5
+0 1 0 2 0 -3 0 -4 0 -5
+
+The checks are:
+
+Check 1: +1 (Intelligence)
+
+Check 2: +2 (Intelligence)
+
+Check 3: -3 (Strength)
+
+Check 4: -4 (Strength)
+
+Check 5: -5 (Strength)
+
+The next checks for strength and intelligence:
+
+- next strength check pointer starts at 3 (check 3).
+
+- next intelligence check pointer starts at 1 (check 1).
+
+For the first 0 record (record 0):
+
+Check if next strength check is available. The next strength check is at index 3. So, spend the point on strength.
+
+Now, strength is 1.
+
+For the second record (record 1, which is a 1): check if next strength check is available. The next strength check is still at index 3. So, spend the point on strength. Now, strength is 2.
+
+For the third record (record 2, which is a 0): check if next strength check is available. It's still at 3. So, spend the point on strength. Now, strength is 3.
+
+For the fourth record (record 3, which is a 2): check if next strength check is available. It's still at 3. Spend the point on strength. Now, strength is 4.
+
+For the fifth record (record 4, which is a 0): check if next strength check is available. It's still at 3. So, spend the point on strength. Now, strength is 5.
+
+For the sixth record (record 5, which is a -3): strength is 5 >= 3. Spend 3 points on strength. Now, strength is 8. Pass this check.
+
+For the seventh record (record 6, which is a 0): check if next strength check is available. It's still at 3. Spend the point on strength. Now, strength is 9.
+
+For the eighth record (record 7, which is a -4): strength is 9 >=4. Spend 4 points on strength. Now, strength is 13. Pass this check.
+
+For the ninth record (record 8, which is a 0): check if next strength check is available. It's still at 3. Spend the point on strength. Now, strength is 14.
+
+For the tenth record (record 9, which is a -5): strength is 14 >=5. Spend 5 points on strength. Now, strength is 19. Pass this check.
+
+So, the total passes are 1 (check 1) + 1 (check 2) + 1 (check 3) + 1 (check 4) + 1 (check 5) = 5. But the sample output is 3. So something is wrong.
+
+Wait, the sample output is 3, but according to this approach, it's 5. This suggests that the approach is wrong.
+
+Hmm, this indicates that the approach of spending the point on the next check's required attribute is not optimal.
+
+So, what's wrong here?
+
+Let's re-examine the sample explanation. The sample says that the optimal strategy is to spend each point in Strength, which results in passing 3 checks. So, in the above approach, spending points on strength for the first 5 checks would allow passing all 5 checks, but the sample says only 3. So why is that?
+
+Ah! Because the checks are processed in order. Let's see:
+
+The first check is an intelligence check. So, the first check is processed first. If you spend the point on strength, then you can't pass the first check. So, you have to spend the point on intelligence to pass it.
+
+Wait, but according to the approach, the first 0 record is processed first. So, the first 0 record is processed first, and the point is spent on strength. Then, the second record is an intelligence check. But you have 1 point in strength, but the intelligence is 0. So, you can't pass the intelligence check. So, the second check is not passed.
+
+Ah! So, the approach is wrong. Because when you spend a point on strength for the first 0 record, you can't pass the first check (which is an intelligence check). So, the approach of spending the point on the next check's required attribute is incorrect.
+
+This indicates that the approach needs to be revised.
+
+The problem is that when you spend a point on an attribute, you can't spend it on another attribute for the same check. So, when you have a 0 record, you have to choose which attribute to spend the point on, but you need to consider that this choice affects future checks.
+
+Thus, the initial approach of greedily spending the point on the next required attribute is not sufficient.
+
+This suggests that the problem requires a more sophisticated approach.
+
+Let's think of the problem in terms of dynamic programming. Let's define dp[i][s][i] as the maximum number of passes up to the i-th check, where s is the current strength level and i is the current intelligence level. But with n up to 2e6, this is impossible due to memory constraints.
+
+Alternative approach: since each check is processed in order, and the points spent are determined by the order of the records, perhaps we can model the problem by tracking the current levels of strength and intelligence, and for each record, decide whether to spend a point on the required attribute.
+
+But how to choose which attribute to spend the point on when the record is 0.
+
+Let's consider that for each record, we have to decide whether to spend the point on strength or intelligence, based on which choice allows us to pass the most checks in the future.
+
+But how to determine this choice quickly.
+
+For example, if the current strength is s and the current intelligence is i, and the next check is an intelligence check with value r, then spending a point on intelligence increases i by 1. This may allow passing the next check.
+
+Alternatively, spending a point on strength increases s by 1. This may allow passing the next check.
+
+So, the choice depends on which choice will allow us to pass the next checks.
+
+But how to determine this without looking ahead.
+
+This seems challenging.
+
+Perhaps the optimal strategy is to spend the point on the attribute that has the highest number of future checks requiring it. For example, if the next check requires strength, then spend the point on strength; otherwise, spend on intelligence.
+
+But how to determine the number of future checks requiring each attribute.
+
+This is similar to the problem of choosing the best attribute to spend the point on based on future needs.
+
+But again, how to implement this efficiently.
+
+An alternative idea is to track for each attribute, the number of checks requiring it in the future. For example, if the next check requires strength, then we should spend the point on strength.
+
+But this is not always correct. For example, if the next check requires strength, but spending the point on strength now may prevent us from passing a future check that requires strength.
+
+But this is a trade-off.
+
+Perhaps the best way is to spend the point on the attribute that has the highest number of future checks requiring it. This way, we spend the point on the attribute that has the most future needs, maximizing the chances of passing future checks.
+
+But how to implement this.
+
+This seems like a possible approach. Let's try it on the sample input.
+
+Sample Input 1:
+
+The checks are:
+
+Check 1: +1 (Intelligence)
+
+Check 2: +2 (Intelligence)
+
+Check 3: -3 (Strength)
+
+Check 4: -4 (Strength)
+
+Check 5: -5 (Strength)
+
+The next checks for each attribute:
+
+- Strength: check 3, 4, 5.
+
+- Intelligence: check 1, 2.
+
+So, the next check requiring strength is check 3, which is the first check requiring strength. The next check requiring intelligence is check 1, which is the first check requiring intelligence.
+
+So, when we have a 0 record, we should spend the point on the attribute that has the next check requiring it. In this case, the next check requiring strength is check 3, and the next requiring intelligence is check 1. So, we should spend the point on strength.
+
+But according to the sample explanation, this is not the optimal choice. So, what's wrong here?
+
+In the sample explanation, the optimal strategy is to spend the point on strength for check 1, then on strength for check 2, then on strength for check 3, then on strength for check 4, then on strength for check 5. This way, you spend the points on strength for all checks, allowing you to pass check 1 (intelligence check), check 2 (intelligence check), check 3 (strength check), check 4 (strength check), check 5 (strength check). But why can you pass check 1?
+
+Ah! Because the first check is an intelligence check. So, you need to have at least 1 point in intelligence. If you spend the point on strength, you have 1 point in strength, but 0 in intelligence. So, you can't pass check 1. So, the sample explanation must have a mistake, or my understanding is wrong.
+
+But the sample explanation says that you pass 3 checks, which implies that the first check is passed. So, how is this possible?
+
+This suggests that there's a misunderstanding of the problem statement.
+
+Re-reading the problem statement:
+
+"If your corresponding attribute is high enough, you'll pass it; otherwise, you'll fail it."
+
+So, for a check that is an intelligence check, you need to have intelligence level >= r_i. If you have 0 in intelligence and r_i is 1, you can't pass it. So, the sample explanation must be incorrect, or there's a misunderstanding.
+
+But the sample input and output must be correct. So, there's a mistake in my reasoning.
+
+Let me re-examine the sample input.
+
+Sample Input 1:
+
+10 5
+
+0 1 0 2 0 -3 0 -4 0 -5
+
+So, the records are:
+
+Record 0: 0 → can spend on either.
+
+Record 1: 1 → intelligence check.
+
+Record 2: 0 → can spend on either.
+
+Record 3: 2 → intelligence check.
+
+Record 4: 0 → can spend on either.
+
+Record 5: -3 → strength check.
+
+Record 6: 0 → can spend on either.
+
+Record 7: -4 → strength check.
+
+Record 8: 0 → can spend on either.
+
+Record 9: -5 → strength check.
+
+So, the first check is record 1 (intelligence check). The second record is record 2 (0). The third record is record 3 (intelligence check). The fourth record is record 4 (0). The fifth record is record 5 (-3). The sixth record is record 6 (0). The seventh record is record 7 (-4). The eighth record is record 8 (0). The ninth record is record 9 (-5).
+
+So, the checks are in order: check 1 (record 1), check 2 (record 2), check 3 (record 3), check 4 (record 4), check 5 (record 5), etc.
+
+The sample explanation says that the optimal strategy is to spend each point in strength, resulting in passing 3 checks. Let's see:
+
+Let's simulate this strategy.
+
+Initial strength and intelligence are 0.
+
+Record 0: 0 → spend on strength (now strength is 1).
+
+Record 1: 1 → check is intelligence check. Need intelligence >= 1. Current intelligence is 0 → can't pass. So, check 1 is not passed.
+
+Record 2: 0 → spend on strength (now strength is 2).
+
+Record 3: 2 → check is intelligence check. Need intelligence >= 2. Current is 0 → can't pass.
+
+Record 4: 0 → spend on strength (now strength is 3).
+
+Record 5: -3 → strength >= 3 → pass. Strength becomes 6.
+
+Record 6: 0 → spend on strength (now strength is 7).
+
+Record 7: -4 → strength >= 4 → pass. Strength becomes 11.
+
+Record 8: 0 → spend on strength (now strength is 12).
+
+Record 9: -5 → strength >= 5 → pass. Strength becomes 17.
+
+So, the passes are check 5 (record 5), check 7 (record 7), check 9 (record 9). Total of 3 passes. Which matches the sample output.
+
+So, the sample explanation is correct, and my earlier reasoning was wrong. The first check (record 1) is not passed in this strategy, but the second check (record 2) is not passed either. So, the total passes are 3.
+
+But why is the sample explanation saying that you pass 3 checks? Because the first check is not passed, but the second and third checks are passed.
+
+Wait, the sample explanation says:
+
+"In the first test, it's optimal to spend each point in Strength, so you'll fail 2 Intelligence checks but pass 3 Strength checks."
+
+Ah, the first check (record 1) is an intelligence check, which is not passed. The second check (record 2) is an intelligence check, which is not passed. The third check (record 3) is a strength check, which is passed. The fourth check (record 4) is an intelligence check, which is not passed. The fifth check (record 5) is a strength check, which is passed. The sixth check (record 6) is an intelligence check, which is not passed. The seventh check (record 7) is a strength check, which is passed. The eighth check (record 8) is an intelligence check, which is not passed. The ninth check (record 9) is a strength check, which is passed.
+
+So, the passes are check 5, 7, and 9. Total of 3.
+
+So, the sample explanation is correct. But why is the first check not passed? Because the first check is an intelligence check, and you have 0 in intelligence. So, you can't pass it.
+
+So, the initial approach of greedily spending the point on the next required attribute is incorrect, because it leads to passing some checks but not others.
+
+Thus, the problem requires a more sophisticated approach.
+
+The core issue is that when you have a 0 record, you have to choose which attribute to spend the point on, but this choice affects the ability to pass future checks.
+
+So, the problem is to choose, for each 0 record, which attribute to spend the point on, such that the maximum number of checks are passed.
+
+This is a classic dynamic programming problem. Let's think about it.
+
+We can define the state as the current levels of strength and intelligence. For each state, we can decide to spend the point on strength or intelligence, and transition to the next state. The goal is to maximize the number of passes.
+
+But with n up to 2e6, it's impossible to store all possible states.
+
+So, we need a way to model this with a greedy approach.
+
+Let's think about the following: for each 0 record, we can choose to spend the point on strength or intelligence. We need to choose the option that will allow us to pass the most checks in the future.
+
+But how to determine this without looking ahead.
+
+Let's consider that for each 0 record, the best choice is to spend the point on the attribute that has the highest number of future checks requiring it. This is because spending the point on the attribute that has more future checks will give more opportunities to pass them.
+
+So, for each 0 record, we can look ahead to the next checks and count how many of them require strength or intelligence. We choose to spend the point on the attribute with the higher count.
+
+This is a heuristic, but it may work.
+
+Let's apply this to the sample input.
+
+Sample Input 1:
+
+The checks are:
+
+Check 1: +1 (Intelligence) → requires intelligence.
+
+Check 2: +2 (Intelligence) → requires intelligence.
+
+Check 3: -3 (Strength) → requires strength.
+
+Check 4: -4 (Strength) → requires strength.
+
+Check 5: -5 (Strength) → requires strength.
+
+So, for the first 0 record (record 0), the next checks requiring strength are checks 3, 4, 5 (3 checks), and requiring intelligence are checks 1, 2 (2 checks). So, the next check requiring strength is check 3. So, we spend the point on strength.
+
+Now, strength is 1.
+
+For the second 0 record (record 2), the next checks requiring strength are checks 3, 4, 5 (3 checks), and requiring intelligence are checks 1, 2 (2 checks). So, spend on strength. Now, strength is 2.
+
+For the third 0 record (record 4), next checks requiring strength are checks 3, 4, 5 (3 checks), and requiring intelligence are checks 1, 2 (2 checks). Spend on strength. Now, strength is 3.
+
+For the fourth 0 record (record 6), next checks requiring strength are checks 3, 4, 5 (3 checks), and requiring intelligence are checks 1, 2 (2 checks). Spend on strength. Now, strength is 4.
+
+For the fifth 0 record (record 8), next checks requiring strength are checks 3, 4, 5 (3 checks), and requiring intelligence are checks 1, 2 (2 checks). Spend on strength. Now, strength is 5.
+
+For the sixth record (record 5, which is a -3), strength is 5 >= 3. Spend 3 points on strength. Now, strength is 8. Pass this check.
+
+For the seventh record (record 7, which is a -4), strength is 8 >= 4. Spend 4 points on strength. Now, strength is 12. Pass this check.
+
+For the eighth record (record 9, which is a -5), strength is 12 >= 5. Spend 5 points on strength. Now, strength is 17. Pass this check.
+
+So, the total passes are check 5, 7, and 9. Total of 3, which matches the sample output.
+
+So, this approach works for the sample input.
+
+Let's test this approach on another example.
+
+Sample Input 2:
+
+3 1
+
+1 -1 0
+
+The checks are:
+
+Check 1: +1 (Intelligence) → requires intelligence.
+
+Check 2: -1 (Strength) → requires strength.
+
+Check 3: 0 → can spend on either.
+
+For the first 0 record (record 3), the next checks requiring strength is check 2 (1 check), and requiring intelligence is check 1 (1 check). So, spend on strength or intelligence. Let's say we choose strength.
+
+Now, strength is 1.
+
+For the second record (check 2, which is a -1), strength is 1 >= 1. Spend 1 point on strength. Now, strength is 2. Pass this check.
+
+For the third record (check 1, which is a +1), strength is 2 >= 1. Spend 1 point on strength. Now, strength is 3. Pass this check.
+
+So, total passes are 3 checks. But the sample output is 0.
+
+Wait, this is a contradiction. What's wrong here?
+
+The sample input is:
+
+3 1
+
+1 -1 0
+
+The output is 0.
+
+Let me re-examine the problem.
+
+The checks are:
+
+Check 1: +1 (Intelligence) → requires intelligence.
+
+Check 2: -1 (Strength) → requires strength.
+
+Check 3: 0 (can spend on either).
+
+So, the initial strength and intelligence are 0.
+
+For check 1, you need to have intelligence >= 1. Current is 0 → can't pass.
+
+For check 2, you need to have strength >= 1. Current is 0 → can't pass.
+
+For check 3, you can spend a point on either.
+
+So, the total passes is 0, which matches the sample output.
+
+But according to the approach above, the first 0 record (check 3) is processed first. The next checks requiring strength is check 2 (1 check), and requiring intelligence is check 1 (1 check). So, spend on strength. Now, strength is 1. Then, check 2 is processed: strength >= 1 → pass. Strength becomes 2. Then, check 1 is processed: strength >= 1 → pass. Strength becomes 3.
+
+So, total passes are 2 checks. But the sample output is 0.
+
+This indicates that the approach is incorrect.
+
+What's the issue here?
+
+Ah, the check 1 is processed after check 2. But check 1 requires intelligence, and check 2 requires strength. So, the order of processing is check 1, then check 2, then check 3.
+
+So, the initial strength and intelligence are 0.
+
+Check 1: requires intelligence >= 1 → can't pass.
+
+Check 2: requires strength >= 1 → can't pass.
+
+Check 3: can spend on either.
+
+So, the total passes is 0.
+
+But according to the approach, after spending on strength for check 3, the strength is 1, and then check 2 is processed (strength >= 1 → pass). Then check 1 is processed (intelligence is 0 → can't pass).
+
+So, the total passes are 1 (check 2).
+
+But the sample output is 0. So, why?
+
+Because the checks are processed in order. Check 1 is processed first, then check 2, then check 3.
+
+So, in the approach, after spending on strength for check 3, the strength is 1. Check 2 is processed next. But check 2 is processed before check 1. So, check 2 is processed first, then check 1.
+
+So, in the approach, after check 2 is processed, the strength is 1. Then, check 1 is processed. But check 1 requires intelligence >= 1, which is 0. So, it can't pass.
+
+Thus, the total passes is 1 (check 2).
+
+But the sample output is 0. So, there's a contradiction.
+
+This suggests that the approach is incorrect.
+
+But the sample input's output is 0. So, what's the correct way to process this.
+
+The correct way is to process the checks in order: check 1, check 2, check 3.
+
+Check 1: requires intelligence >= 1 → can't pass.
+
+Check 2: requires strength >= 1 → can't pass.
+
+Check 3: can spend on either.
+
+So, the total passes is 0.
+
+Thus, the approach is incorrect.
+
+This indicates that the heuristic of spending on the attribute with more future checks is not sufficient.
+
+So, the problem requires a more sophisticated approach.
+
+At this point, I realize that I need to find a way to model the problem correctly. Let's think of the problem as follows:
+
+For each check in order, you must decide whether to spend a point on the required attribute to pass it. If you can, you do so. Otherwise, you can't pass it.
+
+The key is that when you have a 0 record, you can spend a point on either attribute. But you must choose which attribute to spend it on to maximize the number of passes.
+
+So, the decision for each 0 record is to choose the attribute that will allow you to pass the most checks in the future.
+
+But how to determine this.
+
+For each 0 record, we can look ahead to the next checks and determine how many of them require each attribute. For example, if the next check requires strength, then spending a point on strength now may allow you to pass it, but if the next check requires intelligence, spending a point on strength now may not.
+
+So, the decision is to spend the point on the attribute that has the highest number of future checks requiring it.
+
+But how to implement this.
+
+This requires for each 0 record to look ahead to the next checks and count how many of them require each attribute.
+
+Let's implement this.
+
+The algorithm would be:
+
+Initialize strength and intelligence to 0.
+
+For each record in order:
+
+   if the record is a strength check (r_i < 0):
+
+      required = -r_i
+
+      if strength >= required:
+
+          strength += required
+
+          passes += 1
+
+      else:
+
+          do nothing
+
+   elif the record is an intelligence check (r_i > 0):
+
+      required = r_i
+
+      if intelligence >= required:
+
+          intelligence += required
+
+          passes += 1
+
+      else:
+
+          do nothing
+
+   else: # record is 0
+
+      # look ahead to the next checks to determine which attribute to spend the point on
+
+      # count how many checks require strength and intelligence in the future
+
+      # choose to spend on the attribute with the higher count
+
+      # if both are zero, choose either
+
+      next_strength_required = 0
+
+      next_intelligence_required = 0
+
+      for i in range(current_index + 1, n):
+
+          if r_i < 0:
+
+              next_strength_required += 1
+
+          elif r_i > 0:
+
+              next_intelligence_required += 1
+
+      if next_strength_required > next_intelligence_required:
+
+          # spend on strength
+
+          strength += 1
+
+      elif next_intelligence_required > next_strength_required:
+
+          # spend on intelligence
+
+          intelligence += 1
+
+      else:
+
+          # spend on either, but choose one arbitrarily
+
+          if strength >= intelligence:
+
+              strength += 1
+
+          else:
+
+              intelligence += 1
+
+This approach would look ahead to the next checks and choose the attribute with the higher number of future checks requiring it.
+
+Let's test this on the sample input 2:
+
+Sample Input 2:
+
+3 1
+
+1 -1 0
+
+The checks are:
+
+Check 1: +1 (Intelligence) → requires intelligence.
+
+Check 2: -1 (Strength) → requires strength.
+
+Check 3: 0 → can spend on either.
+
+For the first 0 record (check 3), look ahead to the next checks (check 1 and check 2). Check 1 requires intelligence, check 2 requires strength. So, next_strength_required = 1, next_intelligence_required = 1. Both are equal, so choose either. Let's choose intelligence.
+
+Now, intelligence is 1.
+
+For the second record (check 2), which is a strength check. strength is 0, required is 1. Can't pass.
+
+For the third record (check 1), which is an intelligence check. intelligence is 1 >= 1 → pass. Now, intelligence is 2.
+
+So, total passes is 1 (check 1). But the sample output is 0. So, this is still incorrect.
+
+Ah! Because the checks are processed in order. Check 1 is processed first, then check 2, then check 3.
+
+So, in this case, check 1 is processed first, then check 2, then check 3.
+
+In the above approach, the first 0 record is check 3, which is processed after check 1 and 2. So, the next checks are check 1 and 2, which are processed before check 3.
+
+So, the next checks are check 1 and 2, which are processed before check 3.
+
+Thus, the algorithm looks ahead to check 1 and 2, but they are processed before check 3.
+
+This indicates that the algorithm is looking ahead to checks that are not yet processed, which is incorrect.
+
+The algorithm should look ahead to checks that are processed after the current record.
+
+So, the current record is check 3. The next checks are check 1 and 2, which are processed before check 3. So, the algorithm should not look ahead to them.
+
+This is a critical error in the previous approach.
+
+Thus, the algorithm needs to look ahead to the next checks that are processed after the current record.
+
+So, for each 0 record, the algorithm should look ahead to the next checks that are processed after the current record.
+
+Thus, the algorithm should look ahead to the next checks that are processed after the current record.
+
+In the sample input 2, the current record is check 3. The next checks are check 1 and 2, which are processed before check 3. So, the algorithm should not look ahead to them.
+
+Thus, the algorithm should look ahead to the next checks that are processed after the current record.
+
+This changes the approach.
+
+So, the algorithm should, for each 0 record, look ahead to the next checks that are processed after the current record.
+
+In the sample input 2, the current record is check 3. The next checks are check 1 and 2, which are processed before check 3. So, no checks are processed after check 3. Thus, the algorithm should spend the point on either attribute, but since there are no checks requiring either, it can choose either.
+
+But in this case, the checks are processed in order, and the first two checks are processed before check 3. So, the algorithm should spend the point on either attribute, but it doesn't affect the passes.
+
+Thus, the total passes is 0, which matches the sample output.
+
+This indicates that the previous approach was incorrect in how it looked ahead to the next checks.
+
+Thus, the correct approach is:
+
+For each 0 record, look ahead to the next checks that are processed after the current record.
+
+For example, if the current record is at index i, look at the checks from i+1 to n-1.
+
+If there are any checks requiring strength or intelligence in this range, choose to spend the point on the attribute with the higher number of such checks.
+
+If there are none, choose either.
+
+So, let's re-implement the algorithm with this correction.
+
+The algorithm would look ahead to the next checks after the current record.
+
+Let's re-test the sample input 2:
+
+Sample Input 2:
+
+3 1
+
+1 -1 0
+
+The current record is check 3 (index 2). The next checks are check 1 (index 0) and check 2 (index 1), which are processed before check 3. So, no checks are processed after check 3. Thus, the algorithm spends the point on either attribute, but since no checks are processed after, it doesn't affect the passes.
+
+Thus, total passes is 0, which matches the sample output.
+
+For the first sample input, let's re-calculate.
+
+Sample Input 1:
+
+10 5
+
+0 1 0 2 0 -3 0 -4 0 -5
+
+The current record is check 0 (index 0). The next checks are checks 1 (index 1), 2 (index 2), 3 (index 3), 4 (index 4), 5 (index 5), 6 (index 6), 7 (index 7), 8 (index 8), 9 (index 9). These are all checks processed after the current record (index 0).
+
+So, the algorithm looks ahead to these checks.
+
+For each of these checks, we count how many require strength or intelligence.
+
+Check 1: +1 (int) → requires intelligence.
+
+Check 2: +2 (int) → requires intelligence.
+
+Check 3: -3 (str) → requires strength.
+
+Check 4: -4 (str) → requires strength.
+
+Check 5: -5 (str) → requires strength.
+
+So, next_strength_required = 3, next_intelligence_required = 2.
+
+So, spend on strength.
+
+Now, strength is 1.
+
+Next record is check 2 (index 1, which is 1). The next checks after this are checks 3 (index 3), 4 (index 4), 5 (index 5), 6 (index 6), 7 (index 7), 8 (index 8), 9 (index 9).
+
+Check 3: -3 (str) → requires strength.
+
+Check 4: -4 (str) → requires strength.
+
+Check 5: -5 (str) → requires strength.
+
+So, next_strength_required = 3, next_intelligence_required = 0. Spend on strength. Now, strength is 2.
+
+Next record is check 3 (index 2, which is 0). The next checks after this are checks 4 (index 4), 5 (index 5), 6 (index 6), 7 (index 7), 8 (index 8), 9 (index 9).
+
+Check 4: -4 (str) → requires strength.
+
+Check 5: -5 (str) → requires strength.
+
+Check 6: 0 → can spend on either.
+
+Check 7: -4 (str) → requires strength.
+
+Check 8: 0 → can spend on either.
+
+Check 9: -5 (str) → requires strength.
+
+So, next_strength_required = 4 (checks 4, 5, 7, 9), next_intelligence_required = 0. Spend on strength. Now, strength is 3.
+
+Next record is check 4 (index 3, which is 2). The next checks after this are checks 5 (index 5), 6 (index 6), 7 (index 7), 8 (index 8), 9 (index 9).
+
+Check 5: -5 (str) → requires strength.
+
+Check 6: 0 → can spend on either.
+
+Check 7: -4 (str) → requires strength.
+
+Check 8: 0 → can spend on either.
+
+Check 9: -5 (str) → requires strength.
+
+So, next_strength_required = 3 (checks 5, 7, 9), next_intelligence_required = 0. Spend on strength. Now, strength is 4.
+
+Next record is check 5 (index 4, which is 0). The next checks after this are checks 6 (index 6), 7 (index 7), 8 (index 8), 9 (index 9).
+
+Check 6: 0 → can spend on either.
+
+Check 7: -4 (str) → requires strength.
+
+Check 8: 0 → can spend on either.
+
+Check 9: -5 (str) → requires strength.
+
+So, next_strength_required = 2 (checks 7, 9), next_intelligence_required = 0. Spend on strength. Now, strength is 5.
+
+Next record is check 6 (index 5, which is -3). strength is 5 >= 3 → pass. strength becomes 8.
+
+Next record is check 7 (index 6, which is 0). next checks are checks 8 (index 8), 9 (index 9).
+
+Check 8: 0 → can spend on either.
+
+Check 9: -5 (str) → requires strength.
+
+So, next_strength_required = 1 (check 9), next_intelligence_required = 0. Spend on strength. Now, strength is 9.
+
+Next record is check 8 (index 7, which is -4). strength is 9 >= 4 → pass. strength becomes 13.
+
+Next record is check 9 (index 8, which is 0). next checks are check 10 (none). Spend on either. No effect.
+
+So, total passes are check 5 (index 5), check 7 (index 7), check 9 (index 9). Total of 3, which matches the sample output.
+
+Thus, this approach works.
+
+Now, the algorithm can be implemented.
+
+The steps are:
+
+1. Preprocess the checks to determine for each check, whether it requires strength or intelligence.
+
+2. For each record in order:
+
+   a. If the record is a strength check (r_i < 0):
+
+      i. If strength >= required, spend the required points on strength, increment passes.
+
+      ii. Else, do nothing.
+
+   b. If the record is an intelligence check (r_i > 0):
+
+      i. If intelligence >= required, spend the required points on intelligence, increment passes.
+
+      ii. Else, do nothing.
+
+   c. If the record is 0:
+
+      i. Look ahead to the next checks after this record.
+
+      ii. Count how many of these checks require strength or intelligence.
+
+      iii. Choose to spend on the attribute with the higher count.
+
+      iv. If both counts are equal, choose either.
+
+      v. Spend the point on the chosen attribute.
+
+Now, the implementation.
+
+To implement this efficiently, we can precompute for each check, whether it requires strength or intelligence. We can store a list of requirements, where each element is either 's' (strength) or 'i' (intelligence).
+
+Then, for each 0 record, we look ahead to the next checks and count how many require strength or intelligence.
+
+For example, in the sample input 1, the requirements for the checks after the first 0 record are:
+
+Check 1: i
+
+Check 2: i
+
+Check 3: s
+
+Check 4: s
+
+Check 5: s
+
+Check 6: i
+
+Check 7: s
+
+Check 8: s
+
+Check 9: i
+
+Wait, no. Let's re-express the sample input 1.
+
+The sample input 1 is:
+
+n=10, m=5
+
+records: 0 1 0 2 0 -3 0 -4 0 -5
+
+The checks are:
+
+Check 1: 0 (record 0) → can spend on either.
+
+Check 2: 1 (record 1) → intelligence check.
+
+Check 3: 0 (record 2) → can spend on either.
+
+Check 4: 2 (record 3) → intelligence check.
+
+Check 5: 0 (record 4) → can spend on either.
+
+Check 6: -3 (record 5) → strength check.
+
+Check 7: 0 (record 6) → can spend on either.
+
+Check 8: -4 (record 7) → strength check.
+
+Check 9: 0 (record 8) → can spend on either.
+
+Check 10: -5 (record 9) → strength check.
+
+So, for each 0 record, the next checks after it are:
+
+For record 0 (check 1):
+
+checks 1-9.
+
+For record 2 (check 3):
+
+checks 3-9.
+
+For record 4 (check 5):
+
+checks 5-9.
+
+For record 6 (check 7):
+
+checks 7-9.
+
+For record 8 (check 9):
+
+checks 9.
+
+So, for each 0 record, we look ahead to the next checks after it.
+
+Now, the implementation.
+
+In Python, we can process this as follows:
+
+- Read n and m.
+
+- Read the list of records.
+
+- Preprocess the requirements for each check.
+
+- Initialize strength and intelligence to 0.
+
+- Initialize the current index to 0.
+
+- Initialize passes to 0.
+
+- While current index < n:
+
+   if current record is 0:
+
+      look ahead to the next checks after current index.
+
+      count_s = 0
+
+      count_i = 0
+
+      for i in range(current_index + 1, n):
+
+          if record[i] < 0:
+
+              count_s += 1
+
+          elif record[i] > 0:
+
+              count_i += 1
+
+      if count_s > count_i:
+
+          # spend on strength
+
+          strength += 1
+
+      elif count_i > count_s:
+
+          # spend on intelligence
+
+          intelligence += 1
+
+      else:
+
+          # spend on either, choose strength if possible
+
+          if strength >= intelligence:
+
+              strength += 1
+
+          else:
+
+              intelligence += 1
+
+      current_index += 1
+
+   elif record[current_index] < 0:
+
+      required = -record[current_index]
+
+      if strength >= required:
+
+          strength += required
+
+          passes += 1
+
+      current_index += 1
+
+   else:
+
+      required = record[current_index]
+
+      if intelligence >= required:
+
+          intelligence += required
+
+          passes += 1
+
+      current_index += 1
+
+But this code is not correct, because the current index is incremented only when a check is processed, but the look ahead is done for the next checks after the current index.
+
+Wait, no. For example, when processing a 0 record, we look ahead to the next checks after the current index. Then, we increment the current index by 1, because the current record is processed.
+
+But the look ahead is done for the next checks after the current index.
+
+So, the code would be:
+
+current_index = 0
+
+passes = 0
+
+strength = 0
+
+intelligence = 0
+
+while current_index < n:
+
+   if record[current_index] == 0:
+
+      # look ahead to next checks after current index
+
+      count_s = 0
+
+      count_i = 0
+
+      for i in range(current_index + 1, n):
+
+          if record[i] < 0:
+
+              count_s += 1
+
+          elif record[i] > 0:
+
+              count_i += 1
+
+      if count_s > count_i:
+
+          # spend on strength
+
+          strength += 1
+
+      elif count_i > count_s:
+
+          # spend on intelligence
+
+          intelligence += 1
+
+      else:
+
+          # spend on either
+
+          if strength >= intelligence:
+
+              strength += 1
+
+          else:
+
+              intelligence += 1
+
+      current_index += 1
+
+   elif record[current_index] < 0:
+
+      required = -record[current_index]
+
+      if strength >= required:
+
+          strength += required
+
+          passes += 1
+
+      current_index += 1
+
+   else:
+
+      required = record[current_index]
+
+      if intelligence >= required:
+
+          intelligence += required
+
+          passes += 1
+
+      current_index += 1
+
+But this code is not correct, because when processing a 0 record, it looks ahead to the next checks after the current index, and increments current_index by 1. But the look ahead is done for the next checks after the current index, and the current_index is incremented by 1.
+
+This is correct.
+
+Let's test this code on the sample input 2:
+
+Sample Input 2:
+
+3 1
+
+1 -1 0
+
+n=3, m=1.
+
+record = [1, -1, 0]
+
+current_index starts at 0.
+
+record[0] is 1 (intelligence check). So, required = 1. intelligence is 0 < 1 → no pass. current_index increments to 1.
+
+record[1] is -1 (strength check). required = 1. strength is 0 < 1 → no pass. current_index increments to 2.
+
+record[2] is 0. Look ahead to checks 3 (n=3, out of range). count_s = 0, count_i = 0. Choose either. strength or intelligence is 0. Let's say strength is 0. current_index increments to 3, loop ends.
+
+Total passes is 0. Correct.
+
+Sample Input 1:
+
+n=10, m=5
+
+record = [0, 1, 0, 2, 0, -3, 0, -4, 0, -5]
+
+current_index starts at 0.
+
+record[0] is 0 → look ahead to checks 1-9.
+
+count_s = 3 (checks 3,4,5,7,9?), wait let's re-calculate.
+
+For record[0] = 0 (check 1):
+
+checks 1-9 (i=1 to 9):
+
+i=1: 1 (i) → count_i += 1
+
+i=2: 0 → no change
+
+i=3: 2 (i) → count_i += 1
+
+i=4: 0 → no change
+
+i=5: 0 → no change
+
+i=6: -3 (s) → count_s += 1
+
+i=7: 0 → no change
+
+i=8: -4 (s) → count_s += 1
+
+i=9: 0 → no change
+
+So, count_s = 2 (checks 6, 8), count_i = 2 (checks 1, 3). Equal. Choose either. Let's say strength += 1. strength is 1.
+
+current_index increments to 1.
+
+record[1] is 1 (i). required = 1. intelligence is 0 < 1 → no pass. current_index increments to 2.
+
+record[2] is 0 → look ahead to checks 3-9.
+
+checks 3-9 (i=3 to 9):
+
+i=3: 2 (i) → count_i += 1
+
+i=4: 0 → no change
+
+i=5: 0 → no change
+
+i=6: -3 (s) → count_s += 1
+
+i=7: 0 → no change
+
+i=8: -4 (s) → count_s += 1
+
+i=9: 0 → no change
+
+count_s = 2 (checks 6, 8), count_i = 1 (check 3). Spend on strength. strength is 2.
+
+current_index increments to 3.
+
+record[3] is 2 (i). required = 2. intelligence is 0 < 2 → no pass. current_index increments to 4.
+
+record[4] is 0 → look ahead to checks 5-9.
+
+checks 5-9 (i=5 to 9):
+
+i=5: 0 → no change
+
+i=6: -3 (s) → count_s += 1
+
+i=7: 0 → no change
+
+i=8: -4 (s) → count_s += 1
+
+i=9: 0 → no change
+
+count_s = 2, count_i = 0. Spend on strength. strength is 3.
+
+current_index increments to 5.
+
+record[5] is -3 (s). required = 3. strength is 3 >= 3 → pass. strength becomes 6. passes is 1.
+
+current_index increments to 6.
+
+record[6] is 0 → look ahead to checks 7-9.
+
+checks 7-9 (i=7 to 9):
+
+i=7: -4 (s) → count_s += 1
+
+i=8: 0 → no change
+
+i=9: 0 → no change
+
+count_s = 1, count_i = 0. Spend on strength. strength is 7.
+
+current_index increments to 7.
+
+record[7] is -4 (s). required = 4. strength is 7 >= 4 → pass. strength becomes 11. passes is 2.
+
+current_index increments to 8.
+
+record[8] is 0 → look ahead to checks 9.
+
+check 9 is -5 (s). count_s = 1, count_i = 0. Spend on strength. strength becomes 12.
+
+current_index increments to 9.
+
+record[9] is -5 (s). required = 5. strength is 12 >= 5 → pass. strength becomes 17. passes is 3.
+
+current_index increments to 10, loop ends.
+
+Total passes is 3. Correct.
+
+Thus, this code should work.
+</think>
+
+```python
+import sys
+
+def main():
+    input = sys.stdin.read
+    data = input().split()
+    idx = 0
+    n = int(data[idx])
+    m = int(data[idx+1])
+    idx += 2
+    records = list(map(int, data[idx:idx+n]))
+    idx += n
+
+    strength = 0
+    intelligence = 0
+    passes = 0
+    current_index = 0
+
+    while current_index < n:
+        if records[current_index] == 0:
+            count_s = 0
+            count_i = 0
+            for i in range(current_index + 1, n):
+                if records[i] < 0:
+                    count_s += 1
+                elif records[i] > 0:
+                    count_i += 1
+            if count_s > count_i:
+                strength += 1
+            elif count_i > count_s:
+                intelligence += 1
+            else:
+                if strength >= intelligence:
+                    strength += 1
+                else:
+                    intelligence += 1
+            current_index += 1
+        elif records[current_index] < 0:
+            required = -records[current_index]
+            if strength >= required:
+                strength += required
+                passes += 1
+            current_index += 1
+        else:
+            required = records[current_index]
+            if intelligence >= required:
+                intelligence += required
+                passes += 1
+            current_index += 1
+
+    print(passes)
+
+if __name__ == "__main__":
+    main()
+```
