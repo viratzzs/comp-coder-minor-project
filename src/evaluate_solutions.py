@@ -28,7 +28,6 @@ def setup_logging(log_file: str = "outputs/evaluation.log"):
 def evaluate_solutions(
     dataset_name: str = "comp-coder-eval",
     output_dir: str = "outputs",
-    model_name: str = None,
     timeout: int = 5,
     start_idx: int = 0,
     end_idx: int = None,
@@ -39,22 +38,21 @@ def evaluate_solutions(
     Args:
         dataset_name: HuggingFace dataset name
         output_dir: Directory containing generated code
-        model_name: Model name to locate the specific output directory (optional)
         timeout: Timeout per test case in seconds
         start_idx: Starting sample index (inclusive)
         end_idx: Ending sample index (exclusive, None for all)
     """
+    # Initialize components
     logger.info("Initializing components...")
 
     dataset_handler = DatasetHandler(dataset_name=dataset_name)
     code_executor = CodeExecutor()
 
+    # Setup paths
     output_path = Path(output_dir)
-    if model_name:
-        model_dir_name = model_name.split("/")[-1]
-        output_path = output_path / model_dir_name
     code_dir = output_path / "generated_code"
 
+    # Get all generated code indices
     generated_indices = []
     if code_dir.exists():
         for filepath in code_dir.glob("sample_*.py"):
@@ -67,12 +65,13 @@ def evaluate_solutions(
 
     logger.info(f"Found {len(generated_indices)} generated solutions")
 
-    #total_samples = len(dataset_handler)
-    total_samples = 149
+    # Filter by range
+    total_samples = len(dataset_handler)
     if end_idx is None:
         end_idx = total_samples
     end_idx = min(end_idx, total_samples)
 
+    # Filter indices within range
     indices_to_evaluate = [
         idx for idx in generated_indices if start_idx <= idx < end_idx
     ]
@@ -81,6 +80,7 @@ def evaluate_solutions(
         f"Evaluating {len(indices_to_evaluate)} solutions in range [{start_idx}, {end_idx})"
     )
 
+    # Statistics
     stats = {
         "total_samples": len(indices_to_evaluate),
         "compiled": 0,
@@ -91,10 +91,13 @@ def evaluate_solutions(
         "passed_test_cases": 0,
     }
 
+    # Detailed results for each sample
     detailed_results = []
 
+    # Process each sample
     for idx in tqdm(indices_to_evaluate, desc="Evaluating solutions"):
         try:
+            # Load generated code
             code_file = code_dir / f"sample_{idx}.py"
             if not code_file.exists():
                 logger.warning(f"Sample {idx}: Code file not found, skipping")
@@ -102,11 +105,13 @@ def evaluate_solutions(
 
             code = code_file.read_text(encoding="utf-8")
 
+            # Get sample from dataset
             sample = dataset_handler.get_sample(idx)
             test_cases = sample["official_tests"]
 
             logger.info(f"Sample {idx}: Evaluating {len(test_cases)} test case(s)")
 
+            # Check syntax/compilation
             compiles, syntax_error = code_executor.check_syntax(code)
 
             if not compiles:
@@ -129,6 +134,7 @@ def evaluate_solutions(
             stats["compiled"] += 1
             logger.debug(f"Sample {idx}: Code compiled successfully")
 
+            # Run all test cases
             all_passed, passed_count, total_count, test_results = (
                 code_executor.evaluate_sample(
                     code=code,
@@ -149,6 +155,7 @@ def evaluate_solutions(
                     f"Sample {idx}: FAILED - passed {passed_count}/{total_count} test case(s)"
                 )
 
+            # Store detailed results
             detailed_results.append(
                 {
                     "sample_index": idx,
@@ -192,6 +199,7 @@ def evaluate_solutions(
         else 0
     )
 
+    # Log final statistics
     logger.info("=" * 80)
     logger.info("Evaluation complete!")
     logger.info("=" * 80)
@@ -207,6 +215,7 @@ def evaluate_solutions(
     logger.info(f"pass@1: {pass_at_1:.2f}%")
     logger.info("=" * 80)
 
+    # Prepare results
     results = {
         "metrics": {
             "compile@1": compile_at_1,
@@ -216,13 +225,14 @@ def evaluate_solutions(
         "detailed_results": detailed_results,
     }
 
-    # Save results in model-specific directory
-    results_file = output_path / "evaluation_results.json"
+    # Save results
+    results_file = Path(output_dir) / "evaluation_results.json"
     with open(results_file, "w") as f:
         json.dump(results, f, indent=2)
     logger.info(f"Results saved to: {results_file}")
 
-    summary_file = output_path / "evaluation_summary.txt"
+    # Also save a summary file
+    summary_file = Path(output_dir) / "evaluation_summary.txt"
     with open(summary_file, "w") as f:
         f.write("=" * 80 + "\n")
         f.write("EVALUATION SUMMARY\n")
@@ -253,7 +263,7 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="ViratChauhan/comp-coder-eval",
+        default="comp-coder-eval",
         help="HuggingFace dataset name",
     )
 
@@ -262,13 +272,6 @@ def main():
         type=str,
         default="outputs",
         help="Directory containing generated code",
-    )
-
-    parser.add_argument(
-        "--model",
-        type=str,
-        default="Qwen/Qwen3-1.7B",
-        help="Model name to locate the specific output directory (optional)",
     )
 
     parser.add_argument(
@@ -295,29 +298,24 @@ def main():
     parser.add_argument(
         "--log-file",
         type=str,
-        default=None,
-        help="Path to log file (optional, defaults to model-specific directory)",
+        default="outputs/evaluation.log",
+        help="Path to log file",
     )
 
     args = parser.parse_args()
 
-    # Setup logging in model-specific directory
-    if args.log_file:
-        log_file = args.log_file
-    else:
-        model_dir_name = args.model.split("/")[-1] if args.model else "default"
-        log_file = f"{args.output_dir}/{model_dir_name}/evaluation.log"
-    
-    setup_logging(log_file)
+    # Setup logging
+    setup_logging(args.log_file)
 
+    # Log arguments
     logger.info("Arguments:")
     for arg, value in vars(args).items():
         logger.info(f"  {arg}: {value}")
 
+    # Evaluate solutions
     evaluate_solutions(
         dataset_name=args.dataset,
         output_dir=args.output_dir,
-        model_name=args.model,
         timeout=args.timeout,
         start_idx=args.start_idx,
         end_idx=args.end_idx,
