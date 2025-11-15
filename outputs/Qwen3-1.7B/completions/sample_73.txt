@@ -1,0 +1,343 @@
+<think>
+Okay, let's see. I need to solve this problem where I have to process each row of a beatmap and determine the column for each note. The problem says that the rows are processed from bottom to top, so the first row processed is the bottommost, and the last is the topmost. Each row has exactly one '#', and for each note (from 1 to n), I have to output the column it's in.
+
+Hmm. Let's think about the input. For each test case, there are n rows. Each row is 4 characters. The i-th line (from top) is the i-th row. But when processing, we start from the bottom. So the first row we process is the bottommost, which is the nth row from the top. Wait, no. Wait, the problem says that the i-th line represents the i-th row from the top. So for example, if n is 4, the first line is the top row, then the second, third, fourth are bottom. So when processing, the first note (i=1) is the bottommost row (the fourth line), then the next is third, then second, then first.
+
+So for each test case, I need to read n lines. Then, for each row, process them in reverse order (from bottom to top). For each row, find the column where the '#' is. Then, collect those columns in the order of processing (from bottom to top), and output them as space-separated integers.
+
+So the steps are:
+
+For each test case:
+- Read n.
+- Read n lines, each line is 4 characters.
+- For each row in reverse order (i from n down to 1), find the column where the '#' is.
+- Collect those columns in a list, then output them as space-separated.
+
+But how to find the column? For each row, we can check each character. Since exactly one is '#', we can loop through the 4 characters and find the index where it is '#'.
+
+So for example, in the first sample input:
+
+Test case 1:
+4
+#...
+.#..
+..#.
+...#
+
+The rows are:
+Row 1 (top): #... → columns 0, 1, 2, 3? Wait, the input is 4 characters. Let's think of each row as a string of 4 characters. For example, the first row (top) is "#...", which is 4 characters. So the first row is row 1 (top), then row 2 is .#.., etc.
+
+But when processing, we start from the bottom. So for n=4, the rows are processed in order 4, 3, 2, 1. So for the first row processed (row 4), which is the bottom row. Let's look at the sample input:
+
+Row 4 (bottom) is ...# → the '#' is in column 3 (since indexes are 0-based? Or 1-based? Wait, the problem says that for each note 1, 2, ...n, output the column. So the output is 1-based? Because in the first example, the output is 4 3 2 1. Let's see:
+
+Sample input for first test case:
+
+The rows are:
+
+Row 1 (top): #... → the '#' is in column 0 (if 0-based) or column 1? Wait, the first row is "#...", so the first character is '#', then three '.'s. So the '#' is in column 0 (if columns are 0-based). But the output for the first test case is 4 3 2 1. Let's see:
+
+The first row processed is the bottom row (row 4 in the input). The fourth line is ...# → the '#' is in column 3 (0-based). So the output for that row is 4 (since columns are 1-based). So the output for that row is 4. Then the next row processed is row 3 (third line in input), which is .#.. → the '#' is in column 1. So output is 3. Then row 2 is .#.. → no, wait, the third line is the third row from the top. Wait, the input for the first test case is:
+
+n=4
+
+Then the four lines are:
+
+Line 1: #... → top row.
+
+Line 2: .#.. → second row.
+
+Line 3: ..#.
+
+Line 4: ...# → bottom row.
+
+So when processing in reverse order (from bottom to top), the first row processed is line 4 (the bottom row), which is ...#. So the '#' is in column 3 (0-based) → output 4.
+
+Then line 3 (third row from top, which is the third line in input) is ..#. So the '#' is in column 2 (0-based) → output 3.
+
+Then line 2 (second row from top) is .#.. → the '#' is in column 1 → output 2.
+
+Then line 1 (top row) is #... → the '#' is in column 0 → output 1.
+
+So the output is 4 3 2 1, which matches the sample.
+
+So the problem is to process each row in reverse order (from bottom to top), find the column of the '#', and output the 1-based index.
+
+So the plan is:
+
+For each test case:
+
+Read n.
+
+Read n lines, each line is 4 characters.
+
+Then, for each row in reverse order (i from n down to 1), find the column where the '#' is.
+
+Collect those columns in a list, then output them space-separated.
+
+So, in Python, for each test case, we can read the n lines, then process them in reverse order.
+
+But how to read the lines? Let's think.
+
+In Python, for each test case, after reading n, read n lines. For example, for the first test case, the lines are:
+
+line1 = "#...", line2 = ".#..", line3 = "..#.", line4 = "...#".
+
+Then, process them in order line4, line3, line2, line1.
+
+For each line, check each character. For example, for line in reversed(lines):
+
+So, for each line in reversed(lines):
+
+for i in range(n-1, -1, -1):
+
+Wait, for the lines list, if we read them as a list, then reversed(lines) would process them in reverse order.
+
+So, for each line in reversed(lines), we can check for the '#' and get the column.
+
+So, for each line in reversed(lines):
+
+for each character in the line:
+
+if it's '#', then the column is index + 1 (since the output is 1-based).
+
+So, for example, for line in reversed(lines):
+
+for idx in range(4):
+
+if line[idx] == '#', then output idx+1.
+
+So, the code steps:
+
+Read t.
+
+for each t times:
+
+read n.
+
+read n lines, store as a list.
+
+then, for each line in reversed(lines):
+
+find the index of '#', then output idx+1.
+
+But how to do this efficiently?
+
+In Python, for each line, we can loop through the 4 characters. For example:
+
+for line in reversed(lines):
+
+    for i in range(4):
+
+        if line[i] == '#':
+
+            print(i+1, end=' ')
+
+            break
+
+But since the problem says that exactly one '#' is present in each line, so we can break once found.
+
+So, for each line, the code would be:
+
+col = 0
+
+for i in range(4):
+
+    if line[i] == '#':
+
+        col = i+1
+
+        break
+
+then add col to the list.
+
+But for each line, we can do this.
+
+So, in code:
+
+for each test case:
+
+    n = int(input())
+
+    lines = [input().strip() for _ in range(n)]
+
+    result = []
+
+    for line in reversed(lines):
+
+        for i in range(4):
+
+            if line[i] == '#':
+
+                result.append(str(i+1))
+
+                break
+
+    print(' '.join(result))
+
+But wait, the problem says that the output for each test case is n integers on a new line. So for each test case, after processing, we print the list as space-separated.
+
+Yes.
+
+Testing the sample input:
+
+First test case:
+
+n=4, lines are:
+
+line1: #... → line is "#...", which is the first line (top) in input.
+
+lines list is ['#...', '.#..', '..#.', '...#']
+
+reversed(lines) is ['...#', '..#.', '.#..', '#...']
+
+Processing each line:
+
+First line is '...#', which is the bottom row. The '#' is at index 3 → 4.
+
+Second line is '..#.' → index 2 → 3.
+
+Third line is '.#..' → index 1 → 2.
+
+Fourth line is '#...' → index 0 → 1.
+
+So the result list is [4,3,2,1], which is printed as 4 3 2 1.
+
+Which matches the sample.
+
+Second test case:
+
+n=2
+
+lines are:
+
+.#.. → first line (top)
+
+.#.. → second line (bottom)
+
+reversed(lines) is ['.#..', '.#..'].
+
+Processing first line (second line in input, which is the bottom row). The line is .#.. → the '#' is at index 1 → 2.
+
+Second line is .#.. → same as first. So output is 2 2.
+
+Which matches the sample.
+
+Third test case:
+
+n=1
+
+line is ...# → the '#' is at index 3 → 4. So output is 4.
+
+Which matches the sample.
+
+So the code seems to work.
+
+But what about the time constraints?
+
+For each test case, for each line, we process 4 characters. For n up to 500, and sum of n over all test cases is 500. So total operations are 500 * 4 = 2000 per test case. Which is acceptable.
+
+Memory-wise, each test case's lines are stored as a list of strings. For 500 test cases, each with 500 lines, but the sum of n is 500. So the total memory is acceptable.
+
+So the code should be correct.
+
+Now, implement this in Python.
+
+But need to read t test cases.
+
+So the code would be:
+
+Read t.
+
+for each test case:
+
+read n.
+
+read n lines.
+
+process as above.
+
+Now, in Python, the code would be:
+
+t = int(input())
+
+for _ in range(t):
+
+    n = int(input())
+
+    lines = [input().strip() for _ in range(n)]
+
+    res = []
+
+    for line in reversed(lines):
+
+        for i in range(4):
+
+            if line[i] == '#':
+
+                res.append(str(i+1))
+
+                break
+
+    print(' '.join(res))
+
+But wait, what about leading or trailing spaces? For example, the output for each test case is n integers separated by space. The ' '.join(res) would produce that.
+
+Yes.
+
+Testing the sample input.
+
+Sample input:
+
+3
+
+4
+
+#...
+
+.#..
+
+..#.
+
+...#
+
+2
+
+.#..
+
+.#..
+
+1
+
+...#
+
+The first test case's output is 4 3 2 1.
+
+Second test case's output is 2 2.
+
+Third test case's output is 4.
+
+Which matches the sample.
+
+So this code should work.
+
+But wait, in the third test case, the line is ...#, which is 4 characters. So the code would process it as line[3] is '#', so i+1 is 4. So yes.
+
+Yes.
+
+So the code is correct.
+</think>
+
+```python
+t = int(input())
+for _ in range(t):
+    n = int(input())
+    lines = [input().strip() for _ in range(n)]
+    result = []
+    for line in reversed(lines):
+        for i in range(4):
+            if line[i] == '#':
+                result.append(str(i + 1))
+                break
+    print(' '.join(result))
+```

@@ -1,0 +1,950 @@
+<think>
+Okay, let's tackle this problem. Hmm, the problem says we have n chests with a_i coins each. We can add any non-negative coins to each chest. The goal is to make sure that when Monocarp takes the chests greedily (choosing the max each time until the sum is at least k), he ends up with exactly k coins. And we need to find the minimum coins to add to achieve this.
+
+So first, let's understand what Monocarp's process does. He takes the chest with the maximum coins first, then the next max, etc., until the sum of his taken chests is >=k. The sum he takes must exactly be k. So the total coins after all additions must be such that when you take the maxes in order, the sum is exactly k.
+
+Wait, but how does the sum work? Let's think. Suppose the coins after adding are x_1, x_2, ..., x_n. Monocarp takes x_1, then x_2, etc., until the sum of the first m x_i's is >=k. Then he stops. So the sum of the first m x_i's must be exactly k. So the sum of the first m elements must be k, and the sum of the first m-1 elements must be less than k.
+
+But how do we model this? Because the order of taking is determined by the values. So the first m elements must sum to k, but the sum of the first m-1 elements must be less than k. Wait, no. Because Monocarp stops when the sum is >=k. So the sum of the first m elements is >=k, but the sum of the first m-1 elements is less than k. So the sum of the first m elements is exactly k, because if it's more, then he would have taken more. Wait, no. Let's think again. Suppose the sum of the first m elements is exactly k. Then he stops. If it's more than k, then he would take the first m elements, which sum to more than k. But the problem says that he stops when the sum is >=k. So he would stop at the first m elements, but the sum is exactly k. So the total coins after all additions must be such that when you take the max elements in order, the sum of the first m elements is exactly k.
+
+So the key is that the sum of the first m elements is exactly k. So the sum of the first m elements is k. And the sum of the first m-1 elements is less than k. Because otherwise, if the sum of the first m-1 elements is >=k, then Monocarp would have already stopped after m-1 elements, but that sum is >=k. So the sum of the first m elements must be exactly k.
+
+So the problem reduces to: find the minimal coins to add such that when you sort the x_i's in non-decreasing order, the sum of the first m elements is exactly k, and the sum of the first m-1 elements is less than k.
+
+Wait, no. Because Monocarp takes the first chest with max coins, then the next max, etc. So the order in which he takes the chests is determined by their x_i's. So the order is sorted in descending order. So the first element is the maximum, then the next max, etc. So the sum of the first m elements in the sorted list (descending) is exactly k.
+
+So the problem is to find the minimal coins to add to the initial a_i's such that when you sort the x_i's in descending order, the sum of the first m elements is exactly k, and the sum of the first m-1 elements is less than k.
+
+So how to approach this?
+
+Let me think about the steps. For each test case, the steps are:
+
+1. Compute the current sum of coins in all chests. Let's say it's S. We can add coins to make the sum S + added_coins = total. But how does that relate to the problem? Because the sum of the first m elements in the sorted list must be exactly k. So the total coins must be >=k, but we need to adjust the coins such that the sum of the first m elements is exactly k.
+
+But the problem says that the coins added must be such that when Monocarp stops, he has exactly k coins. So the sum of all coins must be exactly k, but that's impossible unless all coins are zero. Wait, no. Wait, the sum of all coins is S + added_coins. Monocarp takes some of them, but the sum of his taken coins is exactly k. So the total coins must be >=k, and the sum of the first m elements (sorted descending) is exactly k. So the total coins must be >=k, but the sum of the first m elements is exactly k. So the total coins must be exactly k plus the sum of the coins added to the remaining chests (those not taken in the first m elements). But this seems complicated.
+
+Alternatively, perhaps the total coins is exactly k. Because if the total coins is exactly k, then Monocarp takes all of them, and the sum is exactly k. So in that case, the answer is zero. But in other cases, maybe the total coins is larger than k, but the sum of the first m elements is exactly k. So the problem is to find the minimal added coins such that when you sort the x_i's in descending order, the sum of the first m elements is exactly k, and the sum of the first m-1 elements is less than k.
+
+But how to model this for the given problem.
+
+Let me think about the possible scenarios. Let's say that after adding coins, the sorted list of x_i's (descending) is [x1, x2, ..., xn]. We need that the sum of the first m elements is exactly k, and the sum of the first m-1 elements is less than k. So m can be from 1 to n. For example, if m=1, then x1 must be exactly k. But since the initial a_i's are all at least 1 (since 1<=a_i<=k), then adding coins to x1 could make it k. But then, the sum of the first m-1 elements (which is zero) is less than k, so that's okay.
+
+So the problem is to find the minimal coins to add to the x_i's so that there exists some m (1<=m<=n) such that the sum of the first m elements is exactly k, and the sum of the first m-1 elements is less than k. And the total coins is sum(x_i) = sum(added_coins) + sum(initial a_i's).
+
+But how to find the minimal added coins?
+
+Hmm. Let's think about the possible m. For each possible m (from 1 to n), we can compute the minimal coins required to have the sum of the first m elements be exactly k. Then take the minimum over all possible m.
+
+But how to compute the minimal coins for each m.
+
+Let's take m as a parameter. For a given m, we need the sum of the first m elements (after adding coins) to be exactly k. And the sum of the first m-1 elements must be less than k.
+
+So for each m, we can model the problem as follows:
+
+We need the sum of the first m elements in the sorted list (descending) to be exactly k. The sum of the first m-1 elements must be less than k. Also, the sum of all elements must be >=k (since the sum of the first m elements is exactly k, which is the sum of the first m elements, which is part of the total coins).
+
+But how to model the minimal coins added to achieve this.
+
+Alternatively, for each possible m (1<=m<=n), we can find the minimal coins required to have the sum of the first m elements (after adding) be exactly k, and the sum of the first m-1 elements (after adding) be less than k.
+
+Then take the minimal of all those.
+
+But how?
+
+Let's think for a given m. Let's sort the initial a_i's in descending order. Let's call them a1 >= a2 >= ... >= an.
+
+We need to add coins to the elements such that the sum of the first m elements (after adding) is exactly k. The sum of the first m-1 elements (after adding) must be less than k.
+
+So for each element in the first m elements, we can add some coins to make their sum exactly k.
+
+But how to model this. For example, suppose we have the first m elements. Their initial sum is S. We need to add coins to these elements so that their sum is exactly k. So the minimal coins added to these elements is max(0, k - S). Because if S >=k, then no coins are needed. But if S <k, then we need to add coins to reach exactly k.
+
+Wait, but the coins added must be non-negative. So if S <k, then the minimal coins added to these elements is max(0, k - S). But once we add these coins, the sum of the first m elements becomes exactly k. However, the sum of the first m-1 elements (after adding) must be less than k. So even if we add coins to the first m elements, the sum of the first m-1 elements (after adding) must be less than k.
+
+But how to ensure that? Because the first m elements are the first m elements in the sorted list. So the first m-1 elements are the first m-1 elements in the sorted list. So when we add coins to the first m elements, the sum of the first m-1 elements (which are the first m-1 elements in the sorted list) may have their sum increased by some coins added to them. Wait, but the coins added can be distributed to any elements, not just the first m elements.
+
+Ah, here's the problem. The coins added can be distributed to any elements, not just the first m elements. So for example, if we add coins to the first m elements, their sum increases. But the sum of the first m-1 elements may also increase if we add coins to them.
+
+Wait, but the first m elements are the first m elements in the sorted list. So the first m elements in the sorted list are the m elements with the highest coins. So the first m-1 elements in the sorted list are the m-1 elements with the highest coins. So the sum of the first m-1 elements is the sum of the m-1 largest elements.
+
+So when we add coins to the first m elements, their sum increases. However, the sum of the first m-1 elements may also increase if we add coins to them. So the problem is to find a way to add coins to the elements such that:
+
+sum of the first m elements (after adding) = k
+
+sum of the first m-1 elements (after adding) <k
+
+But how to model this. Because the coins added can be distributed to any elements.
+
+So perhaps the way to minimize the coins added is to add as much as possible to the elements that can contribute the most to the sum. For example, adding coins to the first m elements (the ones that are in the first m positions) will increase the sum of the first m elements. But adding coins to other elements may not help. But how to ensure that the sum of the first m-1 elements is less than k.
+
+Alternatively, perhaps the minimal coins added can be found by considering the following:
+
+For each possible m (from 1 to n), we can compute the minimal coins added to make the sum of the first m elements exactly k, and the sum of the first m-1 elements less than k. Then the minimal of these across all m is the answer.
+
+But how to compute this.
+
+Let's take m=1. Then the first m elements is the first element. The sum of the first m elements is exactly k. So the initial a1 must be <=k. If a1 is already k, then no coins added. If a1 is less than k, then we need to add (k - a1) coins to a1. But then, the sum of the first m-1 elements (which is zero) is less than k, so it's okay. So for m=1, the answer is max(0, k - a1). But wait, no. Because the coins added can be distributed to any elements. So if a1 is less than k, but we add coins to a1, then the sum of the first m elements is exactly k. The sum of the first m-1 elements is zero, which is less than k. So that's acceptable. So for m=1, the minimal coins added is max(0, k - a1). Because if a1 is already k, then no coins added. If a1 <k, then we need to add (k -a1) coins to a1.
+
+But then, what about the sum of the first m-1 elements (zero) is less than k. So yes. So for m=1, the answer is max(0, k -a1).
+
+Similarly, for m=2, we need the sum of the first two elements (after adding) to be exactly k. The sum of the first one must be less than k. So the sum of the first one (after adding) is less than k, and the sum of the first two is exactly k.
+
+So for the first element, after adding some coins, its value must be <= (k - sum of the first one after adding). Wait, no. Let me think.
+
+The first element's value after adding is x1. The second element's value after adding is x2. We need x1 + x2 = k. And x1 must be >=x2. Because the sorted list is in descending order.
+
+So the minimal coins added is the sum of coins added to x1 and x2 to make x1 + x2 =k, with x1 >=x2.
+
+So for x1 and x2, the minimal coins added is max(0, k -x1) + max(0, x1 -x2) ?
+
+No, that's not right. Because x1 and x2 are after adding coins. So x1 can be any value >=x2. So to make x1 +x2 =k, the minimal coins added would be to make x1 as small as possible (since adding coins to x1 increases x1, but x2 is fixed as the remaining coins). Wait, no. Because the coins added can be distributed to any elements. So perhaps the minimal coins added is (k - (sum of the first m elements in the original a_i's)), but that's not correct.
+
+Alternatively, for the first m elements (sorted descending), the sum after adding is exactly k. The sum before adding is S. So the coins added is (k - S). But the sum of the first m-1 elements must be less than k. How can that be achieved?
+
+Because the first m-1 elements are the first m-1 elements in the sorted list. So their sum after adding is S', which must be less than k. But the coins added can be distributed to any elements, not just the first m elements. So if we add coins to the first m elements, their sum increases, but the sum of the first m-1 elements may also increase if we add coins to them.
+
+So the sum of the first m-1 elements after adding is S' = sum_{i=1}^{m-1} (a_i + added_i), where added_i is the coins added to the i-th element. We need S' <k.
+
+But how can we ensure that S' <k when we add coins to the first m elements? Well, since the coins added can be distributed to any elements, including the first m-1 elements. So the minimal coins added is the minimal coins needed to make the sum of the first m elements exactly k, and the sum of the first m-1 elements less than k.
+
+But how to compute this.
+
+Hmm. This seems complicated. Let's think of it as follows:
+
+For each m, the minimal coins added to the first m elements to make their sum exactly k, and the sum of the first m-1 elements less than k. Then the minimal coins added for this m is the sum of coins added to the first m elements, which is (k - S), where S is the sum of the first m elements before adding. But then, how to ensure that the sum of the first m-1 elements is less than k.
+
+Wait, but the sum of the first m-1 elements after adding can be anything as long as it's less than k. So the coins added to the first m-1 elements can be zero, as long as the coins added to the first m elements is (k - sum of first m elements before adding).
+
+Wait, no. Because the coins added can be distributed between the first m elements and the first m-1 elements. So for example, if we add all the coins to the first m elements, then the sum of the first m-1 elements is the original sum of the first m-1 elements, and the coins added to the first m elements is (k - sum of first m elements before adding). So in this case, the sum of the first m-1 elements after adding is sum of first m-1 elements before adding, which may be less than k or not.
+
+So the problem is that when we add coins to the first m elements, the sum of the first m-1 elements may be less than k or not. So how to ensure that the sum of the first m-1 elements is less than k.
+
+Ah! Because the coins added to the first m elements must be such that the sum of the first m elements is exactly k, and the sum of the first m-1 elements is less than k. So when you add coins to the first m elements, you can choose how much to add to each element, but the total added coins to the first m elements must be (k - sum_first_m_original), and the sum of the first m-1 elements after adding must be less than k.
+
+But how to model this.
+
+Alternatively, for the first m elements, after adding coins, their sum is exactly k. The sum of the first m-1 elements after adding is S' = sum_first_m_elements_original + added_coins_first_m_minus_1. We need S' <k.
+
+So the sum of the first m-1 elements after adding is sum_first_m_elements_original + added_coins_first_m_minus_1.
+
+But added_coins_first_m_minus_1 is the sum of coins added to the first m-1 elements. Since the coins added to the first m elements is (k - sum_first_m_original), then the coins added to the first m-1 elements is (k - sum_first_m_original) - added_coins_first_m.
+
+But that's not helpful.
+
+Alternatively, the coins added to the first m elements must be exactly (k - sum_first_m_original). Let's call this value D. So D = k - sum_first_m_original.
+
+Then, the sum of the first m-1 elements after adding is sum_first_m_original_minus_1 + added_coins_first_m_minus_1.
+
+We need sum_first_m_original_minus_1 + added_coins_first_m_minus_1 <k.
+
+But added_coins_first_m_minus_1 can be any non-negative value, because the coins added to the first m-1 elements can be any amount. But the sum of added_coins_first_m_minus_1 is the total coins added to the first m-1 elements. Since the coins added to the first m elements is D, the coins added to the first m-1 elements can be any value such that added_coins_first_m_minus_1 + added_coins_first_m = D. Because the coins added to the first m elements is D.
+
+So the sum of the first m-1 elements after adding is sum_first_m_original_minus_1 + added_coins_first_m_minus_1.
+
+We need this to be <k.
+
+So the maximum possible added_coins_first_m_minus_1 is D, but we need sum_first_m_original_minus_1 + added_coins_first_m_minus_1 <k.
+
+So the maximum added_coins_first_m_minus_1 is min(D, k-1 - sum_first_m_original_minus_1).
+
+Wait, because added_coins_first_m_minus_1 can be up to D, but also up to (k-1 - sum_first_m_original_minus_1), because sum_first_m_original_minus_1 + added_coins_first_m_minus_1 <k => added_coins_first_m_minus_1 <k - sum_first_m_original_minus_1.
+
+So the maximum added_coins_first_m_minus_1 is min(D, k - sum_first_m_original_minus_1 -1).
+
+But since D is k - sum_first_m_original, which is the total coins added to the first m elements, then the coins added to the first m-1 elements is D - added_coins_first_m, which is the coins added to the first m elements minus the coins added to the first m-1 elements. Wait, no. Because the coins added to the first m elements is D. So the coins added to the first m-1 elements is the coins added to them, which is some value x. Then the coins added to the m-th element is D -x.
+
+But the sum_first_m_original_minus_1 + x <k.
+
+So x <k - sum_first_m_original_minus_1.
+
+But x is the coins added to the first m-1 elements. Since the coins added can be any non-negative value, but the coins added to the first m elements is D =k - sum_first_m_original.
+
+So the maximum x is min(D, k - sum_first_m_original_minus_1 -1).
+
+But since x is the coins added to the first m-1 elements, and added_coins_first_m_minus_1 can be anything up to D, but the sum_first_m_original_minus_1 + x <k.
+
+So for this m, the minimal coins added is D (the coins added to the first m elements) plus the coins added to the first m-1 elements, which is x. But x is the coins added to the first m-1 elements, and we can choose x to be as small as possible to minimize the total added coins.
+
+Wait, but we want to minimize the total coins added. So for a given m, the total coins added is D (coins added to the first m elements) plus the coins added to the first m-1 elements (x). But since D is fixed, to minimize the total coins added, we need to minimize x.
+
+But x must be >=0, and sum_first_m_original_minus_1 +x <k.
+
+So the maximum x is min(D, k - sum_first_m_original_minus_1 -1). So the minimal x is 0, but that requires that sum_first_m_original_minus_1 <k. Which is possible if sum_first_m_original_minus_1 <k.
+
+So for this m, the minimal coins added is D + max(0, k - sum_first_m_original_minus_1 -1).
+
+Wait, no. Because if sum_first_m_original_minus_1 <k, then x can be zero, so the total coins added is D (since x=0).
+
+But D is k - sum_first_m_original, and x=0. So the total coins added is D.
+
+But then, the sum of the first m elements after adding is exactly k. And the sum of the first m-1 elements after adding is sum_first_m_original_minus_1 +0 = sum_first_m_original_minus_1 <k.
+
+So that's acceptable.
+
+So for this m, the minimal coins added is D, which is k - sum_first_m_original.
+
+But this is only possible if sum_first_m_original_minus_1 <k.
+
+Wait, sum_first_m_original_minus_1 is the sum of the first m-1 elements before adding. If that sum is already less than k, then yes. But if it's >=k, then we need to add coins to the first m-1 elements to make their sum <k.
+
+So for a given m, the minimal coins added is:
+
+if sum_first_m_original_minus_1 <k: then D =k - sum_first_m_original, and the coins added is D.
+
+else: then we need to add coins to the first m-1 elements to make their sum <k, and the coins added to the first m elements is D =k - sum_first_m_original.
+
+But in this case, the sum_first_m_original_minus_1 >=k. So the coins added to the first m-1 elements is (k - sum_first_m_original_minus_1) - (some value).
+
+Wait, this is getting complicated. Let's think of it this way:
+
+For a given m, the minimal coins added is the sum of coins needed to make the sum of the first m elements exactly k, and the sum of the first m-1 elements <k.
+
+So for the first m elements, after adding coins, their sum is k. The sum of the first m-1 elements after adding is less than k.
+
+So the minimal coins added is the sum of coins needed to make the sum of the first m elements exactly k, and the sum of the first m-1 elements less than k.
+
+So the coins added to the first m elements is D =k - sum_first_m_original.
+
+But the sum of the first m-1 elements after adding must be less than k. So the coins added to the first m-1 elements is x, which must be such that sum_first_m_original_minus_1 + x <k.
+
+But x can be any value between 0 and D (since the total coins added to the first m elements is D, and x is part of that).
+
+So the minimal x is 0 (if sum_first_m_original_minus_1 <k), or (k - sum_first_m_original_minus_1 -1) if sum_first_m_original_minus_1 >=k.
+
+So for a given m:
+
+if sum_first_m_original_minus_1 <k:
+
+   coins added = D =k - sum_first_m_original
+
+else:
+
+   coins added = D + (k - sum_first_m_original_minus_1 -1)
+
+But wait, D is k - sum_first_m_original. So if sum_first_m_original_minus_1 >=k, then D =k - sum_first_m_original. But sum_first_m_original_minus_1 >=k, so sum_first_m_original_minus_1 >=k. Then D =k - sum_first_m_original. But sum_first_m_original_minus_1 >=k, so D could be negative. But D is k - sum_first_m_original. Since sum_first_m_original is the sum of the first m elements before adding, and the sum of the first m elements after adding is k. So sum_first_m_original + added_coins_first_m =k => added_coins_first_m =k - sum_first_m_original.
+
+But sum_first_m_original is the sum of the first m elements before adding. So if sum_first_m_original is already >=k, then added_coins_first_m is negative, which is impossible. So that's not possible. Therefore, for this m, sum_first_m_original must be <=k.
+
+Wait, but sum_first_m_original is the sum of the first m elements before adding. So if sum_first_m_original is already >=k, then adding coins to the first m elements would not help, but the sum of the first m elements after adding is k. So that's only possible if sum_first_m_original is exactly k. Because if sum_first_m_original is larger than k, then adding coins to the first m elements would make it larger than k. So that's not possible.
+
+Wait, no. Because the coins added to the first m elements can be negative. But the problem says that we can add any non-negative number of coins. So the coins added to the first m elements must be non-negative. So sum_first_m_original + added_coins_first_m >= sum_first_m_original >=0.
+
+So if sum_first_m_original >=k, then added_coins_first_m can be zero. So sum_first_m_original + added_coins_first_m = sum_first_m_original >=k. But the sum of the first m elements after adding must be exactly k. So this is only possible if sum_first_m_original =k.
+
+Thus, for a given m, sum_first_m_original must be <=k. Because otherwise, adding coins to the first m elements would not make their sum exactly k.
+
+So for a given m, the sum_first_m_original must be <=k.
+
+So the steps for each m are:
+
+1. Compute sum_first_m_original = sum of the first m elements in the sorted list (descending).
+2. If sum_first_m_original <k:
+   a. added_coins = k - sum_first_m_original
+   b. check if sum_first_m_original_minus_1 <k. If yes, then this m is valid, and the added_coins is added_coins.
+   c. If sum_first_m_original_minus_1 >=k, then we need to add coins to the first m-1 elements. The coins added to the first m-1 elements is (k - sum_first_m_original_minus_1 -1). But this is only possible if sum_first_m_original_minus_1 + added_coins_first_m_minus_1 <k. So the total added coins is added_coins_first_m (k - sum_first_m_original) + added_coins_first_m_minus_1.
+
+But how to compute this?
+
+Let me think again. For the first m elements, the sum after adding is k. The sum of the first m-1 elements after adding must be less than k.
+
+So the coins added to the first m-1 elements can be any value between 0 and D, where D =k - sum_first_m_original.
+
+But sum_first_m_original_minus_1 + x <k, where x is the coins added to the first m-1 elements. So x <k - sum_first_m_original_minus_1.
+
+But x can be up to D (since the coins added to the first m elements is D =k - sum_first_m_original). So the maximum x is min(D, k - sum_first_m_original_minus_1 -1).
+
+But since x is the coins added to the first m-1 elements, the total coins added is D + x.
+
+So for this m, the minimal coins added is D + max(0, k - sum_first_m_original_minus_1 -1).
+
+But D is k - sum_first_m_original. So this becomes:
+
+if sum_first_m_original_minus_1 <k:
+
+   coins = (k - sum_first_m_original) + max(0, k - sum_first_m_original_minus_1 -1)
+
+But sum_first_m_original_minus_1 <k is true. So the max is max(0, k - sum_first_m_original_minus_1 -1) = max(0, (k - sum_first_m_original_minus_1 -1)).
+
+Wait, but if sum_first_m_original_minus_1 is less than k, then k - sum_first_m_original_minus_1 -1 could be negative or positive. For example, if sum_first_m_original_minus_1 is k-2, then k - sum_first_m_original_minus_1 -1 = 2 -1 =1, which is positive. So the coins added to the first m-1 elements is 1, which is added to the first m-1 elements.
+
+But wait, the coins added to the first m-1 elements is x. So the total coins added is D + x.
+
+But D is k - sum_first_m_original.
+
+So for the first m elements, the coins added is D + x.
+
+But D is k - sum_first_m_original.
+
+So the total coins added is k - sum_first_m_original + x.
+
+But x is the coins added to the first m-1 elements, which can be as small as 0.
+
+Wait, no. Because in this case, sum_first_m_original_minus_1 <k. So x can be 0, making the total coins added D + 0 =k - sum_first_m_original.
+
+Which is exactly the coins needed to make the sum of the first m elements exactly k.
+
+So the minimal coins added is D =k - sum_first_m_original.
+
+So for this m, the coins added is D.
+
+But this is only possible if sum_first_m_original_minus_1 <k.
+
+But how to check that?
+
+So the steps for each m are:
+
+Compute sum_first_m_original = sum of the first m elements in the sorted list.
+
+If sum_first_m_original >=k:
+
+   then it's impossible to have the sum of the first m elements be exactly k. So this m is not valid.
+
+Else:
+
+   compute sum_first_m_original_minus_1 = sum of the first m-1 elements in the sorted list.
+
+   if sum_first_m_original_minus_1 <k:
+
+       then the coins added is k - sum_first_m_original.
+
+   else:
+
+       then the coins added is (k - sum_first_m_original) + (k - sum_first_m_original_minus_1 -1).
+
+So the total coins added for this m is max(0, k - sum_first_m_original) + max(0, k - sum_first_m_original_minus_1 -1).
+
+But wait, in the else case, the coins added is D + x, where D =k - sum_first_m_original and x is the coins added to the first m-1 elements. Since sum_first_m_original_minus_1 >=k, x must be at least (k - sum_first_m_original_minus_1 -1), because sum_first_m_original_minus_1 + x <k => x <k - sum_first_m_original_minus_1. So x can be at most k - sum_first_m_original_minus_1 -1. But since x must be non-negative, the minimum x is 0, and the maximum x is k - sum_first_m_original_minus_1 -1. So the coins added for the first m-1 elements is x, and the coins added for the first m elements is D =k - sum_first_m_original.
+
+So the total coins added is D + x, where x is the coins added to the first m-1 elements.
+
+But since x can be any value up to k - sum_first_m_original_minus_1 -1, the minimal total coins added is D + (k - sum_first_m_original_minus_1 -1) = (k - sum_first_m_original) + (k - sum_first_m_original_minus_1 -1) = 2k - sum_first_m_original - sum_first_m_original_minus_1 -1.
+
+But this seems complicated. So for the else case, the minimal coins added is D + (k - sum_first_m_original_minus_1 -1) =k - sum_first_m_original + (k - sum_first_m_original_minus_1 -1) = 2k - sum_first_m_original - sum_first_m_original_minus_1 -1.
+
+But how to compute this.
+
+So for each m, the minimal coins added is:
+
+if sum_first_m_original >=k: not valid.
+
+else:
+
+   if sum_first_m_original_minus_1 <k:
+
+       coins = k - sum_first_m_original
+
+   else:
+
+       coins = (k - sum_first_m_original) + (k - sum_first_m_original_minus_1 -1)
+
+So the answer for this m is the above.
+
+Once we compute this for all m from 1 to n, we take the minimal coins among all possible m.
+
+So the plan is:
+
+For each test case:
+
+1. Sort the a_i in descending order. Let's call this sorted_a.
+
+2. Compute for each m from 1 to n:
+
+   a. sum_first_m_original = sum of sorted_a[0..m-1].
+
+   b. if sum_first_m_original >=k: skip this m.
+
+   c. else:
+
+      i. sum_first_m_original_minus_1 = sum of sorted_a[0..m-2].
+
+      ii. if sum_first_m_original_minus_1 <k:
+
+          coins = k - sum_first_m_original
+
+      iii. else:
+
+          coins = (k - sum_first_m_original) + (k - sum_first_m_original_minus_1 -1)
+
+3. Take the minimal coins over all valid m.
+
+So the answer is this minimal coins.
+
+Now, let's test this logic with the sample input.
+
+Sample input:
+
+4
+5 4
+4 1 2 3 2
+5 10
+4 1 2 3 2
+2 10
+1 1
+3 8
+3 3 3
+
+First test case:
+
+n=5, k=4.
+
+sorted_a is [4,3,2,2,1].
+
+m=1:
+
+sum_first_m_original =4 >=4. So invalid.
+
+m=2:
+
+sum_first_m_original =4+3=7 >=4. invalid.
+
+m=3: sum_first_m_original =4+3+2=9 >=4. invalid.
+
+m=4: sum_first_m_original =4+3+2+2=11 >=4. invalid.
+
+m=5: sum_first_m_original =4+3+2+2+1=12 >=4. invalid.
+
+So no valid m. Wait, but the sample output is 0. So what's wrong here?
+
+Wait, the first test case's output is 0. Which means that no coins need to be added. But according to our logic, there's no valid m. What's wrong here?
+
+Ah! Because the sum of the first m elements after adding is exactly k. So in this case, the sum of the first m elements after adding is exactly k. So when the sum of the first m elements after adding is exactly k, then Monocarp takes the first m elements, and the sum is exactly k. But the sum of the first m-1 elements after adding is sum_first_m_original_minus_1, which is the sum of the first m-1 elements before adding. But in this case, the first m elements are the first m elements after adding. So sum_first_m_original is the sum after adding. So the sum of the first m-1 elements after adding is sum_first_m_original_minus_1 (before adding) plus added_coins_first_m_minus_1.
+
+But in this case, the first m elements are the first m elements after adding. So the sum of the first m elements after adding is k. The sum of the first m-1 elements after adding is sum_first_m_original_minus_1 + added_coins_first_m_minus_1.
+
+But in this case, the first m elements after adding are [4,3,2,2,1]. So sum_first_m_original is 4+3+2+2+1=12. But k is 4. So this sum is larger than k. But the problem says that after adding coins, the sum of the first m elements is exactly k. So why is this allowed?
+
+Wait, this suggests that my logic is wrong. Because the sum of the first m elements after adding is k. So the coins added to the first m elements must be such that their sum is exactly k. So in this case, the sum_first_m_original is the sum of the first m elements before adding. So the coins added to the first m elements is k - sum_first_m_original.
+
+So in this case, sum_first_m_original =12. So k - sum_first_m_original is 4-12 =-8, which is negative. So the coins added is negative, which is impossible. So this m is invalid.
+
+But according to the sample input, the first test case's output is 0. Which suggests that no coins are added. But according to our logic, there's no valid m. What's wrong here?
+
+Wait, the first test case's input is:
+
+n=5, k=4.
+
+a_i = [4,1,2,3,2].
+
+Wait, the sorted_a is [4,3,2,2,1], which sum to 12. So the sum of the first m elements is 12. So to make the sum of the first m elements exactly k=4, we need to subtract 8 coins from the first m elements. But that's impossible since we can't subtract coins. So why is the sample output 0?
+
+Wait, the sample output is 0 for the first test case. Let's re-examine the problem statement.
+
+Ah! Wait, the problem says that you can add coins to the chests, not subtract. So you can't subtract coins. So the sum of the first m elements after adding must be exactly k. So in this case, the sum of the first m elements after adding must be k. But the sum of the first m elements before adding is 12, which is larger than k. So how can you make the sum of the first m elements exactly k?
+
+You can't. So why is the sample output 0?
+
+Wait, looking back at the sample input:
+
+First test case:
+
+5 4
+
+4 1 2 3 2
+
+Wait, the initial coins are [4,1,2,3,2], which sum to 4+1+2+3+2=12. So the sum is 12, which is larger than k=4. So how can you make the sum of the first m elements exactly k?
+
+Ah! Because Monocarp takes the chests greedily. So when the sum of the first m elements is >=k, he stops. But the sum of the first m elements is 12, which is >=4. So he would take the first chest (4), then the next (3), then the next (2), then the next (2), then the next (1). The sum of the first m elements (m=1) is 4, which is exactly k. So he stops after taking the first chest. So the total coins he takes is 4, which is exactly k. So the sum of the first m elements is exactly k, and the sum of the first m-1 elements is 0 <k.
+
+So in this case, the coins added are zero, because the initial sum of the first m elements is 4 (m=1), which is exactly k. So the coins added to the first m elements is zero. So why is the sum_first_m_original 4?
+
+Ah! Because the sum_first_m_original is the sum of the first m elements before adding. In this case, the first m elements are [4,1,2,3,2], but m=1. So the first element is 4, sum_first_m_original is 4. Which is exactly k. So the coins added to the first m elements is zero. So this is valid.
+
+Ah! So my previous logic was incorrect. Because for m=1, sum_first_m_original is the sum of the first element, which is 4. So it's exactly k. So the coins added is zero.
+
+So in this case, the coins added is zero, which is the correct answer.
+
+So why did I earlier think that sum_first_m_original was 12? Because I considered the sum of the first m elements after adding. But in this case, the sum_first_m_original is the sum of the first m elements before adding. So the coins added is zero.
+
+So the mistake was in the logic that sum_first_m_original is the sum of the first m elements after adding. It's the sum of the first m elements before adding. So for m=1, the sum_first_m_original is the sum of the first element before adding, which is 4. Which is exactly k. So the coins added is zero.
+
+So the correct approach is:
+
+For each m from 1 to n:
+
+sum_first_m_original = sum of the first m elements in the sorted list (before adding).
+
+If sum_first_m_original <k:
+
+   coins added is k - sum_first_m_original.
+
+Else:
+
+   coins added is k - sum_first_m_original.
+
+But why? Because the coins added to the first m elements is k - sum_first_m_original. But sum_first_m_original is the sum of the first m elements before adding. So the coins added to the first m elements is k - sum_first_m_original.
+
+But if sum_first_m_original is already >=k, then adding coins to the first m elements would make their sum larger than k, which is not allowed. But wait, no. Because the coins added to the first m elements must be non-negative. So if sum_first_m_original >=k, then adding coins to the first m elements would make their sum larger than k, but the problem allows this. Because the sum of the first m elements after adding is exactly k only if sum_first_m_original is exactly k.
+
+Wait, no. Because the coins added to the first m elements is k - sum_first_m_original. If sum_first_m_original >=k, then this is negative. Which is impossible. So this suggests that for sum_first_m_original >=k, it's impossible to have the sum of the first m elements after adding be exactly k. So this case is invalid.
+
+So the logic is:
+
+for each m from 1 to n:
+
+sum_first_m_original = sum of the first m elements in the sorted list (before adding).
+
+if sum_first_m_original ==k:
+
+   coins added is zero.
+
+else:
+
+   if sum_first_m_original <k:
+
+       coins added is k - sum_first_m_original.
+
+   else:
+
+       coins added is not possible (invalid).
+
+But in the first test case, for m=1, sum_first_m_original is 4, which is equal to k. So coins added is zero. Which is correct.
+
+So this explains why the first test case's output is zero.
+
+So the correct approach is:
+
+For each m from 1 to n:
+
+sum_first_m_original = sum of the first m elements in the sorted list.
+
+if sum_first_m_original ==k:
+
+   then this m is valid. coins added is zero.
+
+else:
+
+   if sum_first_m_original <k:
+
+       coins added is k - sum_first_m_original.
+
+   else:
+
+       coins added is not possible.
+
+Then, the answer is the minimum coins added across all valid m.
+
+So this simplifies the problem.
+
+So the steps are:
+
+For each test case:
+
+1. Sort the a_i in descending order.
+
+2. Compute for each m from 1 to n:
+
+   a. sum_first_m_original = sum of the first m elements.
+
+   b. if sum_first_m_original ==k: coins added is zero.
+
+   c. else if sum_first_m_original <k: coins added is k - sum_first_m_original.
+
+   d. else: invalid.
+
+3. Take the minimal coins added among all valid m.
+
+So this is much simpler.
+
+Now, let's re-examine the first test case.
+
+sorted_a = [4,3,2,2,1]
+
+for m=1:
+
+sum_first_m_original =4 ==k (4). coins added is zero.
+
+So the answer is zero.
+
+Which matches the sample.
+
+Another sample:
+
+Second test case:
+
+n=5, k=10
+
+a_i = [4,1,2,3,2]
+
+sorted_a = [4,3,2,2,1]
+
+for m=1:
+
+sum_first_m_original =4 <10. coins added is 10-4=6.
+
+for m=2:
+
+sum_first_m_original =4+3=7 <10. coins added is 3.
+
+for m=3: 4+3+2=9 <10. coins added 1.
+
+for m=4: 4+3+2+2=11 >=10. invalid.
+
+for m=5: 4+3+2+2+1=12 >=10. invalid.
+
+So the minimal coins added is 1. But the sample output is 1.
+
+Yes, which matches the sample.
+
+Third test case:
+
+n=2, k=10
+
+a_i = [1,1]
+
+sorted_a = [1,1]
+
+for m=1:
+
+sum_first_m_original =1 <10. coins added is 9.
+
+for m=2: sum_first_m_original =2 <10. coins added is 8.
+
+So the minimal is 8. Which matches the sample.
+
+Fourth test case:
+
+n=3, k=8
+
+a_i = [3,3,3]
+
+sorted_a = [3,3,3]
+
+for m=1: sum_first_m_original =3 <8. coins added 5.
+
+for m=2: sum_first_m_original =3+3=6 <8. coins added 2.
+
+for m=3: sum_first_m_original =9 >=8. invalid.
+
+So minimal is 2. Which matches the sample.
+
+So this approach works.
+
+Now, the code.
+
+The code steps are:
+
+Read t test cases.
+
+For each test case:
+
+read n and k.
+
+read list a.
+
+sort a in descending order.
+
+initialize min_coins = infinity.
+
+for m in 1 to n:
+
+   sum_m = sum(a[0..m-1])
+
+   if sum_m ==k:
+
+       min_coins = min(min_coins, 0)
+
+   elif sum_m <k:
+
+       coins = k - sum_m
+
+       if coins < min_coins:
+
+           min_coins = coins
+
+   else:
+
+       continue
+
+print min_coins
+
+So the code is straightforward.
+
+Now, implement this in Python.
+
+But we need to handle the sum_m correctly.
+
+For example, in Python, for a list sorted in descending order, sum(a[0:m]).
+
+But for m=1, it's a[0], for m=2, a[0]+a[1], etc.
+
+So in code:
+
+for each test case:
+
+n, k = map(int, input().split())
+
+a = list(map(int, input().split()))
+
+a.sort(reverse=True)
+
+min_coins = float('inf')
+
+for m in range(1, n+1):
+
+    current_sum = sum(a[:m])
+
+    if current_sum ==k:
+
+        min_coins = min(min_coins, 0)
+
+    elif current_sum <k:
+
+        coins_needed = k - current_sum
+
+        min_coins = min(min_coins, coins_needed)
+
+print(min_coins)
+
+But wait, what if there are multiple m's that give the same min_coins? The code will choose the minimal, which is correct.
+
+Testing this code against the samples:
+
+Sample 1:
+
+5 4
+
+4 1 2 3 2
+
+sorted a: [4,3,2,2,1]
+
+m=1: sum=4 ==4 → 0.
+
+others are invalid. So output 0.
+
+Sample 2:
+
+5 10
+
+4 1 2 3 2 → sorted [4,3,2,2,1]
+
+m=1: sum=4 <10 → 6.
+
+m=2: sum=4+3=7 <10 →3.
+
+m=3: sum=4+3+2=9 <10 →1.
+
+m=4: sum=4+3+2+2=11 >=10 → invalid.
+
+m=5: sum=4+3+2+2+1=12 >=10 → invalid.
+
+so min_coins is 1 → output 1.
+
+Sample 3:
+
+2 10
+
+1 1 → sorted [1,1]
+
+m=1: sum=1 <10 →9.
+
+m=2: sum=2 <10 →8.
+
+so output 8.
+
+Sample 4:
+
+3 8
+
+3 3 3 → sorted [3,3,3]
+
+m=1: sum=3 <8 →5.
+
+m=2: sum=6 <8 →2.
+
+m=3: sum=9 >=8 → invalid.
+
+so output 2.
+
+All correct.
+
+Now, code this in Python.
+
+The code must read from stdin, write to stdout.
+
+So the code is:
+
+Read t.
+
+Then for each test case:
+
+Read n and k.
+
+Read n integers.
+
+Sort in descending order.
+
+Compute min_coins.
+
+Print min_coins.
+
+So the code is:
+
+import sys
+
+def main():
+
+    import sys
+
+    input = sys.stdin.read
+
+    data = input().split()
+
+    idx = 0
+
+    t = int(data[idx])
+
+    idx +=1
+
+    results = []
+
+    for _ in range(t):
+
+        n, k = int(data[idx]), int(data[idx+1])
+
+        idx +=2
+
+        a = list(map(int, data[idx:idx+n]))
+
+        idx +=n
+
+        a.sort(reverse=True)
+
+        min_coins = float('inf')
+
+        for m in range(1, n+1):
+
+            current_sum = sum(a[:m])
+
+            if current_sum ==k:
+
+                min_coins = min(min_coins, 0)
+
+            elif current_sum <k:
+
+                coins_needed = k - current_sum
+
+                min_coins = min(min_coins, coins_needed)
+
+        results.append(str(min_coins))
+
+    print('\n'.join(results))
+
+if __name__ == '__main__':
+
+    main()
+
+But in Python, when reading input with sys.stdin.read, the data is split into a list of strings. So for example, for the first test case:
+
+4
+
+5 4
+
+4 1 2 3 2
+
+5 10
+
+4 1 2 3 2
+
+2 10
+
+1 1
+
+3 8
+
+3 3 3
+
+The data list would be ['4', '5', '4', '4', '1', '2', '3', '2', '5', '10', '4', '1', '2', '3', '2', '2', '10', '1', '1', '3', '8', '3', '3', '3'].
+
+Then idx starts at 0, and for each test case:
+
+First test case:
+
+n=5, k=4.
+
+a = [4,1,2,3,2]
+
+sorted a is [4,3,2,2,1].
+
+Then for m from 1 to 5:
+
+m=1: sum=4 ==4 → min_coins=0.
+
+others are invalid.
+
+So append '0'.
+
+Second test case:
+
+n=5, k=10.
+
+a = [4,1,2,3,2] → sorted [4,3,2,2,1]
+
+for m=1: sum=4 <10 → coins_needed 6.
+
+m=2: sum=7 <10 →3.
+
+m=3: sum=9 <10 →1.
+
+others are invalid.
+
+so append '1'.
+
+Third test case:
+
+n=2, k=10.
+
+a=[1,1] sorted [1,1]
+
+m=1: sum=1 <10 →9.
+
+m=2: sum=2 <10 →8.
+
+append '8'.
+
+Fourth test case:
+
+n=3, k=8.
+
+a=[3,3,3] sorted [3,3,3]
+
+m=1: sum=3 <8 →5.
+
+m=2: sum=6 <8 →2.
+
+append '2'.
+
+So the output is '0' '1' '8' '2', which matches the sample.
+
+Thus, the code is correct.
+</think>
+
+```python
+import sys
+
+def main():
+    input = sys.stdin.read
+    data = input().split()
+    idx = 0
+    t = int(data[idx])
+    idx += 1
+    results = []
+    for _ in range(t):
+        n, k = int(data[idx]), int(data[idx+1])
+        idx += 2
+        a = list(map(int, data[idx:idx+n]))
+        idx += n
+        a.sort(reverse=True)
+        min_coins = float('inf')
+        for m in range(1, n+1):
+            current_sum = sum(a[:m])
+            if current_sum == k:
+                min_coins = min(min_coins, 0)
+            elif current_sum < k:
+                coins_needed = k - current_sum
+                min_coins = min(min_coins, coins_needed)
+        results.append(str(min_coins))
+    print('\n'.join(results))
+
+if __name__ == '__main__':
+    main()
+```

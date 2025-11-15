@@ -1,0 +1,1331 @@
+<think>
+Okay, let's try to solve this problem. So, the problem is about permutations and reachability. Let me read it carefully again.
+
+We have a permutation p. For each i, we need to find F(i), which is the number of black integers reachable from i. The reachability is defined by following the permutation steps. For example, if i is 1, then we follow p_1, then p of that, etc., until we loop back. Each step, we can go to the next element in the permutation. So, for each i, we need to find all the nodes that can be reached by following the permutation steps starting from i, and count how many of those are black.
+
+But how do we compute this efficiently, especially considering that n can be up to 2e5 and t up to 1e4?
+
+First, let's think about the structure of the reachable nodes. Since the permutation is a bijection (since it's a permutation), each element is part of a cycle. For example, if the permutation is p, then each element is part of a cycle. For example, in the first example, the permutation is [3,5,6,1,2,4]. The cycles are:
+
+1 → 3 → 6 → 4 → 1. So that's a cycle of length 4. Then 2 → 5 → 2, a cycle of length 2. So each node is in exactly one cycle.
+
+So for each cycle, we can compute the number of black nodes in that cycle. Then, for each node in the cycle, F(i) is the count of black nodes in the entire cycle. Because once you're in a cycle, all nodes in the cycle are reachable from any node in the cycle. So for each cycle, we can compute the total black nodes in it, and then for each node in the cycle, F(i) is that total.
+
+Wait, but that's only if the cycle is considered as a whole. Because for example, if a node is in a cycle, then all nodes in that cycle are reachable from it. So for each cycle, the F(i) for all nodes in the cycle is the same. So the problem reduces to:
+
+For each cycle in the permutation, compute the number of black nodes in that cycle. Then, for each node in the cycle, F(i) is that count.
+
+So the steps are:
+
+1. Find all cycles in the permutation.
+2. For each cycle, count the number of black nodes in it.
+3. For each node in the cycle, assign F(i) as the count from step 2.
+
+But how do we find the cycles and count the black nodes?
+
+So, the first thing is to find the cycles. For each node, we can track which nodes are visited. For each node not yet visited, we follow the permutation until we come back to the starting node. For each cycle, we can collect all the nodes in it, then count how many are black.
+
+Once we have that, for each node in the cycle, F(i) is the count of black nodes in that cycle.
+
+But how to do this efficiently?
+
+Let me think about the steps:
+
+For each test case:
+
+- Read n, the permutation p, and the string s.
+
+- For each node from 1 to n, check if it's not visited yet.
+
+- For each unvisited node, find the cycle it's part of, and count the number of black nodes in that cycle.
+
+- Then, for each node in the cycle, set F(i) to the count.
+
+But how to do this?
+
+Let me think about the data structures. For each node, we can track if it's visited. Then, for each cycle, we can collect all the nodes in the cycle. Then, for each node in the cycle, we can check if s[i-1] is '0' (assuming 0-based or 1-based? Well, the input is given as p_1, p_2, etc. So for the i-th element in the array, the index is 1-based. So for the code, we'll need to process the array as 1-based, perhaps.
+
+So, for example, for the first test case:
+
+n=1, p is [1], s is '0'. So the cycle is just [1], and the count is 1 (since s[0] is 0). So F(1) is 1.
+
+Another example: the second test case:
+
+n=5, p is [1,2,4,5,3], s is '10101'.
+
+So the permutation is:
+
+1 → 1 (since p_1 is 1). So the cycle is [1], and the count of black nodes is 1 (since s[0] is '1').
+
+Then 2 → 2 → 2. So cycle [2], count is 0 (s[1] is '0').
+
+Then 3 → 4 → 5 → 3. So the cycle is 3,4,5. Let's check the s values:
+
+s is '10101' for the 5 elements. So for index 0 (element 1), s[0] is '1' (black). For index 1 (element 2), s[1] is '0' (white). For index 2 (element 3), s[2] is '1' (black). For index 3 (element 4), s[3] is '0' (white). For index 4 (element 5), s[4] is '1' (black).
+
+So the cycle for 3,4,5: the black nodes are 3 and 5 (positions 2 and 4). So count is 2. So for nodes 3,4,5, F(i) is 2. So the output for the test case is 0 1 1 1 1. Wait, the output for the second test case is 0 1 1 1 1. Wait, the output is for F(1) to F(5). Let's check:
+
+For F(1): 0 (since the cycle is [1], and s[0] is 1, so count is 1. Wait, no, the output for the second test case is 0 1 1 1 1. Wait, maybe I made a mistake here.
+
+Wait the input for the second test case is:
+
+n=5, p = [1,2,4,5,3], s is '10101'.
+
+So the permutation is:
+
+p[1] = 1 → so 1 maps to itself. So the cycle is [1].
+
+s[0] is '1' (black), so F(1) is 1.
+
+Then node 2: p[2] is 2. So cycle [2], s[1] is '0' → F(2) is 0.
+
+Then node 3: p[3] is 4, then p[4] is 5, then p[5] is 3. So the cycle is 3 →4 →5 →3. So the nodes in the cycle are 3,4,5.
+
+s[2] is '1' (black), s[3] is '0' (white), s[4] is '1' (black). So count is 2. So F(3) is 2, F(4) is 2, F(5) is 2. But the output for the second test case is "0 1 1 1 1". Wait, that's conflicting. Wait the output given in the example is:
+
+For the second test case, the output is "0 1 1 1 1".
+
+Wait that's impossible. Let me check the example again.
+
+Wait the sample input for the second test case is:
+
+5
+
+1 2 4 5 3
+
+10101
+
+So the permutation is p = [1,2,4,5,3]. So the permutation is:
+
+1 → 1
+
+2 → 2
+
+4 → 5
+
+5 → 3
+
+3 → 4
+
+So the cycles are:
+
+Cycle 1: 1 → 1.
+
+Cycle 2: 2 → 2.
+
+Cycle 3: 3 →4 →5 →3.
+
+So for the nodes in the third cycle (3,4,5), the s values are:
+
+s for node 3 is '1' (since the third character in the string is '1' (assuming the string is 10101, which is length 5. So indexes 0-4:
+
+index 0: 1 → s[0] is '1' (black)
+
+index 1: 2 → s[1] is '0' (white)
+
+index 2: 3 → s[2] is '1' (black)
+
+index 3: 4 → s[3] is '0' (white)
+
+index 4: 5 → s[4] is '1' (black)
+
+So the cycle is 3,4,5. So the black nodes in this cycle are 3 and 5 (indices 2 and 4), so count is 2. So F(3) is 2, F(4) is 2, F(5) is 2. But the output for this test case is "0 1 1 1 1". Wait, but the output is for F(1) to F(5). So F(1) is 1, F(2) is 0, F(3) is 2, F(4) is 2, F(5) is 2. But the sample output says 0 1 1 1 1. That's conflicting. Wait, maybe I have misunderstood the problem.
+
+Wait the sample output for the second test case is:
+
+0 1 1 1 1 
+
+But according to my analysis, the output should be 1 0 2 2 2. So why is the sample output different?
+
+Wait let me check the sample input again. Oh wait the sample input for the second test case is:
+
+5
+
+1 2 4 5 3
+
+10101
+
+So the third line is '10101' which is 5 characters. So the s string is '1','0','1','0','1'.
+
+So for the nodes:
+
+node 1: s[0] is '1' (black). So F(1) is 1.
+
+node 2: s[1] is '0' (white). F(2) is 0.
+
+node 3: s[2] is '1' (black). So in the cycle 3,4,5, the count is 2 (nodes 3 and 5). So F(3) is 2.
+
+node 4: s[3] is '0' (white). So F(4) is 2.
+
+node 5: s[4] is '1' (black). So F(5) is 2.
+
+But the sample output for the second test case is "0 1 1 1 1". So that's conflicting. So why is that?
+
+Wait maybe I have misunderstood the problem. Let me re-read the problem statement.
+
+The problem says that F(i) is the number of black integers that are reachable from i. So for each i, we need to count the number of black nodes in the reachable set.
+
+But in the example given in the problem statement:
+
+In the first example, the permutation is [3,5,6,1,2,4]. For i=1, the reachable nodes are 1,3,6,4. Then the black nodes are 1 (s[0] is 0?), wait no. Wait in the first example, the input is:
+
+For the first test case:
+
+n=1, p is [1], s is '0' → so the output is 1. Which is correct.
+
+But for the second test case, the output is 0 1 1 1 1. So how is that possible?
+
+Wait perhaps I made a mistake in the analysis. Let me check the sample output again.
+
+The sample input for the second test case is:
+
+5
+
+1 2 4 5 3
+
+10101
+
+So the permutation is p = [1,2,4,5,3], and s is '10101'.
+
+So the s string is '1','0','1','0','1'.
+
+So for each node:
+
+node 1: s[0] is '1' → black.
+
+node 2: s[1] is '0' → white.
+
+node 3: s[2] is '1' → black.
+
+node 4: s[3] is '0' → white.
+
+node 5: s[4] is '1' → black.
+
+So the cycle for node 1 is [1], which has 1 black node. So F(1) is 1.
+
+The cycle for node 2 is [2], which has 0 black nodes. So F(2) is 0.
+
+The cycle for node 3 is [3,4,5], which has 3 and 5 as black nodes (s[2] is 1, s[4] is 1). So 2 black nodes. So F(3) is 2, F(4) is 2, F(5) is 2.
+
+But the sample output for the second test case is "0 1 1 1 1". So why is that?
+
+Wait the sample output for the second test case is:
+
+0 1 1 1 1 
+
+But according to my analysis, it should be 1 0 2 2 2. But the sample output says 0 1 1 1 1. So there's a contradiction here. Which means I must have made a mistake in my analysis.
+
+Wait maybe the problem is that the permutation is not the same as the input. Let me check the problem statement again.
+
+The problem says that the second line of each test case contains n integers p_1, p_2, ..., p_n. So for the second test case, the input is:
+
+5
+
+1 2 4 5 3
+
+So p_1 is 1, p_2 is 2, p_3 is 4, p_4 is 5, p_5 is 3.
+
+So the permutation is:
+
+1 → 1 (since p_1 is 1)
+
+2 → 2 (p_2 is 2)
+
+3 → 4 (p_3 is 4)
+
+4 → 5 (p_4 is 5)
+
+5 → 3 (p_5 is 3)
+
+So the cycles are:
+
+Cycle 1: 1 → 1.
+
+Cycle 2: 2 → 2.
+
+Cycle 3: 3 →4 →5 →3.
+
+So for the cycle 3,4,5, the nodes are 3,4,5. The s values for these nodes are:
+
+node 3: s[2] is '1' → black.
+
+node 4: s[3] is '0' → white.
+
+node 5: s[4] is '1' → black.
+
+So the count of black nodes in the cycle is 2. So F(3) is 2, F(4) is 2, F(5) is 2.
+
+But the sample output for this test case is "0 1 1 1 1". So why is that?
+
+Wait the sample output says for the second test case:
+
+0 1 1 1 1 
+
+So F(1) is 0, F(2) is 1, F(3) is 1, F(4) is 1, F(5) is 1.
+
+But according to my analysis, F(1) is 1, F(2) is 0, F(3) is 2, etc. So there's a contradiction here.
+
+This suggests that I have misunderstood the problem. Let me re-read the problem statement again.
+
+Ah! Wait the problem says that the function F(i) is the number of black integers that are reachable from i. But maybe the reachability is not the entire cycle. Wait, maybe the reachability is the set of nodes that can be reached by following the permutation steps, but the permutation is applied multiple times. So for example, starting at i, you can go to p_i, then p_{p_i}, etc. So for each node, the reachable nodes are all the nodes in the cycle that can be reached by following the permutation steps. But since the permutation is a cycle, all nodes in the cycle are reachable from any node in the cycle. So the count for each node in the cycle is the count of black nodes in the cycle.
+
+But then why the sample output for the second test case is different?
+
+Wait maybe the sample input for the second test case is different. Let me check the sample input again.
+
+The sample input given is:
+
+5
+
+1 2 4 5 3
+
+10101
+
+So the third line is '10101', which is 5 characters. So the s string is:
+
+s[0] = '1' (node 1 is black)
+
+s[1] = '0' (node 2 is white)
+
+s[2] = '1' (node 3 is black)
+
+s[3] = '0' (node 4 is white)
+
+s[4] = '1' (node 5 is black)
+
+So the cycle for 3,4,5 has two black nodes (3 and 5). So F(3) is 2, F(4) is 2, F(5) is 2. But the sample output for this test case is 0 1 1 1 1. So this suggests that my analysis is wrong.
+
+Wait perhaps the problem is that the permutation is not the same as the array. Wait the problem says that the permutation is p, which is given as p_1, p_2, ... p_n. So for example, in the second test case, p_1 is 1, p_2 is 2, etc.
+
+Wait perhaps the problem is that the permutation is not the same as the array. Let me think again. For example, in the second test case, the permutation is p = [1,2,4,5,3]. So for node i, p_i is the value. So for node 1, p_1 is 1. So the next node is 1. So the cycle is 1. For node 3, p_3 is 4, then p_4 is 5, then p_5 is 3. So the cycle is 3→4→5→3.
+
+So the count of black nodes in the cycle is 2. So F(3) is 2, F(4) is 2, F(5) is 2. But the sample output for this test case is 0 1 1 1 1.
+
+This suggests that my analysis is wrong, but why?
+
+Alternatively, maybe the problem is that the function F(i) counts the number of black nodes that are reachable from i, but the reachable set is not the entire cycle. Wait, but the permutation is a cycle, so all nodes in the cycle are reachable from any node in the cycle. So for example, if you start at node 3, you can reach 3, 4, 5, and then back to 3. So the reachable set is all nodes in the cycle.
+
+But then why the sample output for the second test case is 0 1 1 1 1?
+
+Wait maybe the sample output is for the second test case as follows:
+
+The output is 0 1 1 1 1. So for i=1, F(1) is 0. But according to the analysis, it's 1. So why?
+
+Ah! Wait maybe I have misread the s string. Let me check again.
+
+The third line of the test case is '10101'. So the string is 5 characters. Let's index them from 0 to 4.
+
+s[0] = '1' → node 1 is black.
+
+s[1] = '0' → node 2 is white.
+
+s[2] = '1' → node 3 is black.
+
+s[3] = '0' → node 4 is white.
+
+s[4] = '1' → node 5 is black.
+
+So the count for the cycle of 3,4,5 is 2. So F(3) is 2, F(4) is 2, F(5) is 2.
+
+But the sample output for this test case is 0 1 1 1 1. So how can that be?
+
+Alternatively, maybe the problem is that the permutation is not the same as the array. Wait, perhaps the permutation is given as p_1, p_2, ..., p_n, but in the problem statement, the permutation is defined as p_i being the value. So for example, the permutation is p = [3,5,6,1,2,4], which is the first example. So for the second test case, the permutation is [1,2,4,5,3]. So node 1's value is 1, node 2's value is 2, node 3's value is 4, node 4's value is 5, node 5's value is 3.
+
+So for the second test case, the output is 0 1 1 1 1.
+
+But according to the analysis, F(1) is 1 (since node 1 is black), F(2) is 0 (white), F(3) is 2, F(4) is 2, F(5) is 2. So why is the output different?
+
+This suggests that there's a misunderstanding of the problem statement.
+
+Let me re-examine the problem statement.
+
+The problem says:
+
+Sakurako defines the function F(i) as the number of black integers that are reachable from i.
+
+So for each i, we need to find all the nodes that can be reached by following the permutation steps, and count how many of them are black.
+
+But what is the definition of "reachable from i"?
+
+The example given in the problem statement says that for i=1, the reachable nodes are 1,3,6,4. So for the permutation [3,5,6,1,2,4], which is the first example. So the permutation is p = [3,5,6,1,2,4]. So for i=1, the steps are:
+
+i=1 → p_1 =3 → p_3=6 → p_6=4 → p_4=1 → loop. So the reachable nodes are 1,3,6,4.
+
+So the reachable set is the cycle that contains 1, which is 1,3,6,4. So the count is the number of black nodes in that cycle.
+
+So in that example, the cycle is 1 →3 →6 →4 →1. So the nodes are 1,3,6,4. So the count of black nodes is the sum of the s values for those nodes.
+
+So for the second test case, the sample output is 0 1 1 1 1. Which suggests that F(1) is 0, F(2) is 1, etc. But according to the analysis, F(1) is 1.
+
+This indicates that there's a mistake in my analysis. So where is the error?
+
+Wait maybe the problem is that the permutation is not the same as the array. Let me re-examine the problem statement.
+
+The problem says that the permutation is p_1, p_2, ..., p_n. So for each i, p_i is the value. So the permutation is a function where p_i is the value of the i-th element. So for example, in the second test case, the permutation is [1,2,4,5,3]. So for i=1, p_i is 1. So the next value is p_1 =1. So the cycle is 1 →1.
+
+But the sample output for this test case is 0 1 1 1 1. So for F(1) to be 0, which would mean that the node 1 is not black. But according to the s string, it is '1' (black). So that's conflicting.
+
+Alternatively, maybe the s string is given as the third line of the test case, but the problem says that the third line is the string s of length n, where s_i is '0' or '1' indicating the color of p_i. So for the second test case, the third line is '10101', which is the string for the nodes 1 to 5.
+
+So for node 1, s_1 is '1', which is black. So F(1) should be 1.
+
+But the sample output for the second test case is 0 1 1 1 1. So this is impossible unless there's a mistake in the problem statement.
+
+Alternatively, maybe I have misread the sample input. Let me check the sample input again.
+
+The sample input is:
+
+5
+
+1
+
+1
+
+0
+
+5
+
+1 2 4 5 3
+
+10101
+
+5
+
+5 4 1 3 2
+
+10011
+
+6
+
+3 5 6 1 2 4
+
+010000
+
+6
+
+1 2 3 4 5 6
+
+100110
+
+The sample output is:
+
+1 
+
+0 1 1 1 1 
+
+2 2 2 2 2 
+
+4 1 4 4 1 4 
+
+0 1 1 0 0 1
+
+So for the second test case, the output is 0 1 1 1 1. So for the second test case, the output is for F(1) to F(5) as 0,1,1,1,1.
+
+So how can this be?
+
+Let me think again. Maybe the problem is that the permutation is not the same as the array. Wait, the problem says that the permutation is p, and the third line is the string s. So for the second test case, the third line is '10101', which is the string for the nodes 1 to 5. So for node i, the color is s[i-1], since the string is 0-based.
+
+Wait for node 1, s[0] is '1' → black. So F(1) is 1. But the sample output says 0. So this suggests that there's a mistake in the problem statement or in the sample input.
+
+But that's unlikely. So I must have made a mistake in my analysis.
+
+Alternatively, maybe the problem is that the function F(i) is the number of black integers that are reachable from i, but the reachability is defined as the set of nodes that can be reached by following the permutation steps, but the permutation is applied in a different way. For example, maybe the permutation is applied as follows: for each i, you can reach p_i, then p_{p_i}, etc. But the problem says that the permutation is p, so the steps are i → p_i → p_{p_i} → ... until you loop back.
+
+But in the second test case, the sample output for F(1) is 0. So that would mean that the node 1 is not black. But according to the input, it is.
+
+So why is this happening?
+
+Alternatively, maybe the problem is that the permutation is 1-based, but the code is using 0-based indices. So for example, in the code, when we process the permutation, we have to make sure that the indices are correct.
+
+Wait the code is supposed to read the permutation as p_1, p_2, ..., p_n. So for the second test case, the permutation is [1,2,4,5,3]. So for node 1, p_1 is 1. So the next node is 1. So the cycle is [1]. So the count of black nodes is the number of '1's in the s string for node 1, which is 1. So F(1) should be 1. But the sample output says 0. So why?
+
+This suggests that there's a mistake in the sample input or output. But that's unlikely. So perhaps I have misunderstood the problem.
+
+Wait perhaps the problem is that the function F(i) is the number of black integers that are reachable from i, but the reachable set is not the entire cycle. For example, maybe the reachable set is the set of nodes that can be reached by following the permutation steps, but not necessarily the entire cycle.
+
+Wait but the permutation is a bijection, so each node is part of a cycle. So the reachable set from i is the entire cycle. So for example, in the second test case, the cycle for node 1 is [1], so F(1) is 1.
+
+But the sample output says it's 0. So there's a contradiction here. So I must have made a mistake in the analysis.
+
+Alternatively, maybe the problem is that the s string is for the permutation's elements, not for the nodes. Wait the problem says:
+
+The third line of each test case contains a string s of length n, consisting of '0' and '1'. If s_i=0, then the number p_i is colored black; if s_i=1, then the number p_i is colored white.
+
+So for the second test case, the third line is '10101', which is the string for the p_i's. So for node i, the color is s_i. So for node 1, the color is s_1 (the first character of the string), which is '1' → black. So F(1) is 1.
+
+But the sample output says 0. So this is impossible. Therefore, I must have made a mistake in the analysis of the sample input.
+
+Let me recheck the sample input and output for the second test case.
+
+Sample input for the second test case:
+
+5
+
+1 2 4 5 3
+
+10101
+
+Sample output is 0 1 1 1 1.
+
+So for i=1, F(1) is 0. So this implies that the node 1 is not black. But according to the input, it is. So why?
+
+Wait perhaps the third line is not the string for the p_i's, but for the node values. Let me re-read the problem statement.
+
+Problem statement says:
+
+The third line of each test case contains a string s of length n, consisting of '0' and '1'. If s_i=0, then the number p_i is colored black; if s_i=1, then the number p_i is colored white.
+
+So for the second test case, the third line is '10101', which is for the number p_i. So for i=1, s_1 is '1' → the number p_1 is colored black. So the color of p_1 is black.
+
+So the node 1 is colored black, and thus F(1) is 1.
+
+But the sample output says 0 for F(1). So this is impossible. Therefore, I must have made a mistake in the analysis of the sample input.
+
+Alternatively, maybe the third line is for the node i, not the p_i. Let me read the problem statement again.
+
+Ah! Wait, the third line is for the number p_i. So for the third line, s is the color of the number p_i. So for example, if p_i is 1, then the color is s_i. So for the second test case, the third line is '10101', which is the colors for the numbers p_1 to p_5.
+
+So p_1 is 1, and s_1 is '1' → black.
+
+But the sample output says F(1) is 0. So this is impossible.
+
+But the sample output for the second test case is 0 1 1 1 1. So how is this possible?
+
+Let me look at the sample output for the second test case. The output is:
+
+0 1 1 1 1 
+
+So for i=1, F(1) is 0. So that implies that the number of black nodes reachable from i=1 is 0. So what could be the reason?
+
+Maybe the problem is that the reachable set is not the entire cycle. For example, maybe the reachable set is only the nodes that are reachable through the permutation steps, but not including the starting node. But that doesn't make sense.
+
+Alternatively, maybe the problem is that the permutation is not the same as the array. For example, in the second test case, the permutation is [1,2,4,5,3], but the p_i's are the numbers, and the colors are for the numbers. So for example, the color of the number 1 is '1' (white), and the color of the number 2 is '0' (black). Wait no, the third line is '10101', which is for the numbers p_i. So for i=1, the number is p_i = 1, and the color is s_1 = '1' → white? No, the problem says that if s_i=0, the number p_i is black; if s_i=1, it is white.
+
+Wait the problem says:
+
+If s_i=0, then the number p_i is colored black; if s_i=1, then it is white.
+
+So for the second test case, the third line is '10101'. So for each i:
+
+i=1: s_1 is '1' → the number p_1 is white.
+
+i=2: s_2 is '0' → p_2 is black.
+
+i=3: s_3 is '1' → p_3 is white.
+
+i=4: s_4 is '0' → p_4 is black.
+
+i=5: s_5 is '1' → p_5 is white.
+
+So the colors for the numbers are:
+
+p_1 is white (s_1=1), p_2 is black (s_2=0), p_3 is white (s_3=1), p_4 is black (s_4=0), p_5 is white (s_5=1).
+
+So for the cycle 1 → 1, the color of p_1 is white. So F(1) is 0. Because the only node in the cycle is p_1 (white), so the count is 0. Oh! That's the mistake!
+
+Oh! I had misunderstood the problem statement. The third line of the test case is the color of the number p_i, not the color of the node i. So for the second test case, the third line is '10101', which is for the numbers p_1 to p_5. So for the node i, the color is s_i. But wait, the problem says:
+
+"If s_i=0, then the number p_i is colored black; if s_i=1, then the number p_i is colored white."
+
+So the color of the number p_i is determined by s_i. So for example, the number p_i is black if s_i is 0, and white otherwise.
+
+But the problem is asking for F(i), which is the number of black integers that are reachable from i. So for each i, the reachable integers are the ones that can be reached by following the permutation steps, and the color of those integers is checked.
+
+So for example, in the second test case, the permutation is p = [1,2,4,5,3], and the colors are s = '10101'.
+
+So for i=1, the reachable integers are the ones in the cycle of 1 → 1. So the reachable integers are 1 (since it's the only node in the cycle). The color of 1 is s_1 = '1' → white. So F(1) is 0.
+
+Ah! That's the mistake. Earlier, I thought that the s string is for the node i, but it's for the p_i. So for the node i, the color of the number p_i is s_i. So for example, the node i is not the same as the number p_i. Wait, no. The problem says that the third line is the color of the number p_i. So for each i, the number p_i is colored according to s_i.
+
+So for the second test case, the number p_1 is 1, and its color is s_1 = '1' → white. So the number 1 is white. So for i=1, the reachable integers are 1, and it is white, so F(1) is 0.
+
+This explains the sample output. So my earlier analysis was wrong because I thought that s_i was the color of the node i, but it's the color of the number p_i.
+
+So this is the key mistake. Now, I need to correct my approach.
+
+So the problem is: for each i, the number p_i is colored according to s_i. So for the i-th node in the permutation, the color of the number p_i is s_i. But the F(i) is the number of black integers reachable from i. So the reachable integers are the ones that can be reached by following the permutation steps, and each of those integers has a color (s_j) where j is the number in the permutation.
+
+So for example, in the second test case, the permutation is [1,2,4,5,3], and the colors are s = '10101'.
+
+So for i=1, the reachable integers are 1. The color of 1 is s_1 = '1' → white. So F(1) is 0.
+
+For i=2, the reachable integers are 2. The color of 2 is s_2 = '0' → black. So F(2) is 1.
+
+For i=3, the reachable integers are 3 →4 →5 →3. The numbers are 3,4,5. Their colors are:
+
+3: s_3 = '1' → white.
+
+4: s_4 = '0' → black.
+
+5: s_5 = '1' → white.
+
+So the count is 1 (only 4 is black). So F(3) is 1.
+
+For i=4, the reachable integers are 4 →5 →3 →4. The numbers are 4,5,3. Their colors are 0 (black), 1 (white), 1 (white). So count is 1 (only 4 is black). So F(4) is 1.
+
+For i=5, the reachable integers are 5 →3 →4 →5. The numbers are 5,3,4. Their colors are 1 (white), 1 (white), 0 (black). So count is 1 (only 4 is black). So F(5) is 1.
+
+So the output for the second test case is 0 1 1 1 1, which matches the sample.
+
+So now, the problem is clear. The s string is for the numbers p_i, not for the nodes. So for each node i, the color of the number p_i is s_i.
+
+So the approach is:
+
+For each test case:
+
+- For each node i, we need to find all the numbers that can be reached from i by following the permutation steps. These are the nodes in the cycle that i is part of.
+
+- For each such node, we need to count how many of them have a color of '0' (black).
+
+So the steps are:
+
+1. For each test case, process the permutation p and the string s.
+
+2. Find all cycles in the permutation.
+
+3. For each cycle, determine the colors of the numbers in the cycle (i.e., for each number in the cycle, look up s_j, where j is the number in the cycle).
+
+4. For each cycle, count the number of '0's (black) in the cycle. This is the value of F(i) for all nodes in the cycle.
+
+So, for example, in the second test case, the cycle for node 1 is [1], and the number 1 has s_1 = '1' → white. So count is 0. So F(1) is 0.
+
+Now, the problem is to implement this.
+
+So the plan is:
+
+- For each test case, find all cycles in the permutation.
+
+- For each cycle, collect all the numbers in the cycle (the numbers are p_i's, but we need to track which numbers are in the cycle).
+
+Wait, no. The permutation is p, which is an array of numbers. For example, for the permutation p = [1,2,4,5,3], the cycle for node 1 is 1 → 1. So the numbers in the cycle are [1]. The numbers in the cycle are the values of p_i for the nodes in the cycle. Wait no, the nodes are the indices. For example, in the permutation, the nodes are 1, 2, ..., n. The permutation p is such that p_i is the value of the i-th element. So for the cycle, the nodes are the indices, and the numbers in the cycle are p_i's. But no, the numbers in the cycle are the values of the permutation steps. For example, the cycle for node 1 is 1 → p_1 = 1. So the cycle is just 1. The number in the cycle is 1. So for each cycle, we need to collect the numbers that are in the cycle, and their colors.
+
+But how to collect the numbers in the cycle? For example, when we find a cycle in the permutation, the nodes in the cycle are the indices i where the permutation steps lead to them. But the numbers in the cycle are the values of p_i for those indices. Or wait, the numbers in the cycle are the values of the permutation steps. For example, if the cycle is 1 → 3 → 4 → 5 → 3, then the numbers in the cycle are 1, 4, 5, 3. But wait, no. The cycle is the sequence of indices. For example, the cycle for node 1 is 1 → p_1 = 1. So the cycle is just [1]. The numbers in the cycle are the values of the permutation steps. But the values are the p_i's. So for the cycle [1], the number is p_1 = 1. For the cycle [3,4,5], the numbers are p_3 = 4, p_4 = 5, p_5 = 3. So the numbers in the cycle are 4, 5, 3. But how to find the numbers in the cycle?
+
+Wait no. The numbers in the cycle are the values that are visited in the permutation steps. For example, when we follow the permutation steps starting at i, we visit the numbers p_i, p_{p_i}, etc. So for example, the cycle for i=1 is 1 → 1. So the numbers in the cycle are 1. For the cycle i=3, the numbers are 3 →4 →5 →3. So the numbers in the cycle are 3,4,5. So for each node in the cycle, the number in the cycle is the value of p_i. But the cycle is the sequence of indices, not the values.
+
+Wait no. The cycle is the sequence of indices. For example, in the permutation p, the cycle for i=3 is 3 →4 →5 →3. So the indices are 3,4,5. The numbers in the cycle are p_3, p_4, p_5. So for the cycle, the numbers are the values of the permutation at those indices. So for each node in the cycle (the indices), the number in the cycle is p_i.
+
+But when we are considering the colors, we need to look at the color of the number p_i. So for example, in the cycle [3,4,5], the numbers are 3,4,5. The colors of these numbers are determined by s_3, s_4, s_5. Wait, no. The s string is for the numbers p_i. So for the index 3, the number is p_3 = 4. The color of the number 4 is s_4 (since the third line of the test case is s, which is for the numbers p_i). So for the cycle [3,4,5], the numbers are 4,5,3. So the colors are:
+
+- for number 4: s_4 (since the number is p_3 = 4, and the s string is for the numbers p_i. So the s string is for the numbers p_1, p_2, ..., p_n. So for the number 4, which is p_3, the color is s_3 (since the third line is s, and the third line is for the numbers p_i. So the color of the number 4 is s_3? No, no. Wait, the third line is s, which is for the numbers p_i. So for the number p_i, which is the value at index i in the permutation. So for example, the third line is s, and for each index i (from 1 to n), the color of the number p_i is s_i. So for the number 4, which is p_3, the color is s_3. Because the third line is s, and the third line's i-th character is the color of p_i. So for the number 4, which is p_3, the color is s_3.
+
+So for the cycle [3,4,5], the numbers are 3,4,5. But the color of the number 3 is s_3 (since p_3 is 4, and the color of p_3 is s_3? No, no. Wait, the number p_3 is 4. So the color of the number 4 is s_3? No, the s string is for the numbers p_1, p_2, ..., p_n. So for the number p_i, its color is s_i. So for example, the number 4 is p_3, so its color is s_3.
+
+So for the cycle [3,4,5], the numbers in the cycle are 3,4,5. But the color of these numbers are determined by s_3, s_4, s_5. Wait no. The number 3 is p_3's value? No. The number 3 is the value of p_i for some i. For example, in the permutation p = [1,2,4,5,3], the p_3 is 4. So the number 3 is the value of p_5. Because p_5 is 3. So the number 3 is in the permutation as p_5. So the color of the number 3 is s_5.
+
+So the problem is that for each number in the cycle, we need to find its color. But the numbers in the cycle are the values that are visited during the permutation steps. So for example, in the cycle [3,4,5], the numbers are 3,4,5. But the color of these numbers is determined by the s string for their positions in the permutation. For example, the number 3 is p_5, so its color is s_5. The number 4 is p_3, so its color is s_3. The number 5 is p_4, so its color is s_4.
+
+So for the cycle [3,4,5], the colors are s_3, s_4, s_5. So the count of black numbers is the number of '0's in these three values.
+
+So the approach is:
+
+For each cycle, collect the numbers in the cycle (the values that are visited during the permutation steps), and for each of those numbers, find their color (s_i where i is the index in the permutation where the number is p_i).
+
+But how to find the numbers in the cycle? For example, when you find a cycle in the permutation, you need to collect the indices in the cycle, and then for each of those indices, the number in the cycle is p_i. So for example, the indices in the cycle are [3,4,5]. For each of these indices, the number is p_3, p_4, p_5. So the numbers in the cycle are 4,5,3. But their colors are determined by the s string for their positions in the permutation.
+
+So for the cycle [3,4,5], the numbers are 4,5,3. The colors are s_3, s_4, s_5.
+
+So for each cycle, we need to collect the numbers in the cycle (the values of p_i for the indices in the cycle), and then for each of those numbers, determine their color. But how to get the color of a number?
+
+Wait, the number is part of the permutation. For example, the number 4 is in the permutation as p_3. So the color of the number 4 is s_3.
+
+So for the cycle [3,4,5], the numbers are 4,5,3. The colors are s_3, s_4, s_5.
+
+So the count of black numbers in the cycle is the number of '0's in the s string for the indices 3, 4, 5.
+
+So the steps are:
+
+For each test case:
+
+- Read n, p, s.
+
+- For each node i from 1 to n:
+
+   - if not visited, find the cycle that i is part of.
+
+   - for the cycle, collect all the indices in the cycle.
+
+   - for each index in the cycle, the number in the cycle is p_i.
+
+   - for each such number, find its color (s_i where i is the index in the permutation where the number is p_i).
+
+   - count the number of '0's in these colors.
+
+- For each index in the cycle, assign the count to F(i).
+
+So the problem is to, for each cycle, collect the indices in the cycle, then for each of those indices, get the color of the number p_i.
+
+But how to get the color of the number p_i? For example, the number p_i is the value of the permutation at index i. So for the index i, the color of the number p_i is s_i.
+
+So for each index in the cycle, the color of the number in the cycle is s[i], where i is the index in the permutation.
+
+Wait, no. For example, the number 4 is in the permutation at index 3 (p_3 = 4). So the color of the number 4 is s_3.
+
+So for each index in the cycle, the color of the number p_i is s[i].
+
+So for the cycle [3,4,5], the indices are 3,4,5. For each of these indices, the color of the number p_i is s[3], s[4], s[5].
+
+So the count is the number of '0's in s[3], s[4], s[5].
+
+So for the cycle, the count is the number of '0's in the s string for the indices in the cycle.
+
+So the plan is:
+
+For each cycle:
+
+   collect the indices in the cycle.
+
+   for each index in the cycle, get the color s[index-1], since the s string is 0-based in Python, but the indices are 1-based.
+
+   count the number of '0's in these colors.
+
+Then, for each index in the cycle, F(i) is this count.
+
+So, the code steps:
+
+Implementing this requires:
+
+- For each test case, process the permutation and the s string.
+
+- For each node, track visited.
+
+- For each unvisited node, find the cycle.
+
+- For each cycle, collect the indices.
+
+- For each index in the cycle, get the color from s (s is 0-based, indices are 1-based).
+
+- Count the number of '0's in the colors of the indices in the cycle.
+
+- Assign this count to all nodes in the cycle.
+
+So, the code can be written as follows:
+
+Read t test cases.
+
+For each test case:
+
+   Read n.
+
+   Read p as a list of integers (p[0] is p_1 in the problem? Or p[0] is p_1? Wait, in Python, the input is read as a list, and the first element is p_1. So for example, if the input is 1 2 4 5 3, then p = [1, 2, 4, 5, 3], and the indices are 1-based.
+
+But in Python, the list is 0-based. So for the i-th index in the list (0-based), the actual node is i+1.
+
+So, for the code:
+
+For each test case:
+
+   n = int(input())
+
+   p = list(map(int, input().split()))
+
+   s = input().strip()
+
+   visited = [False] * n
+
+   res = [0] * n
+
+   for i in range(n):
+
+       if not visited[i]:
+
+           # find the cycle starting at i
+
+           current = i
+
+           cycle = []
+
+           while not visited[current]:
+
+               visited[current] = True
+
+               cycle.append(current)
+
+               current = p[current] - 1  # because p is 0-based in the list, but the nodes are 1-based.
+
+           # Now, the cycle contains the indices (0-based) of the nodes in the cycle.
+
+           # For example, if current is 0 (i=0), and the cycle is [0, ...], then the indices are 0-based.
+
+           # Now, for each index in the cycle, we need to get the color from s.
+
+           # The s is a string, and the indices in the cycle are 0-based.
+
+           # For each index in the cycle, the color is s[index] (since the string is 0-based).
+
+           # Wait, no. The s string is for the numbers p_i. So for the node i (0-based in the list), the color is s[i].
+
+           # Wait, the code for the node is 0-based. So for example, in the code, the node is represented as 0-based (i), and the p list is 0-based. So for the node i (0-based), the value is p[i], which is the number in the permutation.
+
+           # The color of the number p[i] is s[i].
+
+           # So for the cycle, the indices in the cycle are 0-based. For each index in the cycle, the color is s[index].
+
+           # Wait no. For example, the node i is 0-based. The value p[i] is the number in the permutation. The color of that number is s[i].
+
+           # So for the cycle indices in the cycle list (which are 0-based), the color is s[index].
+
+           # So for the cycle, the count is the number of '0's in the s string for the indices in the cycle.
+
+           # So for the cycle [0, 1, 2], the count is the number of '0's in s[0], s[1], s[2].
+
+           # So in the code:
+
+           count = 0
+
+           for idx in cycle:
+
+               if s[idx] == '0':
+
+                   count += 1
+
+           # then, for each node in the cycle, assign count to res.
+
+           for idx in cycle:
+
+               res[idx] = count
+
+   print the res list.
+
+But wait, in the second test case, the code would process the cycle for i=0 (which is node 1 in the problem's terms). The cycle is [0], because the current starts at 0 (i=0), and the p[0] is 1. Then current becomes 1-1 = 0 (since p[0] is 1, which is 1, but the node is 1, which is 0-based in the list. Wait, no. Let me think again.
+
+Wait, the code for the permutation is:
+
+p is a list of integers, where p[0] is p_1 (the first element in the input). For example, in the second test case, the input is 1 2 4 5 3. So p = [1,2,4,5,3]. The indices are 0-based (0 to 4), representing the nodes 1 to 5.
+
+But the permutation is defined as p_i = the value of the i-th node. So for the code, when we process the node i (0-based), the value is p[i], which is the number in the permutation. So for the node i=0 (representing the first node in the problem's terms), the value is p[0] = 1. So the next node is p[0] (which is 1), which is 1, but in the code, the node is 0-based. So the code uses the p list as 0-based, but the nodes are 1-based.
+
+Wait, this is a problem. Because the code is using 0-based indices for the p list, but the problem's nodes are 1-based. So when the code is processing the current node, it's using the 0-based index, and the p[i] is the value of the node i+1.
+
+So for example, the code is processing node i (0-based), and the value is p[i]. The next node is p[i], which is the value. But in the code, the next node is p[i] - 1. Because in the problem's terms, the nodes are 1-based, but the code uses 0-based indices.
+
+Wait, no. For example, in the second test case, the node 1 (problem's terms) is represented as index 0 in the p list. The value of this node is 1. So the next node is 1 (problem's terms), which is index 0 in the p list. So in the code, current = p[current] - 1. Because p[current] is the value of the node, which is 1 (problem's terms). So in the code, the next node is p[current] - 1, which is 1 - 1 = 0. So the code is correct.
+
+But this is a bit confusing. Let's take the second test case:
+
+p = [1, 2, 4, 5, 3]
+
+s = '10101'
+
+For i=0 (0-based), which is node 1 in the problem's terms.
+
+current = 0.
+
+visited[0] is False.
+
+So we add 0 to the cycle.
+
+Then current is p[0] - 1 = 1-1=0. So the loop continues.
+
+But since current is 0, which is already visited, the loop breaks.
+
+So the cycle is [0].
+
+Then, for the cycle [0], the count is the number of '0's in s[0], which is '1' → 0.
+
+So res[0] = 0.
+
+Then, for the next i=1 (0-based), which is node 2.
+
+visited[1] is False.
+
+current = 1.
+
+Add to cycle [1].
+
+current = p[1] -1 = 2-1=1. So loop continues.
+
+current is 1, which is already visited. So cycle is [1].
+
+count is s[1] → '0' → 1.
+
+So res[1] = 1.
+
+Then for i=2 (node 3):
+
+visited[2] is False.
+
+current = 2.
+
+Add to cycle [2].
+
+current = p[2] -1 = 4-1=3.
+
+Now, current is 3, which is not visited.
+
+Add to cycle [2,3].
+
+current = p[3] -1 =5-1=4.
+
+current is 4, not visited.
+
+Add to cycle [2,3,4].
+
+current = p[4] -1 =3-1=2.
+
+Now, current is 2, which is already in the cycle. So the loop stops.
+
+The cycle is [2,3,4].
+
+For each index in the cycle (2,3,4):
+
+s[2] is '1' → '1' → not 0.
+
+s[3] is '0' → '0' → count +=1.
+
+s[4] is '1' → '1' → no.
+
+So count is 1.
+
+So res[2] = 1, res[3] = 1, res[4] = 1.
+
+So the res array is [0,1,1,1,1], which matches the sample output.
+
+Yes! So this is correct.
+
+So the code is correct.
+
+Now, the code needs to be written in Python.
+
+The steps are:
+
+Read t test cases.
+
+For each test case:
+
+Read n.
+
+Read p as list of integers.
+
+Read s as a string.
+
+Initialize visited as a list of False, size n.
+
+Initialize res as a list of 0s.
+
+For each i in 0..n-1:
+
+   if not visited[i]:
+
+      current = i
+
+      cycle = []
+
+      while not visited[current]:
+
+          visited[current] = True
+
+          cycle.append(current)
+
+          current = p[current] - 1
+
+      count = 0
+
+      for idx in cycle:
+
+          if s[idx] == '0':
+
+              count += 1
+
+      for idx in cycle:
+
+          res[idx] = count
+
+Finally, print the res list as space-separated integers.
+
+But wait, in the code, the p is a list of integers. So for the current node (0-based), the value is p[current], and the next node is p[current] - 1. Because the problem's nodes are 1-based. For example, if the current node is 1 (problem's terms), which is 0-based index 0, then p[current] is 1 (problem's terms), which is 1-1=0 (0-based index).
+
+Yes.
+
+So this code should handle all cases.
+
+Now, let's test the sample input.
+
+Sample input for the second test case:
+
+n=5
+
+p = [1,2,4,5,3]
+
+s = '10101'
+
+The code processes the cycles correctly.
+
+Now, the code for the second test case will produce res = [0,1,1,1,1], which matches the sample output.
+
+Another sample is the first test case:
+
+n=1, p = [1], s = '0'.
+
+The code processes i=0 (0-based). current is 0, not visited. cycle is [0]. count is s[0] is '0' → count is 1. res[0] = 1. Output is 1 → correct.
+
+Another sample is the third test case:
+
+Sample input:
+
+5
+
+5 4 1 3 2
+
+10011
+
+The output is 2 2 2 2 2.
+
+Let's see:
+
+p = [5,4,1,3,2]
+
+s = '10011' → s[0] is '1', s[1] is '0', s[2] is '0', s[3] is '1', s[4] is '1'.
+
+So the permutation is:
+
+node 1: p[0] =5 → next is 5-1=4.
+
+node 2: p[1]=4 → next is 3.
+
+node 3: p[2]=1 → next is 0.
+
+node 4: p[3]=3 → next is 2.
+
+node 5: p[4]=2 → next is 1.
+
+So the cycles are:
+
+Cycle 1: 0 →4 →3 →2 →1 →0? Let's see:
+
+Start with 0 (node 1):
+
+current = 0 → add to cycle. current becomes 5-1=4 (index 4). Add to cycle. current becomes p[4]-1=2-1=1. Add to cycle. current becomes p[1]-1=4-1=3. Add to cycle. current becomes p[3]-1=3-1=2. Add to cycle. current becomes p[2]-1=1-1=0. Now, current is 0, which is already visited. So the cycle is [0,4,3,2,1].
+
+Wait, the cycle is 0 →4 →3 →2 →1 →0. So the cycle is of length 5.
+
+For the cycle, the indices are 0,4,3,2,1.
+
+For each of these indices, the s values are:
+
+s[0] = '1' → '1'
+
+s[4] = '1' → '1'
+
+s[3] = '1' → '1'
+
+s[2] = '0' → '0'
+
+s[1] = '0' → '0'
+
+So the count is 2 (s[2] and s[1] are '0').
+
+So for each node in the cycle, F(i) is 2. So the output is 2 2 2 2 2. Which matches the sample.
+
+Yes.
+
+So the code should handle this correctly.
+
+Now, the code in Python.
+
+But in Python, the code must read from stdin and output to stdout.
+
+So the code:
+
+Read t.
+
+For each t:
+
+   Read n.
+
+   Read p as list of integers.
+
+   Read s as a string.
+
+   visited = [False] * n
+
+   res = [0] * n
+
+   for i in range(n):
+
+       if not visited[i]:
+
+           current = i
+
+           cycle = []
+
+           while not visited[current]:
+
+               visited[current] = True
+
+               cycle.append(current)
+
+               current = p[current] - 1
+
+           # Now, count the number of '0's in s for the cycle indices
+
+           count = 0
+
+           for idx in cycle:
+
+               if s[idx] == '0':
+
+                   count += 1
+
+           # assign count to all in cycle
+
+           for idx in cycle:
+
+               res[idx] = count
+
+   print(' '.join(map(str, res)))
+
+But wait, in Python, the code for reading the p list is:
+
+p = list(map(int, input().split()))
+
+But for the first test case, the input is 1, then 1, then 0. So p is [1], and s is '0'.
+
+Yes.
+
+But for the code, the s string is read as input().strip(), which is correct.
+
+So the code should handle all cases.
+
+Now, testing the sample input.
+
+The sample input for the second test case is:
+
+5
+
+1 2 4 5 3
+
+10101
+
+Which would be read as:
+
+n=5
+
+p = [1,2,4,5,3]
+
+s = '10101'
+
+The code will process the cycles correctly.
+
+Now, the code for the third sample input:
+
+6
+
+3 5 6 1 2 4
+
+010000
+
+The output is 4 1 4 4 1 4.
+
+Let's see:
+
+The permutation p is [3,5,6,1,2,4].
+
+s is '010000'.
+
+So for each node:
+
+s is '0' '1' '0' '0' '0' '0'.
+
+So for each index in the cycle, the s is:
+
+index 0 → '0' → black.
+
+index 1 → '1' → white.
+
+index 2 → '0' → black.
+
+index 3 → '0' → black.
+
+index 4 → '0' → black.
+
+index 5 → '0' → black.
+
+Now, the permutation:
+
+Let's find the cycles.
+
+Start with i=0 (node 1):
+
+current = 0.
+
+cycle is [0].
+
+current = p[0] -1 = 3-1=2.
+
+current = 2 → not visited.
+
+cycle is [0,2].
+
+current = p[2] -1 =6-1=5.
+
+current =5 → not visited.
+
+cycle is [0,2,5].
+
+current = p[5] -1 =4-1=3.
+
+current=3 → not visited.
+
+cycle is [0,2,5,3].
+
+current = p[3] -1 =1-1=0.
+
+Now, current is 0, which is already visited. So the cycle is [0,2,5,3].
+
+The indices in the cycle are 0,2,5,3.
+
+The s values for these indices are:
+
+s[0] = '0' → 0.
+
+s[2] = '0' → 0.
+
+s[5] = '0' → 0.
+
+s[3] = '0' → 0.
+
+So count is 4.
+
+So for each of these indices (0,2,5,3), res is 4.
+
+Then, for i=1 (node 2):
+
+visited[1] is False.
+
+current =1 → add to cycle [1].
+
+current = p[1] -1 =5-1=4.
+
+current =4 → add to cycle [1,4].
+
+current = p[4] -1 =2-1=1 → already visited. So cycle is [1,4].
+
+s values for indices 1 and 4:
+
+s[1] is '1' → 1.
+
+s[4] is '0' → 0.
+
+count is 1. So res[1] = 1, res[4] = 1.
+
+Then for i=3, which is already visited.
+
+i=4 is already visited.
+
+i=5 is already visited.
+
+So the res array is:
+
+res[0] =4, res[1]=1, res[2]=4, res[3]=4, res[4]=1, res[5]=4.
+
+Which matches the sample output of 4 1 4 4 1 4.
+
+Yes.
+
+So the code is correct.
+
+Now, the code must be written in Python.
+
+But note that the input for the p list may be read as list(map(int, input().split())).
+
+So the code is:
+
+Read t.
+
+For each test case:
+
+n = int(input())
+
+p = list(map(int, input().split()))
+
+s = input().strip()
+
+visited = [False] * n
+
+res = [0] * n
+
+for i in range(n):
+
+    if not visited[i]:
+
+        current = i
+
+        cycle = []
+
+        while not visited[current]:
+
+            visited[current] = True
+
+            cycle.append(current)
+
+            current = p[current] - 1
+
+        # count the number of 0s in s for the cycle indices
+
+        count = 0
+
+        for idx in cycle:
+
+            if s[idx] == '0':
+
+                count += 1
+
+        # assign count to each in cycle
+
+        for idx in cycle:
+
+            res[idx] = count
+
+print(' '.join(map(str, res)))
+
+But in Python, the code must read the input correctly. For example, in the third test case, the p is [3,5,6,1,2,4], and the s is '010000'.
+
+Yes.
+
+Now, the code must handle large inputs. For example, n up to 2e5 and t up to 1e4. The code is O(n) per test case, which is acceptable.
+
+But for the code to be efficient, the code must process the test cases quickly.
+
+So this code should work.
+</think>
+
+```python
+import sys
+
+def main():
+    input = sys.stdin.read
+    data = input().split()
+    idx = 0
+    t = int(data[idx])
+    idx += 1
+    results = []
+    for _ in range(t):
+        n = int(data[idx])
+        idx += 1
+        p = list(map(int, data[idx:idx+n]))
+        idx += n
+        s = data[idx]
+        idx += 1
+        visited = [False] * n
+        res = [0] * n
+        for i in range(n):
+            if not visited[i]:
+                current = i
+                cycle = []
+                while not visited[current]:
+                    visited[current] = True
+                    cycle.append(current)
+                    current = p[current] - 1
+                count = 0
+                for idx_in_cycle in cycle:
+                    if s[idx_in_cycle] == '0':
+                        count += 1
+                for idx_in_cycle in cycle:
+                    res[idx_in_cycle] = count
+        results.append(' '.join(map(str, res)))
+    print('\n'.join(results))
+
+if __name__ == "__main__":
+    main()
+```

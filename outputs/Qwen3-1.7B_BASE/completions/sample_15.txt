@@ -1,0 +1,1202 @@
+<think>
+Okay, let's see. The problem is to find k distinct points such that their average is (xc, yc). And each point has integer coordinates. Hmm. So, how can I approach this?
+
+First, the average of the points must be (xc, yc). So if I have k points, their sum must be k*(xc, yc). So each point's coordinates are such that x_i + x_j + ... + x_k = k*xc, same for y.
+
+So the idea is to find k points that sum up to (k*xc, k*yc) in x and y directions. How to choose these points?
+
+Let me think. For example, in the first sample input, k=1, so the point is (10,10). That's straightforward.
+
+In the second sample, k=3. The sum of x's is 3*0 = 0. So three points must sum to 0. So maybe (x1, y1) = (-1, -1), (x2, y2) = (5, -1), (x3, y3) = (-4, 2). Then their average is ( (-1+5-4)/3, (-1-1+2)/3 ) = (0, 0). That's correct.
+
+So how to construct these points for any given k, xc, yc?
+
+Hmm. Let's think about choosing points that are as simple as possible. For example, maybe take (xc - i, yc - j) for i and j such that their sum is k*xc and k*yc. Wait, but how to choose i and j.
+
+Alternatively, maybe choose points with x_i = xc + i, y_i = yc + j, such that when you sum them all, the sum in x is k*xc and same for y. But how to choose i and j.
+
+Wait, let's think. Let's take x_i = xc + i, y_i = yc + j. Then sum x_i over all i would be k*xc + sum i. So we need sum i = 0. So the sum of i from 1 to k must be zero. But sum from 1 to k is k(k+1)/2. Which can't be zero unless k=0, but k is at least 1. So that approach doesn't work.
+
+Hmm. So maybe another way. Let's think of the points as (xc + i, yc + j) where i and j are chosen such that when you sum all i and j, they equal k*xc and k*yc. Wait, but that's not possible unless k is even or something. Wait, no. For example, take k=3. Then sum i from 1 to 3 is 6. So if we can adjust some of the points to have negative i's. Like, maybe take i's as 1, -1, 2, etc. But that complicates.
+
+Alternatively, maybe take some points as (xc, yc) and others as (xc + i, yc + j), but that might not work.
+
+Wait, here's an idea. Let's take k points where each point is (xc + a, yc + b), where a and b are chosen such that when you add up all a's, it's 0, and same for b's.
+
+But how? Let's think of a and b as two separate variables. So the sum of all a_i is 0, sum of all b_i is 0. So for example, take a_i as 1, -1, 0, 0, ..., 0. Then sum is 0. Similarly for b_i. Then the points would be (xc +1, yc + b), etc. But that's possible.
+
+So for example, in the second sample input, xc=0, yc=0, k=3. So sum a's should be 0. So take a's as 1, -1, 0. Sum is 0. Similarly for b's. Then the points would be (0+1, 0+0), (0-1, 0+0), (0+0, 0+0) → (1,0), (-1,0), (0,0). Then the average is (1-1+0)/3 = 0, same for y. So that's correct.
+
+Wait, but then the points would be (1,0), (-1,0), (0,0). But that's three points. So their average is (0,0). So that's correct. But why did the sample output have different points? Because there are multiple correct answers.
+
+So the approach is to find k points where each point's x and y are xc + a_i and yc + b_i, respectively, and the sum of a_i is zero, and sum of b_i is zero. Then the average is (xc, yc). So the problem reduces to choosing a_i and b_i such that their sums are zero and the points are distinct.
+
+But how to choose a_i and b_i. Well, since k can be up to 1000, we need to find a way to choose a_i and b_i such that their sums are zero and all points are distinct.
+
+Let's think of a_i and b_i as follows: take a_i as 1, -1, 0, 0, ..., 0. Then the sum is 0. Similarly for b_i. Then the points would be (xc +1, yc +0), (xc-1, yc+0), (xc+0, yc+0), etc. But then there are multiple points. For example, if k is even, maybe take two points as (xc +1, yc +0) and (xc-1, yc +0), then the sum is 0. Then add more points with a_i=0 and b_i=0. So the average would be (xc, yc) again.
+
+But wait, in that case, the points would be (xc+1, yc), (xc-1, yc), (xc, yc), etc. So for example, for k=3, that's three points. Then the average is ( (xc+1 + xc-1 + xc) /3, (yc + yc + yc)/3 ) → (xc, yc). Correct.
+
+So that's a way to generate the points. So for any k, we can generate a_i as follows: take 1, -1, 0, 0, ..., 0. Then sum is 0. Similarly for b_i. So the points would be (xc +1, yc), (xc-1, yc), (xc, yc), etc.
+
+But then, the points would be (xc +1, yc), (xc-1, yc), (xc, yc), (xc, yc), etc. Wait, but the problem requires that all points are distinct. So for example, when k is 3, the points (xc+1, yc), (xc-1, yc), (xc, yc) are all distinct if xc+1 != xc-1, which is true if 1 != -1, which is true. So that's okay.
+
+So for any k, we can generate k points as follows:
+
+- Take the first two points as (xc+1, yc) and (xc-1, yc).
+- Then add (xc, yc) as the third point, and so on, but only if needed.
+
+Wait, but for k=3, we need three points. So the three points would be (xc+1, yc), (xc-1, yc), (xc, yc). So that's three distinct points.
+
+So for k=4, the points would be (xc+1, yc), (xc-1, yc), (xc, yc), (xc, yc). Wait, but then (xc, yc) is repeated. So that's a problem.
+
+Ah, right. So the approach needs to generate points such that they are all distinct. So for example, when k is even, we can have two points (xc+1, yc) and (xc-1, yc), and then add (xc, yc) and (xc, yc) again. But that would duplicate. So that's not allowed.
+
+So maybe a better approach is to have a_i and b_i such that each a_i is 1, -1, 0, 0, ..., 0, and same for b_i, but for each point, the (a_i, b_i) is unique. So that the points are distinct.
+
+Wait, but how to do that. For example, for k=3, the three points could be (xc+1, yc), (xc-1, yc), and (xc, yc). All distinct. For k=4, perhaps (xc+1, yc), (xc-1, yc), (xc, yc), and (xc, yc + 1). Then sum of a_i is 0, sum of b_i is 0 + 1 = 1. Which is not zero. So that's not good.
+
+Alternatively, maybe for k even, we can have k/2 points as (xc +1, yc) and (xc-1, yc), and then the rest as (xc, yc) and (xc, yc). But again, that would duplicate.
+
+Hmm. So maybe the approach is to take a_i and b_i as follows: for each point, a_i is 1, -1, 0, 0, ..., 0, and same for b_i. But each point is (xc + a_i, yc + b_i), and the sum of a_i is 0, sum of b_i is 0.
+
+Wait, but if we take k=4, then a_i would be 1, -1, 0, 0. Sum is 0. Similarly for b_i. Then the points are (xc+1, yc), (xc-1, yc), (xc, yc), (xc, yc). But the last two are same. So that's a problem.
+
+So how to avoid that? Well, perhaps for the first k points, take a_i as 1, -1, 0, 0, ..., 0. Then for the remaining points, take a_i as 0, but adjust the b_i so that the sum of b_i is zero.
+
+Wait, but then the sum of b_i would be zero. So for example, take the first two points as (xc+1, yc) and (xc-1, yc), then the rest are (xc, yc + 1), (xc, yc + 0), (xc, yc -1), etc. But that's getting complicated.
+
+Alternatively, for k points, take the first two points as (xc+1, yc) and (xc-1, yc), then the rest as (xc, yc + i), where i is chosen so that the sum of the b_i is zero. But how?
+
+Let's think. For k points, the sum of a_i is zero. So for the first two points, a_i is 1 and -1, sum is 0. The remaining k-2 points must have a_i sum zero. So for those, we can take a_i as 0 for all, but then sum is zero. So the total sum is zero. Then for the b_i, sum must be zero.
+
+So for the b_i, the sum must be zero. So for the first two points, the b_i is zero. So the remaining k-2 points can have b_i as any values, as long as their sum is zero.
+
+So for example, if k is even, then the first two points have b_i zero. Then the remaining k-2 points can have b_i as 1, -1, 0, etc., as long as their sum is zero.
+
+So for example, for k=4, the points would be:
+
+- (xc+1, yc)
+- (xc-1, yc)
+- (xc, yc +1)
+- (xc, yc -1)
+
+Then the sum of a_i is 1 -1 + 0 + 0 = 0. Sum of b_i is 0 + 0 +1 -1 = 0. So that works. And all the points are distinct. Because (xc+1, yc) is different from (xc-1, yc), (xc, yc+1), and (xc, yc-1). So that's good.
+
+So this approach works for any k. So the idea is:
+
+- For the first two points, take a_i as 1 and -1, and b_i as 0. So the points are (xc+1, yc) and (xc-1, yc).
+- For the remaining points (k-2), take a_i as 0 and b_i as 1, -1, 0, 0, etc., such that the sum of b_i is zero.
+
+Wait, but how to choose the b_i's for the remaining k-2 points. For example, for k=3, the remaining k-2=1 point. So we need one b_i that is 0. So we can take (xc, yc + 0) as the third point. Then sum of b_i is 0 + 0 = 0. So that works.
+
+For k=5, the remaining k-2=3 points. So we need three b_i's that sum to zero. Let's take 1, -1, 0. So the three points would be (xc, yc +1), (xc, yc-1), (xc, yc). Then the sum is 1 -1 +0 = 0. So that works.
+
+So the general approach is:
+
+- For the first two points: (xc +1, yc) and (xc-1, yc)
+- For the remaining k-2 points: (xc, yc +1), (xc, yc-1), (xc, yc), etc. So that the sum of b_i is 0. For example, if k-2 is even, then we can take (yc+1, xc), (yc-1, xc), etc. But wait, how to distribute the 1, -1, 0s?
+
+Wait, for the remaining k-2 points, the sum of b_i must be zero. So we can take (yc +1, xc), (yc-1, xc), (yc, xc), etc. But how to make sure that the sum of their b_i's is zero?
+
+Let me think. Suppose we have m points left. We can take m points where each has b_i as 1, -1, 0, 0, etc., such that the sum is zero. For example, if m is even, take (1, 0), (-1, 0), 0, 0, etc. Then sum is 0. If m is odd, take (1, 0), (-1, 0), 0, 0, ..., 0, 1, -1. Then sum is 0.
+
+So the approach is to generate for the remaining points (k-2) points as follows:
+
+- Take (xc, yc +1) and (xc, yc-1) for the first two, and then for the rest, take (xc, yc) as the remaining point. But then the sum of the b_i's would be 1 -1 + 0 = 0. So that's correct.
+
+Wait, but for k-2 points, maybe the sum is zero. So for example, for k=4, the remaining points are k-2 =2. So we take (xc, yc+1) and (xc, yc-1). Sum of b_i's is 1-1=0. So that's correct.
+
+So the algorithm is:
+
+For each test case:
+
+1. If k=1, output (xc, yc).
+
+Else:
+
+2. Generate two points (xc+1, yc) and (xc-1, yc). These are distinct and sum to zero in x.
+
+3. For the remaining (k-2) points, generate (xc, yc + i), where i is 1, -1, 0, etc., such that the sum of the b_i's is zero.
+
+Wait, but how to generate those i's? Well, for (k-2) points, we can take (yc + 1) and (yc -1) and then the rest as (yc, xc) and so on. But maybe the easiest way is to take the first two points as (xc, yc +1) and (xc, yc -1), then the remaining points as (xc, yc) repeated (k-2) times. But then, the sum of b_i's is 1 -1 + (k-2)*0 = 0. So that's correct.
+
+Wait, for example, k=3: two points (xc+1, yc) and (xc-1, yc). Then third point is (xc, yc+1) and (xc, yc-1) would be two points. But k-2 is 1. So only one point. So the third point is (xc, yc) added once. So for k=3, the three points are (xc+1, yc), (xc-1, yc), (xc, yc). All distinct.
+
+For k=4, the remaining two points are (xc, yc+1) and (xc, yc-1). Sum of b_i is 1-1=0. Correct.
+
+For k=5, the remaining three points are (xc, yc+1), (xc, yc-1), (xc, yc). Sum of b_i is 1-1+0=0. Correct.
+
+So this approach seems to work.
+
+So the algorithm is:
+
+For each test case:
+
+If k=1: output (xc, yc).
+
+Else:
+
+- Output (xc+1, yc) and (xc-1, yc).
+
+- Then for the remaining (k-2) points, output (xc, yc+1), (xc, yc-1), and (xc, yc) repeated (k-2) times. Wait, no. Wait, for (k-2) points, the first two are (yc+1, xc) and (yc-1, xc), and the rest are (xc, yc) repeated (k-2) times. Then sum of b_i's is 1 -1 + 0 = 0.
+
+But for k=3, (k-2) is 1. So the third point is (xc, yc) once. So that's correct.
+
+So for k=5, the remaining three points are (yc+1, xc), (yc-1, xc), (xc, yc). Sum of b_i's is 1-1+0=0. Correct.
+
+So the code can be structured as follows:
+
+Read t test cases.
+
+For each test case:
+
+Read xc, yc, k.
+
+If k == 1:
+
+   print xc, yc
+
+else:
+
+   print xc+1, yc
+
+   print xc-1, yc
+
+   for i in range(1, k-2+1):
+
+      print xc, yc+1 if i%2 == 1 else yc-1
+
+Wait, no. Wait, the first two points are (xc+1, yc) and (xc-1, yc). Then for the remaining (k-2) points, the first two are (xc, yc+1) and (xc, yc-1), then the rest are (xc, yc) repeated (k-2) times. Wait, no. Because (k-2) is the number of remaining points. For example, k=5, (k-2) =3. So the first two points are (xc, yc+1) and (xc, yc-1). Then the third point is (xc, yc). So the remaining (k-2) points are (xc, yc+1), (xc, yc-1), (xc, yc). So the code would loop from 0 to (k-2-1) = (k-3) steps, and for each step, print (xc, yc+1) if i is even? No, perhaps not. Let me think.
+
+The first two points are (xc+1, yc) and (xc-1, yc). Then the next two points are (xc, yc+1) and (xc, yc-1). Then the rest are (xc, yc) repeated (k-4) times. So for (k-2) points, the first two are (xc, yc+1) and (xc, yc-1), then the rest are (xc, yc) repeated (k-2 - 2) times. So (k-4) times.
+
+Wait, no. Let's think for k=5. The total points after the first two are 3. So for the first two (xc, yc+1) and (xc, yc-1), then the rest is 1 point (xc, yc). So for k=5, the remaining (k-2) =3 points. So the first two are (xc, yc+1) and (xc, yc-1), and the third is (xc, yc). So the code needs to loop for (k-2) times, but the first two are (xc, yc+1) and (xc, yc-1), then the rest are (xc, yc).
+
+So the code would generate (xc+1, yc), (xc-1, yc), (xc, yc+1), (xc, yc-1), (xc, yc) for k=5.
+
+So for the remaining (k-2) points, the first two are (xc, yc+1) and (xc, yc-1), and the rest are (xc, yc) repeated (k-2 - 2) times. So (k-4) times.
+
+So the code can be written as:
+
+for i in range(1, k-2+1):
+
+   if i == 1:
+
+      print(xc, yc+1)
+
+   elif i ==2:
+
+      print(xc, yc-1)
+
+   else:
+
+      print(xc, yc)
+
+But wait, for k=3, the remaining is 1 point. So i ranges from 1 to (k-2) =1. So i=1. So print xc, yc+1. Which is correct.
+
+For k=4, the remaining is 2 points. So i ranges from 1 to 2. i=1: print xc, yc+1. i=2: print xc, yc-1. Which is correct.
+
+For k=5, the remaining is 3 points. i ranges from 1 to 3. i=1: xc, yc+1. i=2: xc, yc-1. i=3: xc, yc. So yes.
+
+So the code for the remaining (k-2) points would be:
+
+for i in range(1, k-2+1):
+
+   if i ==1:
+
+      print(xc, yc+1)
+
+   elif i ==2:
+
+      print(xc, yc-1)
+
+   else:
+
+      print(xc, yc)
+
+But wait, in the first two steps, we already printed (xc+1, yc) and (xc-1, yc). So the loop for the remaining points starts from i=1, but for the first two steps, the code would have already printed (xc+1, yc) and (xc-1, yc). So perhaps the code should start from i=1, but not include the first two steps. Wait, no. Let me think again.
+
+The first two points are (xc+1, yc) and (xc-1, yc). So the code for those is:
+
+print(xc+1, yc)
+
+print(xc-1, yc)
+
+Then the remaining (k-2) points are:
+
+print(xc, yc+1)
+
+print(xc, yc-1)
+
+print(xc, yc) ... (k-2 -2) times.
+
+So the code for the remaining points is:
+
+for i in range(1, k-2+1):
+
+   if i ==1:
+
+      print(xc, yc+1)
+
+   elif i ==2:
+
+      print(xc, yc-1)
+
+   else:
+
+      print(xc, yc)
+
+But then for i=1 and i=2, the code prints (xc, yc+1) and (xc, yc-1), and for i >=3, prints (xc, yc). But for k-2 =3, the loop runs for i=1,2,3. So that's three points. Which is correct.
+
+So the code would be:
+
+if k == 1:
+
+   print(xc, yc)
+
+else:
+
+   print(xc+1, yc)
+
+   print(xc-1, yc)
+
+   for i in range(1, k-2+1):
+
+      if i ==1:
+
+         print(xc, yc+1)
+
+      elif i ==2:
+
+         print(xc, yc-1)
+
+      else:
+
+         print(xc, yc)
+
+Wait, but in Python, the range is exclusive of the upper bound. So range(1, k-2+1) would generate i from 1 to k-2. For example, if k-2 is 3, then range(1, 4) is 1,2,3. So yes.
+
+So this would generate the required points.
+
+Now, let's test this with the sample input.
+
+Sample Input 2:
+
+0 0 3
+
+Sample Output:
+
+-1 -1
+
+5 -1
+
+-4 2
+
+Wait, the code would generate:
+
+print(0+1, 0) → (1, 0)
+
+print(0-1, 0) → (-1, 0)
+
+Then for i=1, print(0, 0+1) → (0, 1)
+
+i=2 → print(0, 0-1) → (0,-1)
+
+i=3 → print(0, 0) → (0,0)
+
+So the three points would be (1,0), (-1,0), (0,1), (0,-1), (0,0). But that's five points. Wait, no. Because k=3, the code would have:
+
+print(0+1, 0) → (1, 0)
+
+print(0-1, 0) → (-1, 0)
+
+then for i in range(1, 3-2+1) → range(1, 2) → i=1.
+
+So i=1, print(0, 0+1) → (0,1). So three points total. Which is correct.
+
+But the sample output for that test case has three points. So the code would generate (1,0), (-1,0), (0,1). The average is ( (1-1+0)/3, (0+0+1)/3 ) → (0, 1/3), which is not (0,0). Wait, that's a problem. So why is the sample output different?
+
+Ah, here's a mistake in the approach. Because the sum of a_i is 1-1 + 0 = 0. Sum of b_i is 0+1=1. So the sum of b_i is 1, not zero. So the average is (0, 1/3), not (0,0). Which is wrong. So what's wrong here?
+
+Oh right! Because the code for the remaining points is not properly setting the sum of b_i to zero. So the approach is wrong.
+
+So where is the error?
+
+The code for the remaining points is:
+
+for i in range(1, k-2+1):
+
+   if i ==1:
+
+      print(xc, yc+1)
+
+   elif i ==2:
+
+      print(xc, yc-1)
+
+   else:
+
+      print(xc, yc)
+
+But this would generate the first two points as (xc, yc+1) and (xc, yc-1), and the rest as (xc, yc). So the sum of the b_i's is (yc+1) + (yc-1) + (yc) * (k-2-2) ?
+
+Wait, no. For k=3, the code would generate (xc, yc+1) and (xc, yc-1), and then for i=1, which is the third point, it would print (xc, yc). So the sum of the b_i's is (yc+1) + (yc-1) + yc = 3yc. Which is not zero. So this approach is wrong.
+
+Oh no, this is a big problem. So my earlier reasoning was incorrect.
+
+So why did the sample input have a valid solution? Because for the sample input 2, the code's approach would generate points with sum of b_i's not zero. So the approach is flawed.
+
+Hmm. Need to rethink.
+
+So the sum of a_i must be zero. For the first two points, a_i is 1 and -1. So sum is zero. The remaining (k-2) points must have a_i sum zero. So for those, the sum of a_i is zero. So for the remaining (k-2) points, their a_i's must sum to zero.
+
+But for the b_i's, their sum must be zero.
+
+So for the first two points, the b_i's are zero. So the remaining (k-2) points must have their b_i's sum to zero.
+
+So for the remaining (k-2) points, the sum of their b_i's must be zero.
+
+So how to generate the remaining points so that their sum of b_i's is zero.
+
+For example, in the sample input 2, k=3. So the remaining (k-2) =1 point. So we need to choose a b_i that is zero. So the point is (xc, yc +0) → (0, 0). So that's correct.
+
+But in the code above, the code for the remaining points is (xc, yc+1) and (xc, yc-1), which sum to 1-1=0. But then the sum of b_i's is 0 + 1 -1 =0. Wait, no. Because the first two points have b_i's 0 and 0. So the remaining (k-2) points have sum of b_i's 0 + 1 -1 =0. Wait, but that's only for k=3. So why did the code generate (xc, yc+1) and (xc, yc-1) as the remaining points?
+
+Ah, I see. The code is generating the first two points as (xc, yc+1) and (xc, yc-1), but those points are not part of the first two points. Wait, the code for the first two points is (xc+1, yc) and (xc-1, yc). The remaining points are (xc, yc+1) and (xc, yc-1), which are the first two points of the remaining. Then the third point is (xc, yc). So the sum of the first two points (xc+1, yc) and (xc-1, yc) has sum of x's 0, sum of y's 0. The remaining points have sum of x's 0, sum of y's 0. So total sum of x's is 0, sum of y's is 0. So the average is (0,0).
+
+Ah! So the code is correct. But in the previous example, when I thought of the code generating (xc, yc+1) and (xc, yc-1) as the remaining points, that's incorrect. Because the code for the remaining points is (xc, yc+1) and (xc, yc-1), but the first two points are (xc+1, yc) and (xc-1, yc). So the sum of b_i's is 0 (from the first two points) + 1 (from the third point) + (-1) (from the fourth point) = 0. Wait, no. Let me re-calculate.
+
+In the sample input 2, the code would generate:
+
+- First two points: (xc+1, yc) = (0+1, 0) → (1,0), (xc-1, yc) → (-1, 0).
+
+Then the remaining points are:
+
+i=1 → (xc, yc+1) → (0, 0+1) = (0,1)
+
+i=2 → (xc, yc-1) → (0,0-1) = (0,-1)
+
+i=3 → (xc, yc) → (0,0)
+
+Wait, no. Because for k=3, the code runs for i in range(1, k-2+1) → k-2=1, so range(1, 1+1) is range(1,2) → i=1. So only one point is generated. So the code would generate (0,1). Which is the third point. So the three points are (1,0), (-1,0), (0,1). Sum of x's: 1-1+0 =0. Sum of y's: 0+0+1=1. Which is not zero. So the average is (0, 1/3), which is wrong. So why is this happening?
+
+Ah, because the code is not properly calculating the sum of the b_i's. Because the code is generating the first two points as (xc+1, yc) and (xc-1, yc), which have b_i's zero. Then the remaining points are (xc, yc+1) and (xc, yc-1) for the first two steps, but the code is generating only one point. So the sum of the b_i's is zero (from the first two points) plus 1 (from the third point) → sum is 1, which is not zero. So this is wrong.
+
+So what's the problem here?
+
+The code's logic is that the remaining (k-2) points are generated as (xc, yc+1), (xc, yc-1), and (xc, yc) repeated (k-2-2) times. But this is not correct. Because for the first two points (xc+1, yc) and (xc-1, yc), their b_i's are zero. Then the remaining (k-2) points must have their b_i's sum to zero. So the code for the remaining points is generating (xc, yc+1) and (xc, yc-1) as the first two, but then the rest are (xc, yc) repeated (k-2-2) times.
+
+But in this case, the sum of b_i's for the remaining points would be 1-1 + 0 * (k-2-2) = 0. So for k=3, it's 1-1 =0. Which is correct. But in the example, the sum of b_i's is 0 (from first two points) + 1-1 =0. So the total sum is zero. So why does the example have a sum of 1?
+
+Ah, no. Because the code is generating only one point. So the code for k=3 would generate:
+
+First two points: (1,0), (-1,0)
+
+Then the remaining points are for i in range(1, 3-2+1) → range(1, 2) → i=1. So generate (0,1). So the three points are (1,0), (-1,0), (0,1). Sum of x's is 1-1+0=0. Sum of y's is 0+0+1=1. Which is not zero. So this is wrong.
+
+But why? Because the code is not properly considering the b_i's. Oh, right! The code is not generating the remaining points correctly. Because the sum of the b_i's for the first two points is zero, and the remaining points are (xc, yc+1) and (xc, yc-1) for the first two steps. So the sum of the b_i's for the remaining points is 1-1 =0. So the total sum is zero. So why in this example it's not working?
+
+Ah, I see. Because the code for the remaining points is generating (xc, yc+1) and (xc, yc-1) as the first two points, but in this example, k=3. So the code is generating one point. So the sum of the b_i's for the remaining points is 1 (from the first point) -1 (from the second point) =0. So the total sum is zero. But why is the example not working?
+
+Because in this case, the sum of the b_i's is zero. So the average should be (0, 0). But the example has (1,0), (-1,0), (0,1). Sum of x's is 0, sum of y's is 1. So why is the average (0, 1/3)?
+
+Because the code is not properly generating the remaining points. Wait, no. Because the sum of the b_i's for the remaining points is 1-1 =0. So the sum of all b_i's is zero. So the average should be (0, 0). So why is the example not working?
+
+Ah, no! Because the code is not properly calculating the sum of the b_i's for the first two points. Because the first two points have b_i's zero. The remaining points are (xc, yc+1) and (xc, yc-1) for the first two steps. So the sum of the b_i's is zero +1-1=0. So the total sum is zero. So the average is (0,0). But why in the example it's (0, 1/3)?
+
+Because the code is generating three points, but the first two are (xc+1, yc) and (xc-1, yc), and the third is (xc, yc+1). So the sum of x's is 0, sum of y's is 0+0+1 =1. Which is not zero. But according to the code, the sum of the b_i's should be zero. What's wrong here?
+
+Ah, because the code is not properly calculating the sum of the b_i's. The first two points have b_i's zero. The third point has b_i=1. So the total sum is 0+0+1=1. But according to the code, it should be zero. So why?
+
+Because the code is generating the third point as (xc, yc+1), which has b_i=1. But the sum of the remaining points (k-2=1) is 1. So the total sum of b_i's is 0+1=1. So it's wrong.
+
+Ah! Now I see the problem. The code's logic is incorrect. The remaining points are not being properly calculated. The code is generating the remaining points as (xc, yc+1) and (xc, yc-1) for the first two steps, but the sum of their b_i's is 1-1=0, but the code is adding these to the first two points' b_i's (which are zero), resulting in a total of 0+0+1-1=0. So why is the sum of the b_i's 0?
+
+Wait, no. The first two points have b_i's zero. The remaining points are the first two points of the remaining (k-2) points. So the code for the remaining points is adding 1-1=0 to the first two points' b_i's (zero), giving total sum zero. So the total sum is zero. But why in the example it's 1?
+
+Because the code is generating the third point as (xc, yc+1), which has b_i=1. But the code is not adding it to the first two points' b_i's. Oh no! The code is not adding the b_i's of the remaining points to the first two points. The first two points are (xc+1, yc) and (xc-1, yc), which have b_i=0. The remaining points are (xc, yc+1), (xc, yc-1), etc. So their b_i's are 1, -1, 0, etc. So the sum of the b_i's for the remaining points is 1-1=0. So the total sum is zero + 0 =0. But in the example, the sum of the b_i's is 0+0+1=1. So why?
+
+Ah, I think I'm getting confused between the sum of the x and y coordinates and the sum of the b_i's. Let me rephrase:
+
+The first two points are (xc+1, yc) and (xc-1, yc). Their sum in x is 0, sum in y is 0.
+
+The remaining points are (xc, yc+1), (xc, yc-1), etc. Their sum in x is 0, sum in y is 1-1=0.
+
+So the total sum in x is 0+0=0. Sum in y is 0+0=0. So the average is (0,0). But in the example, the code generates (xc+1, yc), (xc-1, yc), (xc, yc+1). So the sum in y is 0+0+1=1. So why is this happening?
+
+Because the code is not generating the remaining points properly. The code for the remaining points is generating (xc, yc+1) as the first point of the remaining, but the code should generate (xc, yc+1) and (xc, yc-1) for the first two points of the remaining, and then the rest as (xc, yc). But in this case, for k=3, the remaining points are only one, so the code generates (xc, yc+1). So the sum of the remaining points is 1, and the sum of the first two points is 0. So the total sum of y's is 0 + 1 = 1. Which is wrong.
+
+So the code is incorrect. The error is that the remaining points are not properly added to the sum of the b_i's. The code is generating the remaining points as (xc, yc+1) and (xc, yc-1), but the sum of their b_i's is 1-1=0, but they are not added to the first two points' b_i's. So the code is missing this.
+
+Ah! So the code should add the b_i's of the remaining points to the first two points' b_i's. So the first two points have b_i's zero. The remaining points have b_i's 1, -1, 0, etc. So the sum of all b_i's is zero + (1-1) =0. So the code should generate the remaining points as (xc, yc+1) and (xc, yc-1), and then the rest as (xc, yc). But how?
+
+So the code needs to generate the first two points of the remaining points as (xc, yc+1) and (xc, yc-1), and then the rest as (xc, yc) repeated (k-2-2) times. So for k=3, the remaining points are (xc, yc+1) and (xc, yc-1). But the code is generating only one point. So this is wrong.
+
+So the code's logic is incorrect. The remaining points should be generated as (xc, yc+1) and (xc, yc-1) for the first two steps, and then the rest as (xc, yc) repeated (k-2-2) times. So for k=3, the remaining points are (xc, yc+1) and (xc, yc-1), which are two points. But the code is generating only one point. So the code is not properly handling this.
+
+So the code should generate the first two points of the remaining points as (xc, yc+1) and (xc, yc-1), then the rest as (xc, yc) repeated (k-2-2) times. So for k=3, the code would generate two points: (xc, yc+1) and (xc, yc-1). Then the total number of points is 2 + 2 =4, which exceeds k=3. So this is not correct.
+
+So the error is in the code's logic for generating the remaining points. The code is generating the remaining points as (xc, yc+1) and (xc, yc-1), but for k=3, this would generate two points, but the code is only generating one. So the code needs to generate (k-2) points, which is the remaining number.
+
+So the correct approach is:
+
+For the remaining (k-2) points, generate (xc, yc+1), (xc, yc-1), and (xc, yc) repeated (k-2-2) times. So for k=3, the remaining points are (xc, yc+1), (xc, yc-1), and (xc, yc) repeated 0 times. So only two points. But the code is generating only one point. So the code is incorrect.
+
+This suggests that the initial approach is incorrect. So what's the correct way to generate the remaining points?
+
+Let's think differently. The remaining (k-2) points must have sum of their b_i's equal to zero. So how to choose them?
+
+For example, for k=3, we need one point. So the b_i must be zero. So the point is (xc, yc).
+
+For k=4, we need two points. Their b_i's must sum to zero. So possible options: (xc, yc+1) and (xc, yc-1), or (xc, yc+1) and (xc, yc), etc. So the code can choose (xc, yc+1) and (xc, yc-1) for the first two steps, then the rest as (xc, yc) repeated 0 times. So the code would generate two points.
+
+So the code should generate the first two points of the remaining points as (xc, yc+1) and (xc, yc-1), and then the rest as (xc, yc) repeated (k-2-2) times. So for k=3, the code generates two points: (xc, yc+1) and (xc, yc-1). But the code is only generating one point. So this is incorrect.
+
+So the code needs to generate (k-2) points. For k=3, generate two points. So the code should generate two points. So for k=3, the code should generate (xc, yc+1) and (xc, yc-1) as the two points. But the code is only generating one. So the code is wrong.
+
+Ah! The code's loop is for i in range(1, k-2+1). For k=3, this is range(1, 3-2+1) = range(1, 2) → i=1. So only one point is generated. But the code needs to generate two points. So the code is wrong.
+
+So the correct loop should be for i in range(1, k-2+1). But for k=3, this is range(1, 2) → i=1. But the code needs to generate two points. So this suggests that the code's loop is incorrect.
+
+The correct number of points to generate after the first two is (k-2). So for k=3, the code should generate 1 point. But the code is generating 1 point, which is correct. So why is the example not working?
+
+Because in the example, the code generates (xc+1, yc), (xc-1, yc), (xc, yc+1). Sum of x's is 0, sum of y's is 0+0+1=1. Which is wrong.
+
+But according to the logic, the sum of the b_i's should be zero. So why is this happening?
+
+Because the code is not properly adding the b_i's of the remaining points. The code is generating (xc, yc+1) as the remaining point, but the code should also generate (xc, yc-1) as the second remaining point. So for k=3, the code should generate two points: (xc, yc+1) and (xc, yc-1). But the code is only generating one.
+
+So the code's loop is incorrect. It should generate (k-2) points, but the loop is generating only one point. So the code needs to generate (k-2) points.
+
+So the correct approach is:
+
+After the first two points, generate (k-2) points. For each of these points, the first two are (xc, yc+1) and (xc, yc-1), and the rest are (xc, yc) repeated (k-2-2) times.
+
+So for k=3, generate two points: (xc, yc+1) and (xc, yc-1). So the code should generate two points. So the loop should run for i in range(1, k-2+1) → for k=3, range(1, 2) → i=1. But this generates one point. So the code is missing one point.
+
+Ah, here's the mistake! The code's loop is for i in range(1, k-2+1), but the first two points of the remaining are (xc, yc+1) and (xc, yc-1), which are two points. So the code needs to generate two points, and the rest as (xc, yc) repeated (k-2-2) times. So the code should generate two points, which is k-2 = 1. So this suggests that the code is wrong.
+
+So the code's logic is incorrect. The correct way to generate the remaining points is to generate (k-2) points, where the first two are (xc, yc+1) and (xc, yc-1), and the rest are (xc, yc) repeated (k-2-2) times.
+
+So for k=3, the code should generate two points: (xc, yc+1) and (xc, yc-1). So the code should run the loop for i in range(1, k-2+1) → for k=3, range(1, 2) → i=1. But this generates one point. So the code is missing one point.
+
+This indicates that the loop is incorrect. The correct loop should generate (k-2) points, which is the number of remaining points. So for k=3, generate two points. So the loop should run for i in range(1, k-2+1) → for k=3, range(1, 2) → i=1. But this generates one point. So this is not sufficient.
+
+So the code needs to generate (k-2) points. So for k=3, generate two points. So the code should generate two points, and the loop should run for i in range(1, k-2+1) → for k=3, range(1, 2) → i=1. But this generates one point. So this suggests that the code is missing one point.
+
+This is a fundamental error in the logic.
+
+So what's the correct way to generate the remaining points? Let's think differently.
+
+The remaining (k-2) points must have their b_i's sum to zero. So for the first two points, we can choose (xc, yc+1) and (xc, yc-1), which sum to 1-1=0. Then the remaining (k-2-2) points are (xc, yc) repeated (k-2-2) times. So for k=3, (k-2-2) = 3-2-2 = -1, which is invalid. So this approach is incorrect.
+
+So what's the correct way to generate the remaining points?
+
+Let's think for k=3. We need one point. The sum of b_i's must be zero. So the point must have b_i=0. So the point is (xc, yc).
+
+For k=4, we need two points. Their sum of b_i's must be zero. So possible options: (xc, yc+1) and (xc, yc-1), or (xc, yc+1) and (xc, yc), etc.
+
+So the code can choose the first two points as (xc, yc+1) and (xc, yc-1), and the rest as (xc, yc) repeated (k-2-2) times. For k=4, this would generate two points, which is correct.
+
+So the code should generate (k-2) points, where the first two are (xc, yc+1) and (xc, yc-1), and the rest are (xc, yc) repeated (k-2-2) times.
+
+So for k=3, the code should generate two points: (xc, yc+1) and (xc, yc-1). So the loop should run for i in range(1, k-2+1) → for k=3, range(1, 2) → i=1. But this generates only one point. So the code is missing one point.
+
+Ah! Here's the mistake. The code is generating only one point, but it should generate two. So the loop should run for i in range(1, k-2+1) → for k=3, range(1, 2) → i=1. But this generates one point. So the code is wrong.
+
+So the correct loop should run for i in range(1, k-2+1 + 1) → range(1, k-2+2) → i=1, 2. For k=3, this would generate i=1, 2. So two points.
+
+So the code should generate (k-2) points, and the loop should run for i in range(1, k-2+2) → for k=3, range(1, 3) → i=1, 2.
+
+So the code should be:
+
+for i in range(1, k-2+2):
+
+   if i ==1:
+
+      print(xc, yc+1)
+
+   elif i ==2:
+
+      print(xc, yc-1)
+
+   else:
+
+      print(xc, yc)
+
+This way, for k=3, i ranges from 1 to 2, generating two points: (xc, yc+1) and (xc, yc-1). Which is correct.
+
+So the code's loop should be:
+
+for i in range(1, k-2+2):
+
+   if i ==1:
+
+      print(xc, yc+1)
+
+   elif i ==2:
+
+      print(xc, yc-1)
+
+   else:
+
+      print(xc, yc)
+
+This would generate the correct number of points.
+
+Let's test this with the sample input 2.
+
+Sample Input 2: 0 0 3
+
+k=3, so the loop runs from i=1 to i=3-2+2=3-2+2=3. So i=1,2,3.
+
+i=1: print(0, 0+1) → (0,1)
+
+i=2: print(0, 0-1) → (0,-1)
+
+i=3: print(0, 0) → (0,0)
+
+So the three points are (0+1, 0), (0-1, 0), (0,1), (0,-1), (0,0). But k=3, so the code should generate three points. Wait, no. The first two points are (0+1,0) and (0-1,0) → (1,0), (-1,0). Then the remaining points are (0,1), (0,-1), (0,0) → three points. So the code generates three points. Which is correct.
+
+So the average is (1-1+0)/3 = 0, (0+0+1)/3 = 1/3. Wait, but this is not (0,0). So what's wrong?
+
+Ah, no! The sum of the b_i's is 0 (from the first two points) +1-1 +0 = 0. So the total sum is zero. But the sum of the y's is 0 + 0 +1-1 +0 = 0. So the average is (0,0). So why is the example's average (0, 1/3)? Because the example's points are (1,0), (-1,0), (0,1). Sum of x's is 1-1+0=0. Sum of y's is 0+0+1=1. So this is wrong. But according to the code, the sum of y's should be 0.
+
+Ah, this suggests that there's a mistake in the logic. Because the code is generating three points: (1,0), (-1,0), (0,1). Sum of y's is 0+0+1=1, but according to the logic, it should be zero. So why?
+
+Because the code is generating the first two points as (xc+1, yc) and (xc-1, yc), which have b_i's zero. The remaining points are (xc, yc+1), (xc, yc-1), and (xc, yc) repeated (k-2-2) times. For k=3, (k-2-2) =3-2-2= -1, which is invalid. So the code is generating (xc, yc+1) and (xc, yc-1) as the first two points of the remaining, and then the rest as (xc, yc) repeated (k-2-2) times, which is -1 times. So this is invalid.
+
+So the code is generating the remaining points as (xc, yc+1) and (xc, yc-1) for i=1 and i=2, but for k=3, the remaining points are only two points, but the code is generating three points. So this suggests that the code is incorrect.
+
+This indicates that the initial approach is flawed, and a new approach is needed.
+
+Perhaps the correct approach is to generate points where the sum of a_i is zero and the sum of b_i is zero. For this, we can choose a_i and b_i as follows:
+
+For the first two points, a_i = 1 and -1, b_i = 0. So their sum is 0.
+
+For the remaining points, a_i = 0, and b_i = 1, -1, 0, 0, etc. So the sum of b_i is zero.
+
+So for k=3, the remaining points are (xc, yc+1), (xc, yc-1), and (xc, yc) repeated 0 times. So the code should generate two points: (xc, yc+1) and (xc, yc-1). So the code should run for i in range(1, k-2+2) → for k=3, range(1, 3) → i=1, 2. So two points.
+
+So the code would generate:
+
+(0+1, 0) → (1,0)
+
+(0-1, 0) → (-1,0)
+
+(0, 0+1) → (0,1)
+
+(0, 0-1) → (0,-1)
+
+But k=3, so the code should generate three points. So the first two are (1,0) and (-1,0), then the third is (0,1). Sum of x's is 0, sum of y's is 0+0+1=1. Which is wrong.
+
+Ah, but the sum of the b_i's is 0 + 1-1 = 0. So why is the sum of y's 1?
+
+Because the code is not properly adding the b_i's of the remaining points. The first two points have b_i's zero. The remaining points have b_i's 1 and -1. So the total sum is 0 + 1-1 =0. So the average is (0,0). But why is the sum of y's 1?
+
+Because the code is generating the remaining points as (0,1) and (0,-1), but the code is only generating one of them. So the code is missing one point.
+
+This is very confusing. It seems like the initial approach is incorrect, and a new approach is needed.
+
+Perhaps the correct approach is to generate points where the sum of x_i is k*xc and the sum of y_i is k*yc.
+
+For example, for k=3, the sum of x_i should be 3*xc = 0. So the sum of x_i is 0.
+
+For the first two points, x_i = xc +1 and xc-1. Sum is 0. The third point x_i should be xc. So sum is 0+0=0.
+
+For the y_i, sum should be 3*yc = 0. So for the first two points, y_i = yc. The third point y_i = yc. So sum is 0 + 0 +0 =0. So the points are (xc+1, yc), (xc-1, yc), (xc, yc). All distinct.
+
+So this approach works. So the code should generate three points: (xc+1, yc), (xc-1, yc), (xc, yc). Which is correct.
+
+So the code should generate k points where the first two points are (xc+1, yc) and (xc-1, yc), and the rest are (xc, yc). So for k=3, three points.
+
+So the code should generate:
+
+for i in range(1, k+1):
+
+   if i ==1 or i ==2:
+
+      print(xc+1, yc) if i ==1 else print(xc-1, yc)
+
+   else:
+
+      print(xc, yc)
+
+So for k=3, the three points are (1,0), (-1,0), (0,0). Sum of x's is 1-1+0=0. Sum of y's is 0+0+0=0. Average is (0,0). Correct.
+
+So this approach works. So the code should generate the first two points as (xc+1, yc) and (xc-1, yc), and the rest as (xc, yc).
+
+So the code is:
+
+if k ==1:
+
+   print(xc, yc)
+
+else:
+
+   print(xc+1, yc)
+
+   print(xc-1, yc)
+
+   for i in range(1, k-1):
+
+      print(xc, yc)
+
+Wait, for k=3, the loop runs from 1 to k-1=2. So i=1, 2. So two points, but the code should generate three points. So this is incorrect.
+
+Wait, no. For k=3, the code generates two points (xc+1, yc) and (xc-1, yc), then the third point is (xc, yc). So the loop runs for i in range(1, k-1) → range(1, 2) → i=1. So one point. So the code generates three points: (xc+1, yc), (xc-1, yc), (xc, yc). Which is correct.
+
+So the code should be:
+
+if k ==1:
+
+   print(xc, yc)
+
+else:
+
+   print(xc+1, yc)
+
+   print(xc-1, yc)
+
+   for i in range(1, k-1):
+
+      print(xc, yc)
+
+So for k=3, the loop runs for i=1 to 2-1=1 → i=1. So one point. So three points total.
+
+For k=4, the loop runs from 1 to 4-1=3 → i=1, 2, 3. So three points. So four points total: (xc+1, yc), (xc-1, yc), (xc, yc), (xc, yc). But this would duplicate the (xc, yc) point. So this is incorrect.
+
+Ah, no! For k=4, the code would generate:
+
+(xc+1, yc), (xc-1, yc), (xc, yc), (xc, yc). But this would duplicate the third point. So it's incorrect.
+
+So this approach is also incorrect.
+
+So what's the correct way to generate the remaining points?
+
+For k=4, the code should generate four points: (xc+1, yc), (xc-1, yc), (xc, yc), (xc, yc). But this duplicates.
+
+So this suggests that the code should generate (xc+1, yc), (xc-1, yc), (xc, yc), and (xc, yc) only once. So the code should generate (xc+1, yc), (xc-1, yc), (xc, yc), and (xc, yc) only once. So for k=4, the code should generate four distinct points.
+
+But how?
+
+The correct approach is to generate the first two points as (xc+1, yc) and (xc-1, yc), and then generate (xc, yc) for the remaining k-2 points. So for k=3, generate one point. For k=4, generate two points.
+
+So the code should generate k points where the first two are (xc+1, yc) and (xc-1, yc), and the rest are (xc, yc) repeated (k-2) times.
+
+So for k=3, generate one point: (xc, yc).
+
+For k=4, generate two points: (xc, yc+1) and (xc, yc-1).
+
+So the code should generate the remaining points as (xc, yc+1) and (xc, yc-1) for the first two steps, and the rest as (xc, yc) repeated (k-2-2) times.
+
+But this is getting complex.
+
+Perhaps the correct way is to generate the first two points as (xc+1, yc) and (xc-1, yc), and then for the remaining points, generate (xc, yc+1) and (xc, yc-1), and then (xc, yc) repeated (k-2-2) times.
+
+But for k=3, this would generate two points: (xc, yc+1) and (xc, yc-1), and the third point is (xc, yc). So three points total.
+
+For k=4, this would generate three points: (xc, yc+1), (xc, yc-1), and (xc, yc) repeated 0 times. So three points. But k=4 requires four points.
+
+This suggests that the code needs to generate (k-2) points for the remaining, where the first two are (xc, yc+1) and (xc, yc-1), and the rest are (xc, yc) repeated (k-2-2) times.
+
+So for k=4, the remaining points are two points: (xc, yc+1) and (xc, yc-1). So the code would generate three points: (xc+1, yc), (xc-1, yc), (xc, yc+1), (xc, yc-1). Which is four points. So this works.
+
+So the code should generate:
+
+First two points: (xc+1, yc), (xc-1, yc).
+
+Next (k-2) points: (xc, yc+1), (xc, yc-1), (xc, yc) repeated (k-2-2) times.
+
+So for k=3, (k-2) =1, so one point: (xc, yc+1), (xc, yc-1) → but k-2=1, so the code should generate one point: (xc, yc+1) or (xc, yc-1). But this would not generate two points. So this is confusing.
+
+At this point, it's clear that the initial approach is incorrect, and a new approach is needed.
+
+Let's think of the following approach:
+
+For any k >= 1, generate k points such that their sum is (k*xc, k*yc). This can be achieved by choosing:
+
+- For the first two points, (xc + 1, yc) and (xc - 1, yc). Their sum is 0 in x and 0 in y.
+
+- For the remaining (k-2) points, choose (xc, yc + 1) and (xc, yc -1), and then for the remaining (k-4) points, choose (xc, yc). This way, the sum of the y's is 1-1 + 0*(k-4) =0.
+
+So for k=3, this would generate (xc+1, yc), (xc-1, yc), (xc, yc+1), (xc, yc-1) → four points. But k=3 requires three points. So this is not correct.
+
+Alternatively, for k=3, generate (xc+1, yc), (xc-1, yc), (xc, yc). This works.
+
+For k=4, generate (xc+1, yc), (xc-1, yc), (xc, yc+1), (xc, yc-1). This works.
+
+So the code should generate the first two points as (xc+1, yc) and (xc-1, yc), and then for the remaining (k-2) points, generate (xc, yc+1) and (xc, yc-1) if k-2 is >= 2, and then add (xc, yc) repeated (k-4) times.
+
+So the code would look like:
+
+if k == 1:
+
+   print(xc, yc)
+
+else:
+
+   print(xc+1, yc)
+
+   print(xc-1, yc)
+
+   if k >= 2:
+
+      print(xc, yc+1)
+
+      print(xc, yc-1)
+
+      if k >= 4:
+
+         for i in range(1, k-2):
+
+            print(xc, yc)
+
+This way, for k=3, the code generates three points: (xc+1, yc), (xc-1, yc), (xc, yc). For k=4, it generates four points: (xc+1, yc), (xc-1, yc), (xc, yc+1), (xc, yc-1).
+
+But for k=4, the code would generate (xc, yc+1) and (xc, yc-1) as the first two points of the remaining, and then the rest as (xc, yc) repeated (k-2-2) = 0 times. So no additional points. So the total is four points, which is correct.
+
+For k=5, the code would generate five points: (xc+1, yc), (xc-1, yc), (xc, yc+1), (xc, yc-1), (xc, yc). Which is correct.
+
+So this approach seems to work.
+
+Let's test it with the sample input 2:
+
+Sample Input 2: 0 0 3
+
+The code generates:
+
+print(0+1, 0) → (1,0)
+
+print(0-1, 0) → (-1,0)
+
+print(0, 0+1) → (0,1)
+
+print(0, 0-1) → (0,-1)
+
+But k=3, so the loop for the remaining points is for i in range(1, k-2) → range(1, 1) → no iterations. So the code generates three points: (1,0), (-1,0), (0,1). Sum of x's is 1-1+0=0. Sum of y's is 0+0+1=1. Which is wrong.
+
+Ah, no! Because for k=3, the code generates (xc+1, yc), (xc-1, yc), (xc, yc+1). So the sum of y's is 0+0+1=1. But according to the logic, it should be zero.
+
+So why is this happening?
+
+Because the code is not properly adding the remaining points. The first two points have y=0, the third has y=1. So the sum is 1.
+
+But according to the logic, the sum should be zero. So this suggests that the logic is incorrect.
+
+So what's the correct way to generate the remaining points?
+
+The remaining (k-2) points must have their sum of y's equal to zero. So for k=3, the remaining points must have y=0. So the third point must have y=0. So the code should generate (xc, yc) as the third point.
+
+So the code should generate (xc+1, yc), (xc-1, yc), (xc, yc). Which is correct.
+
+So the code should generate (xc, yc) as the third point, not (xc, yc+1).
+
+So the code should generate:
+
+For k=3, the remaining points are (xc, yc) as the third point.
+
+So the code should generate:
+
+print(xc+1, yc)
+
+print(xc-1, yc)
+
+print(xc, yc)
+
+This works.
+
+So the code should generate the first two points as (xc+1, yc) and (xc-1, yc), and the remaining (k-2) points as (xc, yc) repeated (k-2) times.
+
+So for k=3, the remaining points are (xc, yc) once. So the code generates three points.
+
+So the code should be:
+
+if k ==1:
+
+   print(xc, yc)
+
+else:
+
+   print(xc+1, yc)
+
+   print(xc-1, yc)
+
+   for i in range(1, k-1):
+
+      print(xc, yc)
+
+This way, for k=3, the loop runs for i in range(1, 3-1=2) → i=1. So one point. So three points total.
+
+For k=4, the loop runs for i in range(1, 4-1=3) → i=1, 2. So two points. So four points total: (xc+1, yc), (xc-1, yc), (xc, yc), (xc, yc). But this duplicates the third point. So it's incorrect.
+
+Ah, no. For k=4, the code generates four points: (xc+1, yc), (xc-1, yc), (xc, yc), (xc, yc). But this duplicates the third point. So it's incorrect.
+
+So this approach is also incorrect.
+
+At this point, I realize that I'm stuck and need to find a new approach.
+
+Let's think differently. The sum of x_i must be k*xc. The sum of y_i must be k*yc.
+
+So, for x_i, we can choose x_i = xc + i, where i is chosen such that the sum is k*xc. Similarly for y_i.
+
+But how to choose i and j such that the sum of x_i is k*xc and sum of y_i is k*yc.
+
+For example, for k=3, choose i=1, -1, 0. Sum is 0.
+
+For y_i, choose j=0, 1, -1. Sum is 0.
+
+So the points are (xc+1, yc+0), (xc-1, yc+1), (xc+0, yc-1). Sum of x's is 1-1+0=0. Sum of y's is 0+1-1=0. So average is (0,0). Correct.
+
+So the code can generate these points.
+
+So the code can generate k points as follows:
+
+- For x_i, choose i=1, -1, 0, 0, ..., 0. Sum is 0.
+
+- For y_i, choose j=0, 1, -1, 0, 0, ..., 0. Sum is 0.
+
+So the points are (xc+1, yc), (xc-1, yc+1), (xc, yc-1), (xc, yc), etc.
+
+So for k=3, the points are (xc+1, yc), (xc-1, yc+1), (xc, yc-1). All distinct.
+
+For k=4, the points are (xc+1, yc), (xc-1, yc+1), (xc, yc-1), (xc, yc). All distinct.
+
+This works.
+
+So the code can generate these points.
+
+So the code should generate for x_i: 1, -1, 0, 0, ..., 0.
+
+For y_i: 0, 1, -1, 0, 0, ..., 0.
+
+So the code can generate the points as follows:
+
+if k ==1:
+
+   print(xc, yc)
+
+else:
+
+   print(xc+1, yc)
+
+   print(xc-1, yc+1)
+
+   print(xc, yc-1)
+
+   for i in range(1, k-2):
+
+      print(xc, yc)
+
+This way, for k=3, three points are generated: (xc+1, yc), (xc-1, yc+1), (xc, yc-1). For k=4, four points: (xc+1, yc), (xc-1, yc+1), (xc, yc-1), (xc, yc).
+
+This works.
+
+Let's test this with the sample input 2:
+
+Sample Input 2: 0 0 3
+
+Points are:
+
+(0+1, 0) = (1, 0)
+
+(0-1, 0+1) = (-1, 1)
+
+(0, 0-1) = (0, -1)
+
+Sum of x's: 1-1+0=0.
+
+Sum of y's: 0+1-1=0.
+
+Average is (0, 0). Correct.
+
+So the sample output for this case would be:
+
+1 0
+
+-1 1
+
+0 -1
+
+But the sample output for this case is:
+
+-1 -1
+
+5 -1
+
+-4 2
+
+Which is different, but it's a valid solution.
+
+So this approach is correct.
+
+So the code should generate the first three points as (xc+1, yc), (xc-1, yc+1), (xc, yc-1), and the rest as (xc, yc) repeated (k-3) times.
+
+So the code can be written as:
+
+if k ==1:
+
+   print(xc, yc)
+
+else:
+
+   print(xc+1, yc)
+
+   print(xc-1, yc+1)
+
+   print(xc, yc-1)
+
+   for i in range(1, k-2):
+
+      print(xc, yc)
+
+But for k=3, the loop runs for i in range(1, 3-2=1) → range(1,1) → no iterations. So no additional points. So the code generates three points: (1,0), (-1,1), (0,-1).
+
+Which is correct.
+
+For k=4, the loop runs for i in range(1, 4-2=2) → i=1. So one iteration, printing (0, 0). So four points: (1,0), (-1,1), (0,-1), (0,0). All distinct.
+
+So this approach works.
+
+So the final code is:
+
+Read t test cases.
+
+For each test case:
+
+Read xc, yc, k.
+
+If k ==1:
+
+   print(xc, yc)
+
+else:
+
+   print(xc+1, yc)
+
+   print(xc-1, yc+1)
+
+   print(xc, yc-1)
+
+   for i in range(1, k-2):
+
+      print(xc, yc)
+
+But wait, for k=3, the loop runs for i in range(1, 1) → no iterations. So no additional points. So the code generates three points.
+
+For k=4, the loop runs for i in range(1, 2) → i=1. So one iteration, printing (0,0). So four points.
+
+This seems to work.
+
+Now, let's test this with the sample input 2:
+
+Sample Input 2: 0 0 3
+
+Output should be:
+
+1 0
+
+-1 1
+
+0 -1
+
+Which is correct.
+
+So the code is correct.
+
+So the final code is:
+
+Read t.
+
+For each test case:
+
+Read xc, yc, k.
+
+If k ==1:
+
+   print(xc, yc)
+
+else:
+
+   print(xc+1, yc)
+
+   print(xc-1, yc+1)
+
+   print(xc, yc-1)
+
+   for i in range(1, k-2):
+
+      print(xc, yc)
+
+Now, let's implement this in Python.
+
+But wait, for k=1, it's handled separately.
+
+But what about when k=2? For example, k=2:
+
+The code would print (xc+1, yc), (xc-1, yc+1). Sum of x's is 0. Sum of y's is 0+1=1. Which is not zero. So this is incorrect.
+
+Wait, no! For k=2, the sum of x's should be 2*xc. So for example, if xc=0, then the sum of x's is 0+0=0. So the points should be (0+1, 0) and (0-1, 0). Sum of x's is 0. Sum of y's is 0+0=0. So the code should generate (1,0) and (-1,0). But according to the code, it generates (1,0), (0-1, 0+1) = (-1,1), and then (0, -1) if k=3. So for k=2, the code would generate (1,0), (-1,1). Sum of x's is 0. Sum of y's is 0+1=1. Which is incorrect.
+
+Ah! So the code is incorrect for k=2.
+
+So the code needs to handle k=2 separately.
+
+So the code should generate for k=2: (xc+1, yc) and (xc-1, yc).
+
+So the code should be:
+
+if k ==1:
+
+   print(xc, yc)
+
+elif k ==2:
+
+   print(xc+1, yc)
+
+   print(xc-1, yc)
+
+else:
+
+   print(xc+1, yc)
+
+   print(xc-1, yc+1)
+
+   print(xc, yc-1)
+
+   for i in range(1, k-2):
+
+      print(xc, yc)
+
+So for k=2, the code generates two points: (xc+1, yc) and (xc-1, yc). Sum of x's is 0. Sum of y's is 0+0=0. Correct.
+
+For k=3, three points: (xc+1, yc), (xc-1, yc+1), (xc, yc-1). Sum of x's is 0. Sum of y's is 0+1-1=0. Correct.
+
+For k=4, four points: (xc+1, yc), (xc-1, yc+1), (xc, yc-1), (xc, yc). Sum of x's is 0. Sum of y's is 0+1-1+0=0. Correct.
+
+So this code handles all cases.
+
+Now, let's implement this in Python.
+
+Read t test cases.
+
+For each test case:
+
+Read xc, yc, k.
+
+If k ==1:
+
+   print(xc, yc)
+
+elif k ==2:
+
+   print(xc+1, yc)
+
+   print(xc-1, yc)
+
+else:
+
+   print(xc+1, yc)
+
+   print(xc-1, yc+1)
+
+   print(xc, yc-1)
+
+   for i in range(1, k-2):
+
+      print(xc, yc)
+
+So this should handle all cases.
+
+Now, let's test this with the sample input.
+
+Sample Input 1:
+
+4
+
+10 10 1
+
+0 0 3
+
+-5 -8 8
+
+4 -5 3
+
+Sample Output:
+
+10 10
+
+-1 -1
+
+5 -1
+
+-4 2
+
+Let's see:
+
+Test case 1: k=1 → print 10 10. Correct.
+
+Test case 2: k=3. Code generates:
+
+xc+1=0+1=1, yc=0 → (1,0)
+
+xc-1=0-1=-1, yc+1=0+1=1 → (-1,1)
+
+xc=0, yc-1=0-1=-1 → (0,-1)
+
+So three points: (1,0), (-1,1), (0,-1). Sum x's: 1-1+0=0. Sum y's: 0+1-1=0. Correct.
+
+So the code generates these three points. So the output would be:
+
+1 0
+
+-1 1
+
+0 -1
+
+But the sample output for this test case is:
+
+-1 -1
+
+5 -1
+
+-4 2
+
+Which is different, but it's a valid solution.
+
+So the code is correct.
+
+Thus, the final code is as follows.
+</think>
+
+```python
+import sys
+
+def main():
+    input = sys.stdin.read
+    data = input().split()
+    t = int(data[0])
+    idx = 1
+    results = []
+    for _ in range(t):
+        xc = int(data[idx])
+        yc = int(data[idx+1])
+        k = int(data[idx+2])
+        idx += 3
+        if k == 1:
+            results.append(f"{xc} {yc}")
+        elif k == 2:
+            results.append(f"{xc+1} {yc}")
+            results.append(f"{xc-1} {yc}")
+        else:
+            results.append(f"{xc+1} {yc}")
+            results.append(f"{xc-1} {yc+1}")
+            results.append(f"{xc} {yc-1}")
+            for _ in range(1, k-2):
+                results.append(f"{xc} {yc}")
+    print("\n".join(results))
+
+if __name__ == "__main__":
+    main()
+```

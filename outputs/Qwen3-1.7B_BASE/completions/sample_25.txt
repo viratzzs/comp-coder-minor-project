@@ -1,0 +1,311 @@
+<think>
+Okay, let's tackle this problem. Hmm, the problem seems a bit complex, but I'll break it down step by step.
+
+So, the task is to compute the sum of the scores of all non-empty subsequences of array a. The score of a subsequence is defined as the maximum of the MEX (Minimum Excluded Value) of each of the k multisets formed by partitioning the subsequence into k parts. Then, sum all these scores for each possible non-empty subsequence.
+
+First, I need to understand what the MEX of a multiset is. Oh right, the MEX is the smallest non-negative integer not present in the multiset. For example, if the multiset is {0, 1}, the MEX is 2. If it's {0}, MEX is 1. If it's {1, 2}, MEX is 0.
+
+But since the MEX is determined by the multiset, the score for a given subsequence depends on how it's partitioned into multisets. Wait, the problem says that the score is the maximum of the MEXs of all possible partitions of the subsequence into k non-empty multisets. So for each subsequence, we need to consider all possible partitions into any number of non-empty multisets (k can be from 1 to the length of the subsequence), compute the MEX for each partition, take the maximum among all these, and sum all those maximums across all possible subsequences.
+
+But wait, the problem says "for any integer k", so for each subsequence, we need to find the maximum MEX over all possible partitions into k parts (for any k), and then sum that over all possible subsequences.
+
+But how do we compute this efficiently? Because for each subsequence, considering all possible k and all possible partitions would be computationally impossible for large n.
+
+Let me think about the structure of the problem. Let's think for each possible MEX value m, how many subsequences contribute m to the sum. Then, for each m, multiply the count of such subsequences by m multiplied by the number of possible partitions that can lead to m as the maximum MEX.
+
+Wait, but the maximum MEX of a partition is the largest m such that m is the MEX of at least one of the multisets in the partition. So, for a subsequence, the score is the maximum m such that m is the MEX of some multiset in a partition of the subsequence into any number of parts.
+
+But how can we model this? Because the score is the maximum m such that there exists a way to partition the subsequence into some multisets where at least one of them has MEX m. And since we take the maximum over all possible partitions, the maximum m for a subsequence would be the largest m such that the subsequence contains at least one element equal to m-1 and all elements in the subsequence are less than or equal to m-1. Because if the subsequence contains elements from 0 to m-1, then you can partition it into a multiset containing m-1 and the rest into multisets that don't have m, which would have MEX m. Wait, maybe not. Let's think again.
+
+Suppose the subsequence contains elements 0 to m-1. Then, the MEX of the entire subsequence is m. But if the subsequence has elements that are not all in 0 to m-1, then maybe the MEX of some partition is m. For example, if the subsequence is [0, 0, 1], then the MEX of the entire subsequence is 2. But if you partition into [0,1] and [0], then the MEX of the first multiset is 2, and the second is 1. So the maximum is 2. So the score for this subsequence is 2.
+
+So the maximum score for a subsequence is the largest m such that the subsequence contains all elements from 0 to m-1. Because if it doesn't, then the maximum MEX of any partition would be less than m. Wait, no. Suppose the subsequence has elements [0, 1, 2, 3]. Then the MEX of the entire multiset is 4. But if you partition into [0,1], [2,3], then each multiset has MEX 2 and 2, so the maximum is 2. But if you partition into [0,1,2], [3], then the MEX is 2 and 1. So the maximum is 2. But the MEX of the entire subsequence is 4. So the maximum MEX across all possible partitions is 2, not 4. So the maximum MEX for the subsequence is the maximum of all MEXs of the partitions, which depends on how you partition.
+
+So the maximum MEX for a subsequence is the largest m such that the subsequence contains all elements from 0 to m-1, and the subsequence contains at least one element equal to m-1. Because if it doesn't, then the maximum MEX is at most m-1. Wait, no. Suppose the subsequence contains elements 0 to m-1 and some elements larger than m-1. Then, the MEX of the entire subsequence is m. But if you partition into a multiset containing m-1 and the rest, then the MEX of that multiset is m, which is larger than the MEX of the entire subsequence. Wait, no. The MEX of the entire subsequence is the smallest non-negative integer not in the subsequence. If the subsequence contains all elements from 0 to m-1, then the MEX is m. But if you partition into a multiset with elements from 0 to m-1, then the MEX of that multiset is m. So the maximum MEX across all possible partitions is m, because you can partition the subsequence into a multiset containing m-1 and the rest into multisets that don't have m. So the maximum MEX for the subsequence is the largest m such that the subsequence contains all elements from 0 to m-1.
+
+Ah! So the score for a subsequence is the largest m where the subsequence contains all elements from 0 to m-1. Because if it doesn't, then the maximum MEX would be less than m.
+
+So the problem reduces to, for each possible subsequence, find the largest m such that the subsequence contains all elements from 0 to m-1. Then sum all these m's multiplied by the number of subsequences that have this m as their maximum MEX.
+
+Wait, but for each subsequence, there's exactly one m (the maximum possible) such that the subsequence contains all elements from 0 to m-1. Because if m is the maximum possible, then there's no larger m. So for each subsequence, the score is the maximum m where the subsequence contains all elements from 0 to m-1.
+
+So the problem is to compute for each possible subsequence, the largest m such that the subsequence contains all elements from 0 to m-1, and sum all these m's, modulo 998244353.
+
+So the key insight is that the score of a subsequence is the maximum m such that the subsequence contains all elements from 0 to m-1. Then, the total sum is the sum over all subsequences of the maximum m where the subsequence contains all elements from 0 to m-1.
+
+So now, the problem becomes: for each possible m, count how many subsequences contain all elements from 0 to m-1, and multiply that count by m, then sum over m from 0 to n.
+
+Wait, but m can be up to n, since the subsequence must have elements from 0 to m-1. For example, if m is 0, then the subsequence must contain all elements from 0 to -1, which is impossible. So m can be 0 only if the subsequence is empty. But since we are considering non-empty subsequences, m can start from 1.
+
+Wait, no. The maximum possible m for a non-empty subsequence is the maximum m such that the subsequence contains all elements from 0 to m-1. For example, if the subsequence has elements 0, 1, 2, then m is 3, since it contains 0,1,2. But if the subsequence has elements 0, 1, then m is 2. So the maximum m for a subsequence is the length of the subsequence's maximum MEX.
+
+But how to compute the number of subsequences that contain all elements from 0 to m-1 for each m?
+
+Let's think for each m, how many non-empty subsequences of the array a contain all elements from 0 to m-1.
+
+Wait, but the elements of the array a can be from 0 to n-1 (since the elements are given as 0 <= a_i < n). So for each m, the elements from 0 to m-1 must be present in the subsequence. So for a subsequence to contain all elements from 0 to m-1, it must include at least one occurrence of each of these elements.
+
+So for a given m, the number of subsequences that contain all elements from 0 to m-1 is equal to the product of (number of choices for each element) multiplied by the product of (number of ways to choose the rest of the elements). Wait, no. Because the elements can be present in the subsequence in any combination as long as they are all in 0..m-1.
+
+So for example, for m=3, the subsequence must contain at least one occurrence of 0, one of 1, and one of 2.
+
+The number of such subsequences is equal to the product for each element in 0..m-1 of (number of occurrences of that element) choose 1 (since we need at least one occurrence of each), multiplied by the product for the remaining elements (those not in 0..m-1) of (number of occurrences of those elements) choose any number (since they can be present or not). But since the subsequence must be non-empty, but the elements not in 0..m-1 can be present in any way, including zero.
+
+Wait, no. The subsequence is a subset of the original array. So for elements in 0..m-1, each must be present in the subsequence. For elements not in 0..m-1, they can be present or not. But the subsequence must be non-empty. However, if all elements in 0..m-1 are present in the subsequence, then the subsequence is non-empty as long as the elements not in 0..m-1 are not all chosen to be zero. Wait, no. The subsequence is the union of the elements from 0..m-1 and the elements not in 0..m-1. So if the elements not in 0..m-1 are not present (i.e., none of them are chosen), then the subsequence is exactly the elements from 0..m-1. Which is non-empty as long as m >= 1.
+
+So for each m, the number of subsequences that contain all elements from 0 to m-1 is equal to:
+
+product_{i=0}^{m-1} (count_i choose 1) * product_{i=m}^{n-1} (count_i choose 0) + product_{i=0}^{m-1} (count_i choose 1) * product_{i=m}^{n-1} (count_i choose 1) + ... + product_{i=0}^{m-1} (count_i choose 1) * product_{i=m}^{n-1} (count_i choose 1) ?
+
+Wait, no. The product for elements in 0..m-1 is the product of the number of ways to choose at least one occurrence for each. The product for elements in m..n-1 is the product of the number of ways to choose any number (including zero) for each of them. But since the subsequence must be non-empty, but the elements from m..n-1 can be present or not. However, the product includes the case where all elements from m..n-1 are not present (i.e., they are not chosen), which is allowed. So the total number is:
+
+product_{i=0}^{m-1} (count_i choose 1) * product_{i=m}^{n-1} (count_i choose any number of elements) ?
+
+But how to compute this product? For the elements from m..n-1, the number of ways to choose any number of elements (including zero) is (1 + count_i) choose 1, but wait, no. For each element i in m..n-1, the number of ways to include it in the subsequence is (count_i + 1) ways. Because for each element, you can choose to include it or not. So for each element, the number of options is (count_i + 1) (since including or not). But the product for these elements is the product over all elements from m to n-1 of (count_i + 1) choose 1 (no, wait: the product is the product of (count_i + 1) for each element. Because for each element, you can choose to include it or not. So for each element, the number of ways to include it is 1 (include) or count_i (exclude). Wait, no. The number of ways to choose any subset of the elements from m..n-1 is product_{i=m}^{n-1} (count_i + 1). Because for each element, you have count_i + 1 choices (include it or not). Wait, no. For example, if an element has count_i occurrences, then the number of subsets that include at least one of them is count_i + 1 (since for each occurrence, you can choose to include any of them, but not all. Wait, no. The number of subsets that include at least one occurrence is (count_i + 1) - 1 = count_i. Wait, this is confusing. Let me think again.
+
+For a single element with count_i occurrences, the number of subsets that include at least one occurrence is (count_i) + 1 - 1 = count_i. Because the total subsets (including empty) is count_i + 1. So the number of subsets that include at least one occurrence is count_i.
+
+Wait, no. The total number of subsets (including empty) is (count_i + 1). The empty subset is one, and the other subsets include all non-empty subsets. So the number of non-empty subsets is (count_i + 1) - 1 = count_i.
+
+So for each element in m..n-1, the number of ways to include at least one occurrence in the subsequence is count_i. So the product for these elements is the product of count_i for each element from m to n-1.
+
+Wait, but that's not correct. Because for the elements in m..n-1, the number of ways to choose any subset (including empty) is product_{i=m}^{n-1} (count_i + 1). Because for each element, the number of subsets (including empty) is count_i + 1. But if we need to count all subsets that include at least one occurrence of each of the elements in 0..m-1, then the product for elements in 0..m-1 is product_{i=0}^{m-1} (count_i choose 1) (since we need to include at least one occurrence of each), and the product for elements in m..n-1 is product_{i=m}^{n-1} (count_i choose 0) (since they can be included or not, but the product is 1 for each element, because we can choose to include or not).
+
+Wait, no. The elements in m..n-1 can be included or not. So the product for these elements is product_{i=m}^{n-1} (count_i + 1) (since for each element, you can choose any subset of its occurrences, including empty). But the empty subset is allowed here. However, the total number of subsequences that include all elements in 0..m-1 and any subset of the elements from m..n-1 is equal to the product for the elements in 0..m-1 of (count_i choose 1) multiplied by the product for elements in m..n-1 of (count_i + 1).
+
+Wait, no. Because for each element in 0..m-1, the number of ways to choose at least one occurrence is count_i (since the total is count_i + 1, and subtract 1 for the empty subset). For the elements in m..n-1, each can be chosen in any way (including empty). So the total number is product_{i=0}^{m-1} count_i * product_{i=m}^{n-1} (count_i + 1).
+
+But that's the total number of subsequences that include all elements in 0..m-1. However, the empty subsequence is not counted here, but since the problem requires non-empty subsequences, we need to subtract 1 if the product is zero. Wait, no. Because the product is product_{i=0}^{m-1} count_i * product_{i=m}^{n-1} (count_i + 1). The product is zero if any of the elements in 0..m-1 has count_i = 0 (i.e., no occurrences of that element in the array). So the product is zero only when there are elements in 0..m-1 that are not present in the array. In that case, the number of subsequences that include all elements from 0 to m-1 is zero, and thus the contribution is zero. Otherwise, the product is non-zero.
+
+So the formula for the number of subsequences that include all elements from 0 to m-1 is:
+
+f(m) = product_{i=0}^{m-1} (count_i) * product_{i=m}^{n-1} (count_i + 1)
+
+But wait, when m=0, the product is product_{i=0}^{-1} (count_i) which is 1 (empty product). So for m=0, the formula is 1 * product_{i=0}^{n-1} (count_i + 1) = product_{i=0}^{n-1} (count_i + 1). But for m=0, the maximum m is zero, but the problem requires non-empty subsequences. However, for m=0, the formula gives the number of subsequences that contain all elements from 0 to -1, which is impossible. So the formula for m=0 is zero. So the formula is:
+
+for m >= 1:
+
+f(m) = product_{i=0}^{m-1} (count_i) * product_{i=m}^{n-1} (count_i + 1)
+
+and for m=0, f(0) = 0.
+
+But wait, the problem requires non-empty subsequences. So the formula for m >= 1 is the number of subsequences that include all elements from 0 to m-1, and the sum is over all m >= 1 of m * f(m).
+
+So the final answer is sum_{m=1}^{n} m * f(m) mod 998244353.
+
+But how to compute f(m) efficiently for large n (up to 2e5) and multiple test cases?
+
+Let's think about the product terms.
+
+First, for the product_{i=0}^{m-1} count_i. Let's precompute prefix products. For example, prefix[m] = product_{i=0}^{m-1} count_i. Similarly, the product_{i=m}^{n-1} (count_i + 1) can be precomputed as suffix[m] = product_{i=m}^{n-1} (count_i + 1).
+
+Then, f(m) = prefix[m] * suffix[m].
+
+So the steps are:
+
+1. For each test case, compute count_i for each i (0 <= i < n).
+2. Precompute prefix products and suffix products.
+3. For each m from 1 to n, compute f(m) = prefix[m] * suffix[m].
+4. Sum m * f(m) for all m from 1 to n, mod 998244353.
+
+But how to compute prefix and suffix products efficiently?
+
+For example, prefix[0] = 1 (product of zero elements), prefix[1] = count[0], prefix[2] = count[0] * count[1], etc.
+
+Similarly, suffix[n] = product_{i=n}^{n-1} (count_i + 1) = 1 (empty product). Then, suffix[m] = product_{i=m}^{n-1} (count_i + 1). So for each m from 0 to n, suffix[m] = product_{i=m}^{n-1} (count_i + 1).
+
+But for m > n, the product is 1 (since there are no elements in the range). But since m ranges up to n, we don't need to worry about that.
+
+So the plan is:
+
+For each test case:
+
+- Read n and array a.
+- Compute count_i for each i from 0 to n-1. Initialize count as a list of 0s, then for each a_i in a, increment count[a_i].
+- Precompute prefix and suffix arrays.
+- For each m from 1 to n, compute f(m) = prefix[m] * suffix[m].
+- Sum m * f(m) for all m from 1 to n, mod 998244353.
+
+Now, the key is to compute the prefix and suffix products efficiently. Since n can be up to 2e5, and there are up to 1e4 test cases, we need O(n) per test case.
+
+But for n up to 2e5 and t up to 1e4, the total time would be O(t * n), which is acceptable.
+
+So the code steps are:
+
+Read t test cases.
+
+For each test case:
+
+Read n and the array a.
+
+Compute count array.
+
+Compute prefix product array.
+
+Compute suffix product array.
+
+Compute the sum as sum_{m=1}^n m * (prefix[m] * suffix[m]) mod MOD.
+
+But wait, for the prefix array, the prefix[m] is the product of count[0] * count[1] * ... * count[m-1]. So for m=0, prefix[0] = 1. For m=1, prefix[1] = count[0], etc.
+
+Similarly, suffix[m] is the product of (count[i] + 1) for i from m to n-1. So for m=0, suffix[0] = product_{i=0}^{n-1} (count[i] + 1). For m=n, suffix[n] = 1.
+
+So how to compute the prefix and suffix arrays?
+
+For prefix:
+
+prefix[0] = 1.
+
+for m in 1 to n:
+
+prefix[m] = prefix[m-1] * count[m-1] mod MOD.
+
+For suffix:
+
+suffix[n] = 1.
+
+for m in n-1 downto 0:
+
+suffix[m] = suffix[m+1] * (count[m] + 1) mod MOD.
+
+Once these arrays are computed, then for each m from 1 to n, compute f(m) = prefix[m] * suffix[m], multiply by m, and accumulate the sum.
+
+But wait, when m=0, the formula would be 0, but since m starts at 1, we don't need to handle it.
+
+So the code for each test case is:
+
+MOD = 998244353
+
+t = int(input())
+
+for _ in range(t):
+
+    n = int(input())
+
+    a = list(map(int, input().split()))
+
+    count = [0] * n
+
+    for num in a:
+
+        count[num] += 1
+
+    # compute prefix
+
+    prefix = [1] * (n + 1)
+
+    for i in range(1, n+1):
+
+        prefix[i] = prefix[i-1] * count[i-1] % MOD
+
+    # compute suffix
+
+    suffix = [1] * (n + 1)
+
+    for i in range(n-1, -1, -1):
+
+        suffix[i] = suffix[i+1] * (count[i] + 1) % MOD
+
+    # compute the sum
+
+    res = 0
+
+    for m in range(1, n+1):
+
+        f = prefix[m] * suffix[m] % MOD
+
+        res = (res + m * f) % MOD
+
+    print(res)
+
+Wait, but for m up to n, the maximum possible value of m is n. So when m = n, the product prefix[n] is the product of count[0] * count[1] * ... * count[n-1], and suffix[n] is 1. So the contribution for m=n is n * (product of count[0] ... count[n-1]) * 1.
+
+But for the suffix array, when m =n, the product is 1, which is correct.
+
+But for the prefix array, when m =n, the product is prefix[n] = product of count[0] to count[n-1]. Which is correct.
+
+So this code should work.
+
+Now let's test it against the sample input.
+
+Sample input:
+
+4
+
+3
+
+0 0 1
+
+4
+
+0 0 1 1
+
+5
+
+0 0 1 2 2
+
+4
+
+1 1 1 1
+
+Sample output:
+
+11
+
+26
+
+53
+
+0
+
+Let's take the first test case.
+
+Test case 1:
+
+n=3, a = [0,0,1]
+
+count = [1,1,0] (count[0] = 2, count[1] = 1, count[2] = 0? Wait no. Wait the array is [0,0,1], so a[0] is 0, a[1] is 0, a[2] is 1. So count[0] = 2, count[1] = 1, count[2] = 0. So count array is [2,1,0].
+
+prefix array:
+
+prefix[0] = 1
+
+prefix[1] = prefix[0] * count[0] = 1 * 2 = 2
+
+prefix[2] = prefix[1] * count[1] = 2 * 1 = 2
+
+prefix[3] = prefix[2] * count[2] = 2 * 0 = 0
+
+suffix array:
+
+suffix[3] = 1
+
+suffix[2] = suffix[3] * (count[2]+1) = 1 * 0 + 1 = 1 * 1 = 1
+
+suffix[1] = suffix[2] * (count[1]+1) = 1 * (1 + 1) = 2
+
+suffix[0] = suffix[1] * (count[0]+1) = 2 * (2 + 1) = 6
+
+So for m=1:
+
+prefix[1] = 2, suffix[1] = 2 → 2*2=4. m=1, contribution is 1 *4=4.
+
+m=2: prefix[2]=2, suffix[2]=1 → 2*1=2. m=2, contribution 2*2=4.
+
+m=3: prefix[3]=0, suffix[3]=1 → 0*1=0. contribution 3*0=0.
+
+Total sum is 4+4=8. But the sample output is 11. Wait, that's a problem. So something's wrong here.
+
+Wait the first sample's output is 11. But according to our code, the sum is 4+4=8? That's not matching. So there's a mistake in our approach.
+
+Hmm. Let's re-examine the sample.
+
+Sample input 1:
+
+3
+
+0 0 1 → a is [0,0,1]. The array has elements 0,0,1.
+
+The possible non-empty subsequences are:
+
+[0], [0], [1], [0,0], [0,1], [0,0,1], [0,1], [0,0,1], [0,0], [0,1], [0,1], [0,0,1], [0,0,1], [0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0

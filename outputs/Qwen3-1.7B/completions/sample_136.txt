@@ -1,0 +1,2418 @@
+<think>
+Okay, I need to solve this programming problem. Let's read the problem statement carefully.
+
+So the problem is about choosing start days for Robin's brother and mother's visits such that the brother's visit overlaps with the maximum number of distinct jobs, and the mother's overlaps with the minimum. And if there are multiple options, choose the earliest one for both.
+
+First, let's understand the constraints. Each job is a continuous interval [l_i, r_i]. The visit duration is d days, and each day must be between 1 and n. The brother's visit starts on some day s, and ends on s + d - 1. The mother's visit starts on some day m, ends on m + d - 1. Both must fit within [1, n].
+
+The key is to find for each test case, the best start days for brother and mother. The brother's start day should maximize the number of overlapping jobs, and the mother's should minimize that number.
+
+But how do we compute the maximum number of overlapping jobs for the brother's visit, and the minimum for the mother's?
+
+Let me think about the approach.
+
+For each test case:
+
+We need to find the best start day for the brother such that the number of jobs that overlap with his visit is maximum. Then, for the mother, find the best start day that minimizes the number of overlapping jobs.
+
+But how do we compute that?
+
+First, for the brother's part: for each possible start day s (from 1 to n - d + 1), we need to count how many jobs [l_i, r_i] overlap with the interval [s, s + d - 1].
+
+Similarly for the mother's part: for each possible start day m, count how many jobs overlap with [m, m + d - 1], and find the minimum such count.
+
+But since n can be up to 1e5 and t up to 1e4, and sum of n across test cases is 2e5, we need an efficient way to compute these counts.
+
+But if we do this naively for each possible start day, it would be O(k * n) per test case, which might be too slow.
+
+So we need a smarter approach.
+
+Let me think about the overlapping condition.
+
+A job [l_i, r_i] overlaps with the brother's interval [s, s + d - 1] if and only if:
+
+s <= r_i and s + d - 1 >= l_i.
+
+Which can be rewritten as:
+
+s <= r_i and s >= l_i - (d - 1) ?
+
+Wait, let me think again. The brother's interval is [s, s + d - 1]. The job is [l_i, r_i]. For them to overlap, there must be at least one day in both intervals. So the intervals must overlap.
+
+The condition for overlapping is:
+
+s < r_i and s + d - 1 > l_i.
+
+Because if s < r_i and s + d - 1 > l_i, then there's an overlap.
+
+Alternatively, the intervals overlap if the earliest end is after the latest start. So:
+
+max(s, l_i) < min(s + d - 1, r_i).
+
+So for each job, the brother's interval [s, s + d - 1] overlaps with it if max(s, l_i) < min(s + d - 1, r_i).
+
+But how can we compute for a given s, how many jobs satisfy this condition?
+
+Let me think about how to compute this efficiently.
+
+For each test case, we can pre-process the jobs.
+
+But for each possible s, we need to count how many jobs overlap with [s, s + d - 1].
+
+But for large n and k, this seems challenging.
+
+Alternative approach: for each job, determine all possible s that would overlap with it. Then, for each s, count how many jobs overlap with it.
+
+But again, for each s, this could be O(k) time, which is O(kn) per test case, which is not feasible.
+
+So we need a way to compute for each possible s, the number of jobs that overlap with it.
+
+Let me think about the problem for the brother's part. The brother wants to choose s such that the number of overlapping jobs is maximum. And for the mother, the minimum.
+
+Let me think about the brother's problem first.
+
+For the brother's interval [s, s + d - 1], the number of overlapping jobs is the count of jobs that have l_i < s + d - 1 and r_i > s.
+
+Because the job's interval must overlap with the brother's interval. So, for a job to overlap with the brother's interval, the job's l_i must be <= s + d - 1 (so that the job's start is before the brother's end), and the job's r_i must be >= s (so that the job's end is after the brother's start).
+
+So the condition is: l_i <= s + d - 1 and r_i >= s.
+
+So for each job, the s that would overlap with it is those s where s is in [l_i - (d - 1) + 1, r_i - 1] ?
+
+Wait, maybe not. Let's think again.
+
+The brother's interval is [s, s + d - 1]. For a job [l_i, r_i], the overlap occurs if:
+
+s < r_i and s + d - 1 > l_i.
+
+Which can be rewritten as:
+
+s < r_i and s > l_i - (d - 1).
+
+But since s is an integer, perhaps we can find for each job, the range of s that would overlap with it.
+
+But how to compute for all possible s, the count of jobs that overlap with it.
+
+This seems like a range problem. For each job, we can find the range of s values that would cause an overlap. Then, for each s, we can count how many jobs are in that range.
+
+But how to compute this efficiently.
+
+Let me think of the problem as for each job, the s that would overlap with it is in the interval:
+
+s must be in [max(1, l_i - (d - 1) + 1), min(n - d + 1, r_i - 1)] ?
+
+Wait, let's think of the conditions again.
+
+s must be such that:
+
+s < r_i (so that the brother's start is before the job's end)
+
+and 
+
+s + d - 1 > l_i (so that the brother's end is after the job's start).
+
+Which can be rewritten as:
+
+s < r_i and s > l_i - (d - 1).
+
+So s must be in (l_i - (d - 1), r_i).
+
+But since s is an integer, the lower bound is l_i - (d - 1) + 1, and upper bound is r_i - 1.
+
+But since s must be at least 1 and at most n - d + 1.
+
+So for each job, the valid s values are those in the interval [a, b], where a = max(1, l_i - (d - 1) + 1) and b = min(n - d + 1, r_i - 1).
+
+Wait, let me check:
+
+The lower bound for s is l_i - (d - 1) + 1? Let me see:
+
+s > l_i - (d - 1) → s >= l_i - (d - 1) + 1.
+
+Yes.
+
+So for each job, the s that would overlap with it is in [a, b], where a is max(1, l_i - (d - 1) + 1) and b is min(n - d + 1, r_i - 1).
+
+But if the job's l_i is such that l_i - (d - 1) is less than 1, then a is 1.
+
+Similarly, if the job's r_i is such that r_i - 1 is larger than n - d + 1, then b is n - d + 1.
+
+So for each job, the valid s values are in that interval.
+
+Then, for the brother's problem, the count of overlapping jobs for a given s is the number of jobs that have s in their [a, b] interval.
+
+So, the problem becomes: for each possible s, find the number of jobs whose [a, b] intervals include s.
+
+So, how to compute this efficiently?
+
+We can model this as a line sweep problem. For all the intervals [a, b] of each job, we can add +1 to a and -1 to b+1, then compute the prefix sum. Then, for each s, the count is the prefix sum at s.
+
+But how to compute that.
+
+So, for each job, we have a range [a, b] where s is in that range. So, for the line sweep approach, we can create events for each job's a and b.
+
+For example, for each job, we add a +1 at a and a -1 at b+1.
+
+Then, after processing all jobs, the prefix sum array will give us the number of overlapping jobs for each s.
+
+But since s can be up to n - d + 1, which could be up to 1e5, and for each test case, we can process this.
+
+So for each test case:
+
+- For each job, compute a and b as described.
+
+- Then, create an array of events, where for each job, we add +1 at a and -1 at b+1.
+
+- Then compute the prefix sum array.
+
+- Then, the maximum value in the prefix sum array is the maximum number of overlapping jobs for the brother's visit.
+
+But wait, the prefix sum array would give the count of overlapping jobs for each s. But the maximum value in the prefix sum array is the maximum number of overlapping jobs for any s.
+
+But how to find the s that gives this maximum.
+
+Once we have the prefix sum array, we can find the s where the count is maximum, and if there are multiple, choose the earliest.
+
+So for the brother's part, the best s is the one with the maximum count, and earliest if tied.
+
+Similarly for the mother's part, but we need to find the s that gives the minimum count of overlapping jobs.
+
+But for the mother's part, the same approach applies, but the count is the number of jobs that overlap with the interval [s, s + d -1], which is the same as the brother's count. Wait, no. Wait, for the mother's part, she wants to minimize the number of overlapping jobs. So, the mother's interval is [m, m + d - 1], and the count is the number of jobs that overlap with it. So, for the mother's part, the same approach applies: find the s (for the mother's interval) that gives the minimum count.
+
+But the mother's interval is [m, m + d - 1], and the count is the number of jobs overlapping with it. So, the same approach applies: for each possible m, compute the count, and find the m that gives the minimum count.
+
+But how to compute that.
+
+So, the brother's problem is to find the s that maximizes the count, and the mother's is to find the m that minimizes the count.
+
+So, for each test case, we need to process two separate problems:
+
+1. For the brother's optimal s: find the s that maximizes the count of overlapping jobs.
+
+2. For the mother's optimal m: find the m that minimizes the count of overlapping jobs.
+
+So, how to compute these counts.
+
+But the problem is that for each test case, we can process the events for the brother's part and the mother's part.
+
+But for the brother's part, the count is the same as the number of jobs that overlap with the brother's interval. So, for the brother's part, the optimal s is the one that has the maximum count.
+
+For the mother's part, the optimal m is the one that has the minimum count.
+
+So, the approach is:
+
+For each test case:
+
+- Process the jobs and compute for each possible s, the count of overlapping jobs.
+
+- For the brother's part, find the s with maximum count, earliest if tie.
+
+- For the mother's part, find the m with minimum count, earliest if tie.
+
+But how to compute the counts for the brother and mother.
+
+Wait, but for the brother's part, the count is the same as for the mother's part, but for the mother's part, the count is the same as for the brother's part, but with the interval [m, m + d - 1], and the count is the number of jobs overlapping with it.
+
+So, the brother's count is the same as the mother's count, but the interval is different.
+
+But the approach for the brother and the mother is similar. For the brother, we need to find the s that maximizes the count of overlapping jobs. For the mother, the m that minimizes the count.
+
+So, the way to compute this is to process the same events for both brother and mother, but with different parameters.
+
+But how?
+
+Wait, for the brother's count, the count is determined by the interval [s, s + d - 1]. For the mother's count, it's determined by [m, m + d - 1].
+
+So, the brother's count is the same as the mother's count, but the interval is different.
+
+But for the brother's count, the events are generated based on the job's [a, b] intervals, which are derived from the job's l_i and r_i.
+
+So, for the brother's part, the events are generated as before. For the mother's part, we need to generate events for the same job's [a, b] intervals, but then for the mother's interval [m, m + d - 1], the count is the number of jobs that overlap with it.
+
+Wait, but the mother's count is the same as the brother's count, but with the interval [m, m + d - 1]. So, the same approach applies: for each job, the interval [a, b] for the brother's s is the same as for the mother's m, but the mother's m is the variable.
+
+But how to compute for the mother's part.
+
+Wait, the mother's count is the same as the brother's count, but for a different interval. So, the same approach applies: for the mother's part, the count for a given m is the number of jobs that overlap with [m, m + d - 1].
+
+So, for the mother's part, the same as the brother's part, but the interval is [m, m + d - 1]. So, the same events are generated, but the m is the variable.
+
+But how to compute for the mother's part.
+
+Wait, perhaps the same approach applies. For the mother's part, we can compute the same events as for the brother's part, but then for each possible m, the count is the number of jobs that overlap with [m, m + d - 1], which is the same as the brother's count for the interval [m, m + d - 1].
+
+So, for the brother's part, the events are generated based on the job's [a, b] intervals, and the brother's count is the sum over the events for s. For the mother's part, the same events are generated, but the count is the sum over the events for m.
+
+So, the approach is:
+
+For the brother's part, we need to compute the maximum count of overlapping jobs for any s in [1, n - d + 1].
+
+For the mother's part, we need to compute the minimum count of overlapping jobs for any m in [1, n - d + 1].
+
+But how to compute these.
+
+So, for the brother's part, the count is determined by the same events as before, and the maximum is found in the prefix sum array.
+
+For the mother's part, the same events are used, but the count is the number of jobs that overlap with [m, m + d - 1], which is the same as the brother's count for that m.
+
+But how to compute the minimum count for the mother's part.
+
+So, the same events can be used, but we need to compute for each m, the count.
+
+But the events are the same as for the brother's part. So, the events are generated based on the job's [a, b] intervals. Then, the prefix sum array is computed for the events. But for the mother's part, the count is the same as the brother's count for the same events, but the m is varying.
+
+Wait, but the events are the same. So, the same events are generated for the brother's part and the mother's part. Then, the prefix sum array is computed for the events. But the brother's count is the sum for a particular s, and the mother's count is the sum for a particular m.
+
+But how to compute the count for a particular m.
+
+Wait, the events are generated for the job's [a, b] intervals, and the prefix sum array is built. Then, for any m, the count is the number of jobs that have their [a, b] intervals covering m.
+
+But that's not the same as the count for the brother's interval [s, s + d - 1]. Wait, no. The events are generated based on the job's [a, b] intervals, which are derived from the job's l_i and r_i.
+
+So, for the brother's interval [s, s + d - 1], the count is the number of jobs that have their [a, b] intervals covering s. For the mother's interval [m, m + d - 1], the count is the number of jobs that have their [a, b] intervals covering m.
+
+So, the same events are generated, and the prefix sum array is computed for the same events. So, the count for a particular m is the same as the count for the brother's s = m.
+
+But how does that work?
+
+Wait, the events are generated for the job's [a, b] intervals. Then, the prefix sum array gives for each position s, the number of jobs that have their [a, b] intervals covering s. So, for the brother's part, the count is the same as the number of jobs that have their [a, b] intervals covering s.
+
+So, the same approach applies for both the brother and the mother. So, the events are generated for the same jobs, and the same prefix sum array is used.
+
+But for the brother's part, we need to find the maximum value in the prefix sum array, and for the mother's part, the minimum value.
+
+So, the steps for each test case are:
+
+1. For the brother's part:
+
+   a. Generate events for each job's [a, b] intervals, where a = max(1, l_i - (d - 1) + 1), and b = min(n - d + 1, r_i - 1).
+
+   b. Compute the prefix sum array, which gives for each s, the count of overlapping jobs.
+
+   c. Find the s that gives the maximum count. If there are multiple, pick the earliest.
+
+2. For the mother's part:
+
+   a. Generate the same events as for the brother's part.
+
+   b. Compute the same prefix sum array.
+
+   c. Find the m that gives the minimum count. If there are multiple, pick the earliest.
+
+But wait, the mother's part is the same as the brother's part, but the count is for the mother's interval [m, m + d - 1]. So, the same events are generated, and the same prefix sum array is used. So, the count for the mother's m is the same as the count for the brother's s = m.
+
+So, the brother's maximum count is the maximum of the prefix sum array, and the mother's minimum count is the minimum of the prefix sum array.
+
+But that's not correct. Because for the mother's part, the count is the number of jobs that overlap with [m, m + d - 1], which is the same as the number of jobs that have their [a, b] intervals covering m. So, the same prefix sum array is used, and the count for m is the same as the count for s = m in the brother's part.
+
+But then, the brother's and mother's counts are the same for the same m. So, the mother's part is to find the m that gives the minimum count of overlapping jobs.
+
+But how to compute that.
+
+Wait, no. The mother's count is the same as the brother's count for the same m. So, the brother's part is to find the maximum count, and the mother's part is to find the minimum count. So, the same events are used for both, but the brother's count is for the brother's interval, and the mother's count is for the mother's interval.
+
+But how to compute the mother's count for a given m.
+
+Wait, the events are generated for the job's [a, b] intervals. So, for each m, the count is the number of jobs where m is in [a, b], which is the same as the prefix sum array.
+
+But the prefix sum array is computed for the same events, and the count for m is the prefix sum at m.
+
+So, the steps for the brother's part and the mother's part are:
+
+For the brother's part:
+
+- For each possible s, compute the count as the number of jobs that have [a, b] intervals that include s.
+
+For the mother's part:
+
+- For each possible m, compute the count as the number of jobs that have [a, b] intervals that include m.
+
+But the brother's count is the same as the mother's count for the same m. So, the brother's maximum count is the maximum of the counts for all s, and the mother's minimum count is the minimum of the counts for all m.
+
+But how to compute the maximum and minimum counts.
+
+So, for each test case, we can generate the same events array, then compute the prefix sum array, and then for the brother's part, find the maximum value in the prefix sum array, and for the mother's part, find the minimum value in the prefix sum array.
+
+But wait, the prefix sum array is for the same events. So, for example, if the events are generated for the brother's part, then the same events are used for the mother's part. So, the same prefix sum array is used for both parts.
+
+But the brother's count is the same as the mother's count for the same m. So, the brother's maximum and mother's minimum are computed using the same prefix sum array.
+
+But this is not correct. Because for the brother's part, the count for s is the number of jobs overlapping with [s, s + d - 1], which is the same as the number of jobs overlapping with the interval [s, s + d - 1]. For the mother's part, the count for m is the number of jobs overlapping with [m, m + d - 1], which is the same as the count for m.
+
+So, the brother's and mother's counts are the same as the prefix sum array for the same events. So, the brother's maximum is the maximum of the prefix sum array, and the mother's minimum is the minimum of the prefix sum array.
+
+But this is only true if the same events are used. But the events are generated based on the job's [a, b] intervals. So, the same events are used for both.
+
+So, the steps for each test case are:
+
+- Generate the events for the brother's part and the mother's part.
+
+Wait, no. The events are generated based on the same jobs. So, for the brother's part, the events are generated for each job's [a, b] intervals. For the mother's part, the same events are generated. Then, the prefix sum array is computed. Then, the brother's count is the maximum of the prefix sum array, and the mother's count is the minimum of the prefix sum array.
+
+But that's not possible. Because the mother's count is the same as the brother's count for the same m. So, the brother's and mother's counts are the same for the same m. But the brother's part is to find the maximum count, and the mother's part is to find the minimum count.
+
+But how can the same events be used for both parts?
+
+Ah, I think I made a mistake here. The events are generated for the job's [a, b] intervals. But the brother's count for a given s is the number of jobs that have their [a, b] intervals covering s. The mother's count for a given m is the same. So, the brother's and mother's counts are the same for the same m. Therefore, the brother's maximum is the maximum of the prefix sum array, and the mother's minimum is the minimum of the prefix sum array.
+
+But that's not correct. Because the brother's count is the number of jobs overlapping with the brother's interval, which is [s, s + d - 1]. The mother's count is the number of jobs overlapping with [m, m + d - 1]. So, the same events are used for both, but the brother's and mother's counts are different. For example, the brother's count is the number of jobs overlapping with [s, s + d - 1], and the mother's count is the number of jobs overlapping with [m, m + d - 1]. So, for the same events, the same prefix sum array is used, and the brother's maximum and mother's minimum are computed from the same array.
+
+But how can that be? Because the brother's count for a given s is the same as the mother's count for the same m.
+
+So, for the brother's part, the maximum is the maximum of the prefix sum array, and for the mother's part, the minimum is the minimum of the prefix sum array.
+
+But that's not possible. Because the mother's part is to find the m that gives the minimum count, which is the same as the brother's part's count for m.
+
+So, the brother's part is to find the maximum count, and the mother's part is to find the minimum count, which are computed from the same events array.
+
+But how can the same events array be used for both?
+
+Yes, because the events array is generated based on the same jobs. So, for the brother's part, the events are generated for the same jobs. Then, the same events array is used for the mother's part.
+
+But the brother's part's maximum count is the maximum of the prefix sum array, and the mother's part's minimum is the minimum of the prefix sum array.
+
+But that's not correct. Because the mother's count is the number of jobs overlapping with [m, m + d - 1], which is the same as the number of jobs overlapping with the interval [m, m + d - 1]. The same events array is used, and the count for m is the same as the count for the brother's s = m.
+
+So, the brother's part and the mother's part are both computed using the same events array, but the brother's part is to find the maximum count, and the mother's part is to find the minimum count.
+
+But how to compute the minimum count for the mother's part.
+
+Wait, the brother's part and the mother's part are computed using the same events array. So, the brother's maximum is the maximum of the prefix sum array. The mother's minimum is the minimum of the prefix sum array. But the mother's minimum is not the same as the brother's maximum.
+
+But that's not possible, because the events array is the same for both.
+
+So, for example, the events array is generated for the same jobs. So, for each possible s, the count is the number of jobs overlapping with [s, s + d - 1]. So, the brother's maximum count is the maximum of the counts for all s, and the mother's minimum count is the minimum of the counts for all m.
+
+But how can the mother's minimum count be found? Because the mother's count is the same as the brother's count for the same m. So, the mother's minimum is the same as the brother's minimum. But that's not possible, because the mother's count is the same as the brother's count for the same m.
+
+Wait, no. The mother's count is the number of jobs overlapping with [m, m + d - 1], which is the same as the count for the brother's s = m. So, the brother's count for s = m is the same as the mother's count for m. Therefore, the brother's maximum count is the maximum of all possible counts for s, and the mother's minimum count is the minimum of all possible counts for m.
+
+But the same events array is used for both. So, the same prefix sum array is used, and the brother's maximum is the maximum of the prefix sum array, and the mother's minimum is the minimum of the prefix sum array.
+
+But this is possible only if the same events array is used for both parts. However, the brother's count is the count for s, and the mother's count is the count for m. So, for the same events array, the brother's and mother's counts are the same as the prefix sum array.
+
+So, the brother's part and the mother's part are both computed using the same events array, but the brother's maximum and mother's minimum are found from the same array.
+
+But that's not possible. For example, the brother's maximum is the maximum of the prefix sum array, and the mother's minimum is the minimum of the same array. But that would imply that the brother's maximum is the same as the mother's minimum. Which is not the case.
+
+Wait, no. The brother's maximum is the maximum of the counts for any s, and the mother's minimum is the minimum of the counts for any m. But the counts for s and m are the same as the prefix sum array. So, the brother's maximum is the maximum value in the prefix sum array, and the mother's minimum is the minimum value in the prefix sum array.
+
+But that's not correct. Because for the mother's part, the count for m is the number of jobs overlapping with [m, m + d - 1], which is the same as the count for s = m in the brother's part. So, the brother's count for s = m is the same as the mother's count for m.
+
+But the brother's maximum is the maximum of all possible s, and the mother's minimum is the minimum of all possible m. So, the brother's and mother's counts are the same for the same m.
+
+But the brother's maximum and the mother's minimum are computed from the same array. So, for example, the brother's maximum is the maximum of the prefix sum array, and the mother's minimum is the minimum of the same array. But that would imply that the brother's maximum is the same as the mother's minimum, which is not necessarily the case.
+
+Wait, no. The brother's maximum is the maximum of the counts for any s. The mother's minimum is the minimum of the counts for any m. But the counts for s and m are the same as the prefix sum array. So, the brother's maximum is the maximum of all the counts in the prefix sum array, and the mother's minimum is the minimum of all the counts in the prefix sum array.
+
+So, for example, if the prefix sum array has values [1, 3, 2, 4, 3], then the brother's maximum is 4, and the mother's minimum is 1.
+
+So, the brother's part is to find the s that gives the maximum count, and the mother's part is to find the m that gives the minimum count.
+
+But how to find the s and m.
+
+So, the steps are:
+
+For each test case:
+
+1. For the brother's part:
+
+   a. Generate the events for each job's [a, b] intervals.
+
+   b. Compute the prefix sum array.
+
+   c. Find the s that gives the maximum count. If multiple, choose the earliest.
+
+2. For the mother's part:
+
+   a. Generate the same events as for the brother's part.
+
+   b. Compute the same prefix sum array.
+
+   c. Find the m that gives the minimum count. If multiple, choose the earliest.
+
+But wait, the events are generated for the same jobs. So, the same events array is used for both parts. But the brother's count is the number of overlapping jobs for the brother's interval [s, s + d - 1], and the mother's count is the number of overlapping jobs for the mother's interval [m, m + d - 1]. But the events are generated for the same jobs, so the same prefix sum array is used for both parts.
+
+So, the brother's and mother's counts are computed from the same events array, and the maximum and minimum are found from the same array.
+
+But how to find the s and m.
+
+So, for the brother's part, the maximum count is found in the prefix sum array. The s that gives this maximum is the s where the prefix sum array is maximum. For example, if the prefix sum array is [1, 3, 2, 4, 3], then the maximum is 4 at index 3. So, the s is 3 + 1 = 4? Or wait, the prefix sum array is computed for s from 1 to n - d + 1. So, the s is the index in the prefix sum array.
+
+But how is the prefix sum array constructed.
+
+The events are generated for the job's [a, b] intervals. For each job, we add +1 at a and -1 at b+1.
+
+Then, the prefix sum array is computed, where for each position s, the value is the number of overlapping jobs for s.
+
+So, the prefix sum array is of size n - d + 1 + 1, but the exact size depends on the test case.
+
+Once the prefix sum array is computed, the s values are from 1 to n - d + 1.
+
+So, the maximum count is the maximum of the prefix sum array, and the s that gives this maximum is the earliest occurrence.
+
+But how to find the s for the brother's part.
+
+For example, if the prefix sum array is [1, 3, 2, 4, 3], then the maximum is 4 at index 3 (s = 3 + 1?), or is it the index?
+
+Wait, the prefix sum array is computed as follows: for each event, we add +1 at a and -1 at b+1. Then, the prefix sum array is built by processing these events in order.
+
+But the actual s values are the positions where the events are added. For example, if the events are added at positions a and b+1, then the prefix sum array is computed as the number of overlapping jobs for each s.
+
+So, for example, if the events are added for a=1, b=2, then the events are +1 at 1 and -1 at 3.
+
+The prefix sum array would be:
+
+At s=1: +1.
+
+At s=2: +1.
+
+At s=3: -1.
+
+So, the prefix sum array would be [1, 2, 1].
+
+But how does this relate to the actual s values?
+
+This is a bit complicated. So, the way to compute the prefix sum array is to create an array of size (n - d + 1) + 1, and for each event, add the delta to the corresponding position.
+
+But perhaps the correct way is to generate a list of events, and then compute the prefix sum array.
+
+But for the purpose of this problem, perhaps we can generate a list of events, and then compute the prefix sum array, and then for each s, the count is the value in the prefix sum array.
+
+But how to compute the prefix sum array.
+
+Let me think of an example.
+
+Take the first test case:
+
+n=2, d=1, k=1.
+
+The job is [1,2].
+
+For each job, compute a and b.
+
+a = max(1, l_i - (d-1) + 1) = max(1, 1 - 0 + 1) = 1 + 1 = 2?
+
+Wait, no. Wait, the job is [l_i, r_i] = [1, 2]. d is 1.
+
+The condition for s is:
+
+s must be in [l_i - (d-1) + 1, r_i - 1] ?
+
+Wait, the original condition is:
+
+s must be in (l_i - (d - 1), r_i).
+
+But for d=1, this is s in (l_i - 0, r_i) → s in (l_i, r_i). Since s must be integer, this is s > l_i and s <= r_i.
+
+But since d=1, the brother's interval is [s, s + 0] = [s, s]. So, the job [1, 2] overlaps with the brother's interval if s < 2 and s > 1. So s must be 1.5? No, since s must be integer. So, for s=1, the brother's interval is [1,1]. The job is [1,2], which overlaps with it. So, for s=1, the count is 1.
+
+So, the a is max(1, l_i - (d-1) + 1) = max(1, 1 - 0 +1) = 2. Wait, no. Let me re-calculate.
+
+The condition for s is:
+
+s < r_i (which is 2) and s > l_i - (d - 1) = 1 - 0 = 1. So s must be >1 and <2. So s must be 1.5, but since s is integer, there's no s that satisfies this. Wait, but this is not correct. Because the brother's interval is [s, s], and the job is [1,2]. So the overlap is when s is in [1, 2]. Because the brother's interval is [s, s], which is [1, 1] if s=1, and [2, 2] if s=2. The job [1,2] overlaps with the brother's interval if the brother's interval starts before the job's end (s < 2) and ends after the job's start (s > 1). So for s=1, s >1 is false. So no. So the job overlaps with the brother's interval if s is in [1, 2], but only when s is 1.5. Which is impossible. So the count is 0?
+
+But according to the first example, the output is 1 1. So the brother's start day is 1, and the mother's is 1.
+
+So why does the brother's interval [1,1] overlap with the job [1,2]?
+
+Ah, the overlap is when the intervals have at least one day in common. So for the brother's interval [1,1], and the job [1,2], they overlap. So the condition is s < r_i (1 < 2) and s + d -1 > l_i (1 + 0 > 1 → 1>1 is false). So the condition is not met. But according to the note, the first test case has the brother's start day as 1, which is correct.
+
+Wait, this suggests that my previous condition is incorrect.
+
+Let me re-express the overlapping condition.
+
+The brother's interval is [s, s + d - 1].
+
+The job is [l_i, r_i].
+
+They overlap if there exists at least one day in both intervals.
+
+This is equivalent to:
+
+s <= r_i and (s + d - 1) >= l_i.
+
+So for the first test case, d=1, so the brother's interval is [s, s].
+
+The job is [1, 2]. So:
+
+s <= 2 (which is always true, since s is 1 or 2, but in this case, the brother's interval is [1,1] or [2,2], but the job is [1,2]. So for s=1, the brother's interval is [1,1], which overlaps with the job. Because the job starts at 1 and ends at 2. So the overlap is day 1.
+
+So the condition is s <= r_i (2) and (s + d -1) >= l_i → s <= 2 and s >= 1 (since d-1 is 0). So s >= 1 and s <= 2.
+
+So for s=1, it's valid. So the condition is s >= 1 and s <= 2.
+
+So for the job [1, 2], the s values that overlap with it are 1 and 2.
+
+But the brother's interval must be valid, i.e., s must be in [1, n - d + 1] = 1 to 2-1+1 = 2. So s can be 1 or 2.
+
+So for the first test case, the brother's interval can be [1,1] or [2,2], and both overlap with the job.
+
+So, the count for s=1 is 1 (the job is overlapping), and for s=2, it's also 1.
+
+So the brother's maximum count is 1, and the mother's minimum is 1.
+
+But according to the first example, the output is 1 1, which is the brother's start day 1 and mother's start day 1.
+
+So, the brother's maximum is 1, and the mother's minimum is 1.
+
+So, the events for the job [1,2] in this case would be:
+
+a = max(1, l_i - (d-1) + 1) = max(1, 1 - 0 + 1) = 2.
+
+b = min(n -d +1, r_i -1) = min(2-1+1, 2-1) = min(2, 1) = 1.
+
+So, the job's a is 2, and b is 1. But since a > b, this would be invalid. So the job's [a, b] is [2, 1], which is invalid. So, this suggests that the previous approach is incorrect.
+
+Ah, here's the mistake. The a and b are calculated as:
+
+a = max(1, l_i - (d-1) + 1)
+
+b = min(n - d + 1, r_i - 1)
+
+But in this case, a = 2, b = 1. So the job's [a, b] is invalid, and the count for s would be zero. But that's not correct.
+
+So, the previous approach for calculating a and b is incorrect.
+
+This indicates that the initial approach is flawed.
+
+So, what's wrong with the previous approach?
+
+The initial condition for the s is:
+
+s must be in (l_i - (d - 1), r_i).
+
+But for the brother's interval [s, s + d - 1], the job [l_i, r_i] overlaps with it if:
+
+s < r_i and s + d -1 > l_i.
+
+Which can be rewritten as:
+
+s > l_i - (d - 1) and s < r_i.
+
+But since s must be an integer, the valid s values are those where l_i - (d - 1) < s < r_i.
+
+But when l_i - (d - 1) is not an integer, this is not the case. So for the brother's s, the valid range is:
+
+s must be in the interval (l_i - (d - 1), r_i).
+
+But since s is an integer, the valid s values are those integers strictly between l_i - (d - 1) and r_i.
+
+So, the lower bound is l_i - (d - 1) + 1, and upper bound is r_i - 1.
+
+But if l_i - (d - 1) + 1 > r_i - 1, then there are no s values that satisfy the condition.
+
+So, in the first test case, l_i = 1, d = 1, so l_i - (d - 1) = 1 - 0 = 1. So the lower bound is 1 + 1 = 2. The upper bound is r_i - 1 = 2 - 1 = 1. So the lower bound is 2, upper bound is 1. So no s satisfies this. Which is not correct.
+
+But earlier analysis shows that s=1 is valid.
+
+So, this indicates that the previous approach for calculating a and b is incorrect.
+
+So, what's the correct way to compute a and b?
+
+The condition for s is s > l_i - (d - 1) and s < r_i.
+
+So, the s must be in the interval (l_i - (d - 1), r_i).
+
+But since s is an integer, the s must be in the range:
+
+s_min = l_i - (d - 1) + 1 (since s must be strictly greater than l_i - (d - 1)), and s_max = r_i - 1.
+
+But if s_min > s_max, then there are no s that satisfy the condition.
+
+So, for the first test case, l_i = 1, d=1, s_min = 1 - 0 + 1 = 2, s_max = 2 - 1 = 1. So s_min > s_max → no s. But in reality, s=1 is valid.
+
+So why is this discrepancy?
+
+Because the condition for the overlap is s < r_i and s + d - 1 > l_i.
+
+For the first test case, d=1, s=1. s < r_i (1 < 2) → yes. s + d -1 = 1 + 0 = 1. Which is > l_i (1) → 1 > 1 is false. So the condition is not met. But the overlap is still present.
+
+Wait, this is a problem. So the condition s + d - 1 > l_i is not correct.
+
+Let me re-express the overlap condition.
+
+The brother's interval is [s, s + d - 1].
+
+The job is [l_i, r_i].
+
+They overlap if there exists at least one day in both intervals.
+
+The intervals overlap if:
+
+max(s, l_i) < min(s + d - 1, r_i).
+
+So, for the first test case, s=1, l_i=1, r_i=2. max(1, 1) is 1. min(1, 2) is 1. So 1 < 1 is false. So the intervals do not overlap.
+
+But according to the note, the first test case's brother's visit is on day 1, which overlaps with the job.
+
+But this is a contradiction. So what's wrong here?
+
+Wait, the brother's interval is [1, 1], and the job is [1, 2]. They share day 1. So the overlap is present. So the condition should be that the max(s, l_i) < min(s + d - 1, r_i).
+
+In this case, max(1, 1) is 1, min(1, 2) is 1. So 1 < 1 is false. But the intervals do overlap. So the condition is not correct.
+
+Ah, I think I have a mistake in the condition. The overlap condition is that the intervals have at least one day in common. This is equivalent to the max(s, l_i) < min(s + d - 1, r_i) or max(s, l_i) == min(s + d - 1, r_i) ?
+
+No, the condition is that the intervals overlap if the max of the starts is less than the min of the ends.
+
+But if the max of the starts is equal to the min of the ends, then they are adjacent and overlap. So, the condition is max(s, l_i) < min(s + d - 1, r_i) OR max(s, l_i) == min(s + d - 1, r_i).
+
+So, the correct condition is:
+
+max(s, l_i) < min(s + d - 1, r_i) OR max(s, l_i) == min(s + d - 1, r_i).
+
+But in the case where max(s, l_i) == min(s + d - 1, r_i), it's still considered as overlapping.
+
+So, the previous condition was incorrect. The correct condition is:
+
+s < r_i and s + d - 1 > l_i.
+
+But this is not the case. Let me think again.
+
+The brother's interval is [s, s + d - 1].
+
+The job is [l_i, r_i].
+
+They overlap if there exists at least one day in both intervals.
+
+This can be rewritten as:
+
+s <= r_i and s + d - 1 >= l_i.
+
+So, for the first test case:
+
+s = 1, r_i = 2 → 1 <= 2 is true.
+
+s + d - 1 = 1 + 0 = 1 >= l_i = 1 → 1 >= 1 is true. So the condition is satisfied.
+
+So the correct condition is s <= r_i and s + d - 1 >= l_i.
+
+So the previous approach was incorrect in the condition. So the correct condition is s <= r_i and s + d - 1 >= l_i.
+
+So, this changes the way we compute a and b.
+
+So, the correct a and b for a job [l_i, r_i] is:
+
+s must satisfy s <= r_i and s >= l_i - (d - 1) + 1 ?
+
+Wait, no. Let me think again.
+
+The condition is s <= r_i and s + d - 1 >= l_i.
+
+Rearranged:
+
+s >= l_i - (d - 1) and s <= r_i.
+
+Because:
+
+s + d - 1 >= l_i → s >= l_i - (d - 1).
+
+So the s must be in the interval [l_i - (d - 1), r_i].
+
+But since s is an integer, this is the interval [l_i - (d - 1), r_i].
+
+But s must also be in the valid range for the brother's interval, which is 1 <= s <= n - d + 1.
+
+So, the correct a and b for a job [l_i, r_i] is:
+
+a = max(1, l_i - (d - 1)).
+
+b = min(n - d + 1, r_i).
+
+So, for the first test case, l_i=1, d=1:
+
+a = max(1, 1 - 0) = 1.
+
+b = min(2 - 1 + 1, 2) → min(2, 2) = 2.
+
+So the job's [a, b] is [1, 2].
+
+So, the s must be in [1, 2].
+
+So for the brother's interval [s, s], the s can be 1 or 2. Both are in [1, 2].
+
+So, for s=1, the condition is satisfied (1 <= 2 and 1 >= 1).
+
+So the count for s=1 is 1.
+
+So, the events are generated for [a=1, b=2], and the prefix sum array is computed.
+
+So, the events are added +1 at a=1 and -1 at b+1=3.
+
+The prefix sum array is computed as:
+
+Initially, the array is 0.
+
+Add +1 at 1 → prefix[1] = 1.
+
+Add -1 at 3 → prefix[3] = 0.
+
+But the s ranges from 1 to 2.
+
+So, the prefix sum array for s=1 is 1, for s=2 is 1 (since the events are added at 1 and 3, and the prefix sum is computed for each s).
+
+So, the prefix sum array is:
+
+s=1: 1.
+
+s=2: 1.
+
+So, the maximum is 1, and the minimum is 1.
+
+So, for the brother's part, the best s is 1 (earliest), and for the mother's part, the best m is 1 (earliest).
+
+Which matches the first example's output.
+
+So, the previous approach was wrong in calculating a and b. The correct a and b are:
+
+a = max(1, l_i - (d - 1)).
+
+b = min(n - d + 1, r_i).
+
+So, the correct a and b for a job is [a, b], and the s must be in [a, b].
+
+So, the events are generated as:
+
+For each job, add +1 at a and -1 at b + 1.
+
+Then, the prefix sum array is computed.
+
+Now, the steps for the brother's part and the mother's part are:
+
+For each test case:
+
+1. For each job, compute a = max(1, l_i - (d - 1)), b = min(n - d + 1, r_i).
+
+   If a > b, then no s overlaps with this job.
+
+2. Generate events for each job: +1 at a, -1 at b + 1.
+
+3. Compute the prefix sum array.
+
+4. For the brother's part, find the s that maximizes the count in the prefix sum array.
+
+5. For the mother's part, find the m that minimizes the count in the prefix sum array.
+
+But the brother's and mother's parts are computed using the same events array.
+
+So, the events array is the same for both parts.
+
+Now, the brother's part is to find the s that gives the maximum count, and the mother's part is to find the m that gives the minimum count.
+
+So, the code can be structured as follows:
+
+For each test case:
+
+   Read n, d, k.
+
+   Read k pairs of l_i, r_i.
+
+   For each job, compute a and b as described.
+
+   Generate events: for each job, add +1 at a and -1 at b + 1.
+
+   Compute the prefix sum array.
+
+   For the brother's part:
+
+      Find the s in 1..n -d +1 that has the maximum count.
+
+      If multiple, choose the earliest.
+
+   For the mother's part:
+
+      Find the m in 1..n -d +1 that has the minimum count.
+
+      If multiple, choose the earliest.
+
+But how to compute the prefix sum array.
+
+The events are generated as a list of positions where the delta is added. Then, the prefix sum array is computed.
+
+But how to handle the events.
+
+For example, the events can be stored as a list of (pos, delta), and then we can process them in order, and for each position, accumulate the sum.
+
+But since the events are added for a and b+1, we can generate the events and then compute the prefix sum array.
+
+But in Python, how to do this.
+
+Let me think.
+
+For example, for the events list, we can create a list of events, and then sort them. But since the events are added at a and b+1, and the positions are in order, we can process them in order.
+
+But for the prefix sum array, the events are processed in order of their positions. So, the events are sorted, and the prefix sum is computed.
+
+But for the purpose of the prefix sum array, the events are processed in order, and for each position, the current value is added.
+
+But in code, it's easier to generate a list of events, and then sort them, then compute the prefix sum.
+
+But for the code, the steps are:
+
+events = []
+
+for each job:
+
+    a = max(1, l_i - (d - 1))
+
+    b = min(n - d + 1, r_i)
+
+    if a > b:
+
+        continue  # no overlap
+
+    events.append( (a, 1) )
+
+    events.append( (b + 1, -1) )
+
+Then, we sort the events by their position.
+
+But since the events are added as (pos, delta), we can sort them.
+
+Once the events are sorted, we can compute the prefix sum array.
+
+But how to compute the prefix sum array.
+
+Initialize a variable current_sum = 0.
+
+Then, for each event in sorted order:
+
+   current_sum += delta
+
+   record the current_sum for the position.
+
+But the positions are not necessarily contiguous. So, for example, the events may be at positions 1, 3, 5, etc.
+
+But the prefix sum array is the count of overlapping jobs for each s in 1..n -d +1.
+
+So, the code can be:
+
+Create a list of events, sorted by their position.
+
+Initialize a list called 'prefix' of size (n - d + 1) + 1.
+
+But since the events are sorted, we can iterate through the events and compute the prefix sum.
+
+But how to handle the s values.
+
+Alternatively, we can create a list of all possible s values (from 1 to n -d + 1), and for each s, compute the count.
+
+But this would be O(n) time.
+
+But for large n (up to 1e5), and with t=1e4, this would be O(1e5 * 1e4) = 1e9 operations, which is too slow.
+
+So, we need a way to compute the prefix sum array efficiently.
+
+But the correct way is to process the events in sorted order, and for each event, update the current_sum.
+
+But how to handle the s values.
+
+Another approach is to create a list of events, sort them, and then compute the prefix sum array.
+
+But the events are sorted, and for each position, we can track the current_sum.
+
+But the s values are the positions where the events are added. So, the prefix sum array is built by:
+
+current_sum = 0
+
+for each event in sorted events:
+
+    current_sum += delta
+
+    for the position of the event, we can record the current_sum.
+
+But this is not directly applicable. Instead, we can create a list of the events, and then process them in order, and for each position, track the current_sum.
+
+But the s values are the positions where the events are added. So, the prefix sum array for the s values is computed as follows:
+
+Initialize a list of size (n - d + 1) + 1, initialized to 0.
+
+Then, for each event in sorted order:
+
+   pos = event[0]
+
+   delta = event[1]
+
+   current_sum += delta
+
+   for s in range(pos - 1, pos):
+
+       prefix[s] += current_sum
+
+Wait, no. This is not correct. This approach is not working.
+
+Alternatively, we can use a line sweep approach to compute the prefix sum array.
+
+Let me think again.
+
+The line sweep algorithm works as follows:
+
+We create an array of events, each event is a position and a delta.
+
+We sort the events by position.
+
+We initialize current_sum = 0.
+
+We create a prefix array, which is the count for each s.
+
+Initially, the prefix array is 0 for all s.
+
+Then, for each event in sorted order:
+
+   current_sum += delta.
+
+   for s in the event's position, we can update the prefix array.
+
+But this is not straightforward.
+
+Alternatively, the line sweep algorithm can be used to compute the prefix sum array.
+
+The correct way is to create an array of size (n - d + 1) + 1, initialized to 0.
+
+Then, for each event (pos, delta), we add the delta to the current_sum and update the prefix array.
+
+But this is not the way to do it.
+
+Another approach is to process the events in sorted order, and for each position, the current_sum is the number of overlapping jobs for that position.
+
+But how to compute this.
+
+Let me think of the events as a list of positions and deltas.
+
+We sort the events by position.
+
+We then iterate through the events, and for each event, we apply the delta to the current_sum. The current_sum represents the number of overlapping jobs for the current position.
+
+But the prefix sum array is not directly computed this way.
+
+Alternatively, the events are sorted, and the prefix sum array is built by tracking the current_sum and for each position, the current_sum is the count for that position.
+
+But this is not directly possible.
+
+Alternatively, the events are sorted, and we can create a list of the positions where the events are, and for each position, the current_sum is the count for that position.
+
+But this is getting complicated.
+
+Perhaps the correct way is to use the events to compute the prefix sum array.
+
+Let me think of the events as a list of positions and deltas.
+
+We can create a list of events, and then process them in order, keeping track of the current_sum.
+
+We then create a list of the positions where the events are added, and for each position, we can record the current_sum.
+
+But since the events can be at different positions, the prefix sum array is not directly computed this way.
+
+Alternatively, we can create a list of all positions in the events, and then for each s in 1..n -d +1, compute the current_sum.
+
+But how?
+
+Let me think of the events as a list of positions, and the current_sum is the number of overlapping jobs for the s values.
+
+For example, the events are sorted, and we can iterate through them, keeping track of the current_sum, and for each position, the current_sum is the count for that position.
+
+But this is not directly possible.
+
+Alternatively, we can create a list of the positions where the events are added, and for each s in 1..n -d +1, the count is the current_sum after applying all events up to that position.
+
+But this is not straightforward.
+
+Alternatively, the events can be processed in sorted order, and for each s, the count is the current_sum after processing all events up to s.
+
+But this is not directly possible.
+
+Perhaps the correct way is to create a list of events, sort them, and then compute the prefix sum array by iterating through the events and updating the current_sum.
+
+But the prefix sum array for the s values is the current_sum after processing all events up to that position.
+
+But how to do this.
+
+Let me take an example.
+
+In the first test case, the events are [(1, 1), (3, -1)].
+
+Sorted events are [(1, 1), (3, -1)].
+
+The prefix sum array is computed as follows:
+
+Initially, current_sum = 0.
+
+Process event at 1: current_sum += 1 → current_sum = 1. This means that for s=1, the count is 1.
+
+Process event at 3: current_sum += -1 → current_sum = 0. This means that for s=3, the count is 0.
+
+But the s values are 1 and 2.
+
+So, the count for s=1 is 1, and for s=2 is 1.
+
+So, how to compute this.
+
+The current_sum is the count for s=1, and for s=2, it is the same as the count for s=1, since the events are at 1 and 3.
+
+So, the prefix sum array is computed as follows:
+
+We create a list of s values from 1 to n -d +1.
+
+For each s in this range, the count is the current_sum after processing all events up to s.
+
+But how to compute this.
+
+This is where the line sweep algorithm comes in. The events are sorted, and we can create a list of the events, and for each s, the count is the current_sum after processing all events up to s.
+
+But to do this, we need to track the current_sum and for each s, the current_sum is updated.
+
+But how to do this.
+
+An alternative approach is to create a list of all the positions where the events are, and then for each s in 1..n -d +1, the count is the current_sum after processing all events up to s.
+
+But to do this, we can iterate through the events and for each event, determine the range of s values that are affected by the event.
+
+For example, when an event is at position pos, the delta is applied to all s >= pos.
+
+But this is not directly applicable.
+
+Alternatively, we can create a list of the events, and for each event, we can record the start and end of the interval where the current_sum changes.
+
+But this is getting complicated.
+
+Perhaps the best way is to use the events to compute the prefix sum array as follows:
+
+Initialize the prefix array with zeros.
+
+Sort the events by position.
+
+current_sum = 0
+
+for i in range(len(events)):
+
+    pos, delta = events[i]
+
+    current_sum += delta
+
+    for s in range(pos - 1, pos):
+
+        prefix[s] += current_sum
+
+Wait, no. This would not work because the events are added at pos, and the current_sum is updated for all s >= pos.
+
+But this approach would not correctly compute the prefix sum array.
+
+Alternatively, the events are processed in order, and for each event, we add the delta to the current_sum, and for the positions between the previous event and the current event, the current_sum is applied.
+
+This is getting too complicated.
+
+Maybe the correct way is to create a list of the positions where the events are added, and for each s in 1..n -d +1, the count is the current_sum after processing all events up to s.
+
+But to compute this, we can use the following approach:
+
+Initialize a list of events, sorted.
+
+Initialize current_sum = 0.
+
+Initialize a list of counts, initialized to 0.
+
+For each event in sorted order:
+
+    pos = event[0]
+
+    delta = event[1]
+
+    current_sum += delta
+
+    # Now, for all s in [pos, ...], the current_sum is applied.
+
+    # But how to apply this to the counts.
+
+But this is not directly applicable.
+
+Alternatively, we can think of the events as a list of points where the current_sum changes. For example, between two events, the current_sum is constant.
+
+So, the counts for s in [start, end) is current_sum.
+
+So, for example, the events are sorted, and we can iterate through them, and for each interval between two events, we can compute the count.
+
+But this requires knowing the start and end of the interval.
+
+So, the steps are:
+
+1. Sort the events by position.
+
+2. Initialize current_sum = 0.
+
+3. Initialize a list of counts for s from 1 to n -d +1.
+
+4. Initialize the previous position as 0.
+
+5. For each event in sorted order:
+
+   a. The current event's position is pos.
+
+   b. The previous position is prev_pos.
+
+   c. The interval between prev_pos and pos is from prev_pos + 1 to pos -1.
+
+   d. For each s in this interval, the current_sum is the count.
+
+   e. So, for each s in this interval, the count is current_sum.
+
+   f. Add this to the counts array.
+
+   g. Update prev_pos to pos.
+
+   h. Add the current event's delta to current_sum.
+
+So, this is a possible approach.
+
+Let me try this with the first test case.
+
+Events are [(1, 1), (3, -1)].
+
+Sorted.
+
+prev_pos = 0.
+
+current_sum = 0.
+
+For the first event at pos=1:
+
+   interval is from prev_pos +1 = 1 to pos -1 = 0 → no interval.
+
+   So no s in this interval.
+
+   current_sum += 1 → current_sum = 1.
+
+   prev_pos = 1.
+
+Next event is at pos=3.
+
+   interval is from prev_pos +1 = 2 to pos -1 = 2.
+
+   So s=2 is in this interval.
+
+   So for s=2, the count is current_sum = 1.
+
+   Add this to the counts array.
+
+   current_sum += -1 → current_sum = 0.
+
+   prev_pos = 3.
+
+So the counts array is [0 for s=1, 1 for s=2].
+
+But the s ranges from 1 to 2.
+
+So, for s=1, the count is 0, and for s=2, it's 1.
+
+But this is incorrect, because the count for s=1 should be 1.
+
+Hmm, this suggests that this approach is not correct.
+
+What's wrong here?
+
+In the first test case, the events are at 1 and 3.
+
+The current_sum is 0 initially.
+
+After processing the first event (pos=1, delta=1):
+
+The interval between prev_pos=0 and pos=1 is from 1 to 0, which is empty. So no s in this interval.
+
+Then, current_sum is updated to 1.
+
+The next event is at pos=3.
+
+The interval between prev_pos=1 and pos=3 is from 2 to 2 (since pos-1=2).
+
+So s=2 is in this interval.
+
+So the count for s=2 is current_sum=1.
+
+But the count for s=1 should be 1.
+
+But according to this approach, the count for s=1 is 0.
+
+So why?
+
+Because the event at pos=1 is processed, and the current_sum is 1, but the interval between prev_pos=0 and pos=1 is empty. So s=1 is not part of any interval.
+
+But the event at pos=1 is processed, and the current_sum is 1, but the s=1 is not part of any interval.
+
+This suggests that this approach is not capturing the count for s=1.
+
+Ah, because the event at pos=1 is added, and the current_sum is 1, but the s=1 is part of the interval between prev_pos=0 and pos=1, which is from 1 to 0, which is empty.
+
+So, the count for s=1 is not captured.
+
+So, what is the correct way to handle this?
+
+The events are added at positions where the current_sum changes. For example, the event at pos=1 adds +1 to the current_sum, which affects all s >= pos.
+
+But in this case, the current_sum is 1, and for s=1, the count is 1.
+
+But according to the approach, the s=1 is not in any interval.
+
+So, the approach is missing the s=1.
+
+This suggests that the way the events are processed is incorrect.
+
+The correct way is to consider that the current_sum is the count for s >= pos.
+
+So, for example, when an event is added at pos=1, the current_sum is increased by 1, and for all s >= 1, the count is increased by 1.
+
+But how to capture this.
+
+Perhaps the correct approach is to process the events in sorted order, and for each event, add the delta to the current_sum, and then for the s values from the previous event's position +1 to the current event's position, the current_sum is applied.
+
+But this is not working.
+
+Alternatively, the events are processed, and for each event, the current_sum is applied to the s values from the previous event's position + 1 to the current event's position.
+
+But I'm not sure.
+
+Perhaps the correct way is to create a list of events, sort them, and then for each s, the count is the current_sum after processing all events up to and including the event at s.
+
+But how to do this.
+
+Maybe the correct way is to create a list of events, and then for each s in 1..n -d +1, compute the current_sum after processing all events up to s.
+
+But this requires a way to compute the current_sum for each s.
+
+This is where the line sweep algorithm is used.
+
+Let me think of the events as a list of (pos, delta), sorted by pos.
+
+We create a list of events, and then for each s in 1..n -d +1:
+
+   the count is the current_sum after processing all events up to s.
+
+But how to compute this.
+
+Let me think of the events as a list of positions, and for each s, the count is the sum of all deltas that are applied to s.
+
+But this is not directly possible.
+
+An alternative approach is to create a list of all the events, and for each s, the count is the current_sum after applying all events with pos <= s.
+
+So, for example, for the first test case, the events are at 1 and 3.
+
+For s=1, the current_sum is 1 (after applying the event at 1).
+
+For s=2, the current_sum is 1 (after applying the event at 1 and the event at 3 is not processed yet).
+
+But how to compute this.
+
+This is where the line sweep algorithm is applied.
+
+The correct way is to process the events in sorted order, and for each event, update the current_sum.
+
+Then, for each s in 1..n -d +1, the count is the current_sum.
+
+But this is not correct, because the events are applied to the current_sum, and the current_sum is the count for s >= pos.
+
+But how to track this.
+
+Maybe the correct way is to create a list of events, and for each event, we add the delta to the current_sum, and then for each s in the range from the previous event's position to the current event's position, the current_sum is applied.
+
+But this is getting too complex.
+
+Perhaps the best way is to use the events to build a list of the positions and deltas, and then compute the prefix sum array by iterating through the events and keeping track of the current_sum.
+
+But I'm not sure.
+
+Alternatively, for the purposes of this problem, perhaps it's easier to generate the events and then compute the prefix sum array as follows:
+
+- Create a list of all possible s values (1 to n -d +1).
+
+- For each s, the count is the number of jobs where a <= s <= b.
+
+This is equivalent to the number of jobs where s is in [a, b].
+
+So, for each job, we can add 1 to a and -1 to b+1.
+
+Then, the prefix sum array is computed for the s values.
+
+But how to compute this.
+
+This is the same as the initial approach, but with the correct a and b.
+
+So, for the first test case, the events are added at a=1 and b+1=3.
+
+So, the events are [ (1, 1), (3, -1) ].
+
+The prefix sum array is computed as follows:
+
+Initialize a list of size n -d +1 + 1, initialized to 0.
+
+Then, for each event in the events list, we add the delta to the current_sum and update the prefix array.
+
+But this is not straightforward.
+
+Alternatively, we can use a list of events and compute the prefix sum array using the events.
+
+But I'm stuck.
+
+Perhaps it's easier to use a list of events and for each s in 1..n -d +1, compute the count as the number of events where a <= s and b >= s.
+
+But how to do this efficiently.
+
+This is a range query problem.
+
+For each s, the count is the number of jobs where a <= s and b >= s.
+
+So, for each job, the job contributes 1 to all s in [a, b].
+
+So, the count for s is the number of jobs where a <= s <= b.
+
+So, this is a range update and point query problem.
+
+But how to compute this.
+
+For each test case, we can use a difference array approach.
+
+For each job, we add +1 to a and -1 to b+1.
+
+Then, after processing all jobs, we compute the prefix sum array.
+
+This is the same as the initial approach.
+
+So, the code would be:
+
+events = []
+
+for each job:
+
+    a = max(1, l_i - (d - 1))
+
+    b = min(n -d + 1, r_i)
+
+    if a > b:
+
+        continue
+
+    events.append( (a, 1) )
+
+    events.append( (b+1, -1) )
+
+Then, create a difference array of size (n -d + 1 + 1) = n -d + 2.
+
+Initialize the difference array to 0.
+
+For each event in events:
+
+    pos, delta = event
+
+    diff[pos] += delta
+
+Then, compute the prefix sum array.
+
+But how to compute the prefix sum array.
+
+The prefix sum array is computed as follows:
+
+current_sum = 0
+
+prefix = [0] * (n -d + 2)
+
+for i in range(1, n -d + 2):
+
+    current_sum += diff[i]
+
+    prefix[i] = current_sum
+
+But this is for the range 1 to n -d + 1.
+
+Wait, but the diff array is of size (n -d + 2), and the prefix sum array is computed for i from 1 to n -d + 1.
+
+But this would give the count for each s.
+
+For example, in the first test case:
+
+n -d + 1 = 2 - 1 + 1 = 2.
+
+So, the prefix array is of size 3 (indices 0, 1, 2).
+
+The diff array is initialized to 0.
+
+For the events (1, 1) and (3, -1):
+
+diff[1] += 1 → diff[1] = 1.
+
+diff[3] += -1 → diff[3] = -1.
+
+Then, the prefix sum is computed as:
+
+current_sum = 0.
+
+i=1: current_sum += 1 → 1. prefix[1] = 1.
+
+i=2: current_sum += 0 → 1. prefix[2] = 1.
+
+i=3: current_sum += -1 → 0. prefix[3] = 0.
+
+So, the prefix array is [0, 1, 1, 0].
+
+But the s values are 1 and 2.
+
+So, the prefix array for s=1 is 1, s=2 is 1.
+
+Which is correct.
+
+So, the code for the prefix sum array is:
+
+Create a diff array of size (n -d + 2), initialized to 0.
+
+For each event in events:
+
+   pos, delta = event
+
+   diff[pos] += delta
+
+Then, compute the prefix sum array as follows:
+
+current_sum = 0
+
+for i in range(1, n -d + 2):
+
+    current_sum += diff[i]
+
+    prefix[i] = current_sum
+
+But the prefix array is of size (n -d + 2), and the s values are from 1 to n -d + 1.
+
+So, the count for s is prefix[s].
+
+Thus, for the first test case, the prefix array for s=1 and 2 is 1 and 1.
+
+So, the brother's maximum count is 1, and the mother's minimum is 1.
+
+Thus, the code is correct.
+
+So, the steps are:
+
+For each test case:
+
+   Read n, d, k.
+
+   Read k jobs.
+
+   For each job:
+
+       l_i, r_i = map(int, input().split())
+
+       a = max(1, l_i - (d - 1))
+
+       b = min(n -d + 1, r_i)
+
+       if a > b:
+
+           continue
+
+       events.append( (a, 1) )
+
+       events.append( (b + 1, -1) )
+
+   Now, create the diff array of size n -d + 2.
+
+   Initialize diff to 0.
+
+   for pos, delta in events:
+
+       diff[pos] += delta
+
+   Compute the prefix sum array.
+
+   Now, the prefix array has the count for each s in 1 to n -d + 1.
+
+   For the brother's part:
+
+       find the s in 1..n -d +1 with maximum count.
+
+   For the mother's part:
+
+       find the s in 1..n -d +1 with minimum count.
+
+So, the code for the brother's part is to find the maximum value in the prefix array, and the earliest s.
+
+For the mother's part, it's the minimum value in the prefix array, and the earliest s.
+
+But how to find the s for the maximum and minimum.
+
+Once the prefix array is computed, we can iterate through the s values and find the maximum and minimum.
+
+But for large n, this is O(n) per test case, which is acceptable since the sum of n across test cases is 2e5.
+
+So, the code for the brother's part:
+
+max_count = -1
+
+best_s = 1
+
+for s in range(1, n -d + 2):
+
+    if prefix[s] > max_count:
+
+        max_count = prefix[s]
+
+        best_s = s
+
+    elif prefix[s] == max_count and s < best_s:
+
+        best_s = s
+
+Similarly for the mother's part:
+
+min_count = float('inf')
+
+best_m = 1
+
+for s in range(1, n -d + 2):
+
+    if prefix[s] < min_count:
+
+        min_count = prefix[s]
+
+        best_m = s
+
+    elif prefix[s] == min_count and s < best_m:
+
+        best_m = s
+
+But wait, the prefix array is of size n -d + 2, and the s ranges from 1 to n -d + 1.
+
+So, for the brother's part, the s ranges from 1 to n -d + 1.
+
+So, the code for the brother's part is:
+
+max_count = -1
+
+best_s = 1
+
+for s in range(1, n -d + 2):
+
+    if prefix[s] > max_count:
+
+        max_count = prefix[s]
+
+        best_s = s
+
+    elif prefix[s] == max_count and s < best_s:
+
+        best_s = s
+
+But for the mother's part, the same loop is done for the min_count.
+
+But the mother's part's best_m is the s that gives the minimum count.
+
+So, the code for the brother's and mother's parts is as above.
+
+Now, let's test this with the first test case.
+
+Test case 1:
+
+n=2, d=1, k=1.
+
+Jobs: 1 2.
+
+a = max(1, 1 - 0) = 1.
+
+b = min(2 - 1 + 1, 2) = min(2, 2) = 2.
+
+events are (1, 1), (3, -1).
+
+diff array is [0, 1, 0, -1].
+
+prefix array is computed as:
+
+i=1: current_sum = 1 → prefix[1] = 1.
+
+i=2: current_sum = 1 → prefix[2] = 1.
+
+i=3: current_sum = 0 → prefix[3] = 0.
+
+So, the prefix array is [0, 1, 1, 0].
+
+For the brother's part, the s ranges from 1 to 2.
+
+max_count is 1, best_s is 1.
+
+For the mother's part, the min_count is 1, best_m is 1.
+
+So, the output is 1 1, which matches the first example.
+
+Another test case: the second example.
+
+Input:
+
+4 1 2
+
+1 2
+
+2 4
+
+So, n=4, d=1, k=2.
+
+Jobs are [1,2], [2,4].
+
+For each job:
+
+First job: l=1, r=2.
+
+a = max(1, 1 - 0) = 1.
+
+b = min(4-1+1=4, 2) = 2.
+
+events: (1, 1), (3, -1).
+
+Second job: l=2, r=4.
+
+a = max(1, 2 - 0) = 2.
+
+b = min(4, 4) = 4.
+
+events: (2, 1), (5, -1).
+
+So, events list is [(1, 1), (3, -1), (2, 1), (5, -1)].
+
+Sorting the events by position:
+
+(1, 1), (2, 1), (3, -1), (5, -1).
+
+Now, the diff array is of size 4 -1 + 2 = 4 -1 + 2 = 5? Wait, n -d +1 is 4 -1 +1 = 4. So the diff array is of size 4 + 1 = 5?
+
+Wait, the diff array is of size n -d + 2, which is 4 -1 + 2 = 5? Or is it n -d + 1 + 1?
+
+Yes, for the first test case, n -d + 1 = 2, so the diff array is of size 2 + 1 = 3.
+
+So, for this test case, the diff array is of size 4 + 1 = 5? Or 4 -d + 1 + 1?
+
+Wait, n -d + 1 is the maximum s value, which is 4.
+
+So, the diff array is of size 4 + 1 = 5, indices 0 to 4.
+
+So, the diff array is initialized to 0, and then events are processed.
+
+The events are:
+
+(1, 1), (2, 1), (3, -1), (5, -1).
+
+So, for each event:
+
+diff[1] += 1 → 1.
+
+diff[2] += 1 → 1.
+
+diff[3] += -1 → -1.
+
+diff[5] += -1 → -1.
+
+Now, the diff array is:
+
+index 0: 0
+
+index 1: 1
+
+index 2: 1
+
+index 3: -1
+
+index 4: 0
+
+index 5: -1.
+
+Wait, but the diff array is of size 5, so indices 0-4.
+
+But the events are at 1, 2, 3, 5. So, when we process the events, the diff array is updated at 1, 2, 3, 5. But the diff array is of size 5, so index 5 is out of bounds.
+
+Wait, this is a problem.
+
+The diff array is of size (n -d + 2) = 4 -1 + 2 = 5? Or is it (n -d + 1 + 1) = (4 -1 +1) + 1 = 4 + 1 = 5?
+
+Yes.
+
+So, the diff array is of size 5, indices 0 to 4.
+
+But the events are at positions 1, 2, 3, 5. The event at position 5 is outside the range of the diff array, which is 0-4. So, when we process the event at 5, we should add the delta to index 5, but since the diff array is of size 5, index 5 is out of bounds.
+
+This is a problem.
+
+Ah, the previous approach is incorrect.
+
+The diff array should be of size (n -d + 2), which is (n -d + 1 + 1). For example, in the first test case, n -d +1 is 2, so the diff array is of size 3, indices 0-2.
+
+But in the second test case, n -d +1 is 4, so the diff array should be of size 5 (4 + 1), indices 0-4.
+
+But the event at 5 is outside of the diff array, which is of size 5 (indices 0-4).
+
+So, in this case, when we process the event at 5, we should add the delta to index 5, but since the diff array is of size 5, it's out of bounds.
+
+This suggests that the previous approach is incorrect.
+
+The correct way to handle the events is to ensure that the events are within the range 1 to n -d + 1.
+
+Wait, the events are added at positions a and b + 1. For a job, b is min(n -d +1, r_i).
+
+So, b + 1 can be up to (n -d +1) + 1 = n -d + 2.
+
+But the diff array is of size n -d + 2, which is 4 -1 + 2 = 5 for the second test case. So, the event at 5 is within the diff array's range.
+
+Wait, n -d + 2 is 4 -1 + 2 = 5. So, the diff array is of size 5, indices 0-4. So, 5 is out of bounds.
+
+This is a problem.
+
+So, the event at 5 is out of bounds, and the code would crash.
+
+So, the correct way is to ensure that the events are within the range 1 to n -d + 2.
+
+Wait, the maximum possible value for b + 1 is n -d + 1 + 1 = n -d + 2.
+
+So, the diff array should be of size n -d + 2 + 1?
+
+No, the diff array should be of size n -d + 2, because the events are added at positions up to n -d + 2.
+
+But in the second test case, n -d + 2 is 4 -1 + 2 = 5. So, the diff array is of size 5, indices 0-4. So, the event at 5 is out of bounds.
+
+This suggests that the code should have the diff array of size (n -d + 2) + 1, or something like that.
+
+Wait, the correct way is to create a diff array of size (n -d + 2) + 1, to accommodate the event at n -d + 2.
+
+But this is getting complicated.
+
+Alternatively, the diff array should be of size (n -d + 2) + 1, and the events are added to positions up to n -d + 2.
+
+But this is not clear.
+
+Perhaps the correct way is to create the diff array of size (n -d + 2) + 1, and the events are added to positions up to n -d + 2.
+
+But in any case, the code should handle the events properly.
+
+In the second test case, the events are at 1, 2, 3, 5.
+
+The diff array is of size 5 (indices 0-4), but the event at 5 is outside of this range.
+
+So, when we process the event at 5, we should add the delta to the diff array at position 5, but since the diff array is of size 5, it's out of bounds.
+
+This suggests that the code needs to handle the event positions up to n -d + 2.
+
+So, the diff array should be of size (n -d + 2) + 1, or something like that.
+
+But how to handle this.
+
+Perhaps the correct way is to create the diff array of size (n -d + 2) + 1, and then for events at position > n -d + 2, we ignore them.
+
+But this is not correct.
+
+Alternatively, the code should add the event to the diff array at position b + 1, which is up to n -d + 2.
+
+So, in the second test case, the event at 5 is outside of the diff array, but in reality, the event at 5 is beyond the range of s values (which is up to 4).
+
+So, when the event is at 5, it is outside of the range of s values, and should not be processed.
+
+But how to handle this.
+
+This suggests that the code should only add events for positions a and b + 1 that are within 1 to n -d + 2.
+
+But how to ensure that.
+
+So, for the event (b + 1), if it is greater than n -d + 2, then it should not be added.
+
+But how to calculate this.
+
+For example, in the second test case, the event at 5 is b + 1 = 4 + 1 = 5, which is greater than n -d + 2 = 4.
+
+So, it should not be added.
+
+But how to handle this.
+
+This suggests that the code should check if b + 1 is within 1 to n -d + 2.
+
+But in the code, the events are added as:
+
+for each job:
+
+    a = max(1, l_i - (d - 1))
+
+    b = min(n -d + 1, r_i)
+
+    if a > b:
+
+        continue
+
+    events.append( (a, 1) )
+
+    events.append( (b + 1, -1) )
+
+So, for the event (b + 1), if b + 1 > n -d + 1 + 1, then it is not added.
+
+Wait, n -d + 1 is the maximum s value.
+
+So, b is min(n -d + 1, r_i). So, b + 1 can be up to (n -d + 1) + 1 = n -d + 2.
+
+So, the event (b + 1) is up to n -d + 2.
+
+But the diff array is of size n -d + 2, which is the maximum possible value for the event.
+
+So, in the second test case, the event at 5 is outside of the diff array (size 5, indices 0-4).
+
+So, the code should add the event to the diff array only if b + 1 <= n -d + 2.
+
+But in this case, b + 1 is 5, which is equal to n -d + 2 (4 + 2 = 6? No, n -d + 2 is 4 - 1 + 2 = 5. So, 5 is equal to n -d + 2.
+
+So, the diff array is of size 5, indices 0-4.
+
+So, the event at 5 is out of bounds, and the code would crash.
+
+This indicates that the code needs to adjust the diff array size.
+
+So, the diff array should be of size (n -d + 2) + 1, to accommodate the event at n -d + 2.
+
+But how to determine this.
+
+Alternatively, the code should create a diff array of size (n -d + 2) + 1, and the events are added to positions up to n -d + 2.
+
+But this is getting complicated.
+
+Perhaps the correct way is to create a diff array of size (n -d + 2) + 1, and the events are added to positions up to n -d + 2.
+
+But in the second test case, the event at 5 is n -d + 2 = 4 -1 + 2 = 5, so the diff array is of size 5 + 1 = 6.
+
+So, the diff array is of size 6, indices 0-5.
+
+So, the event at 5 is within the diff array.
+
+So, the code should create the diff array of size (n -d + 2) + 1.
+
+But how to calculate this.
+
+The correct diff array size is (n -d + 2) + 1 = n -d + 3.
+
+But this is getting complicated.
+
+Alternatively, in the code, the diff array is of size (n -d + 2) + 1, and the events are added to positions up to n -d + 2.
+
+So, in the second test case, the diff array is of size 5 + 1 = 6, indices 0-5.
+
+So, the event at 5 is within the range.
+
+Thus, the code should create the diff array of size (n -d + 2) + 1.
+
+But how to implement this.
+
+In Python, for each test case:
+
+n, d, k = ... 
+
+max_s = n -d + 1
+
+diff = [0] * (max_s + 2)  # since max_s + 1 is n -d + 2.
+
+Then, for each event (a, delta), we add to diff[a] += delta.
+
+But this would handle the events up to max_s + 1.
+
+So, for the second test case, max_s = 4, so diff is of size 4 + 2 = 6.
+
+So, events are added to positions 1, 2, 3, 5.
+
+For the event at 5, it is within the diff array.
+
+Thus, the code would work.
+
+So, the correct code for the diff array is:
+
+max_s = n - d + 1
+
+diff = [0] * (max_s + 2)  # indices 0 to max_s + 1
+
+for each event:
+
+    pos, delta = event
+
+    diff[pos] += delta
+
+Then, compute the prefix sum array as:
+
+current_sum = 0
+
+prefix = [0] * (max_s + 1 + 1)  # or max_s + 2?
+
+Wait, the prefix array is of size max_s + 1 + 1? Or not.
+
+The prefix array is computed for s from 1 to max_s.
+
+So, the code would be:
+
+current_sum = 0
+
+for s in range(1, max_s + 1):
+
+    current_sum += diff[s]
+
+    prefix[s] = current_sum
+
+But this would be incorrect, because the diff array is of size max_s + 2, and the events are added to positions up to max_s + 1.
+
+But the code would need to process the diff array correctly.
+
+This is getting very complex, but the key is to ensure that the diff array is large enough to handle the events.
+
+So, the final code would be:
+
+For each test case:
+
+   read n, d, k.
+
+   read k jobs.
+
+   max_s = n -d + 1
+
+   events = []
+
+   for each job:
+
+       l, r = map(int, input().split())
+
+       a = max(1, l - (d - 1))
+
+       b = min(max_s, r)
+
+       if a > b:
+
+           continue
+
+       events.append( (a, 1) )
+
+       events.append( (b + 1, -1) )
+
+   diff = [0] * (max_s + 2)  # size is max_s + 2, to handle up to max_s + 1
+
+   for pos, delta in events:
+
+       if 1 <= pos <= max_s + 1:
+
+           diff[pos] += delta
+
+   # compute prefix sum array
+
+   current_sum = 0
+
+   prefix = [0] * (max_s + 1)
+
+   for s in range(1, max_s + 1):
+
+       current_sum += diff[s]
+
+       prefix[s] = current_sum
+
+   # now, find the best s for brother and mother
+
+   # brother's best s is the one with max count
+
+   max_count = -1
+
+   best_s = 1
+
+   for s in range(1, max_s + 1):
+
+       if prefix[s] > max_count:
+
+           max_count = prefix[s]
+
+           best_s = s
+
+       elif prefix[s] == max_count and s < best_s:
+
+           best_s = s
+
+   # mother's best m is the one with min count
+
+   min_count = float('inf')
+
+   best_m = 1
+
+   for s in range(1, max_s + 1):
+
+       if prefix[s] < min_count:
+
+           min_count = prefix[s]
+
+           best_m = s
+
+       elif prefix[s] == min_count and s < best_m:
+
+           best_m = s
+
+   print(best_s, best_m)
+
+This should handle the events correctly.
+
+Let's test the second test case:
+
+n=4, d=1, k=2.
+
+max_s = 4 -1 +1 = 4.
+
+events:
+
+first job: a=1, b=2 → events (1, 1), (3, -1).
+
+second job: l=2, r=4 → a=2, b=4 → events (2, 1), (5, -1).
+
+diff is of size 4 + 2 = 6, indices 0-5.
+
+Processing events:
+
+for (1, 1): diff[1] += 1 → diff[1] = 1.
+
+for (2, 1): diff[2] += 1 → diff[2] = 1.
+
+for (3, -1): diff[3] += -1 → diff[3] = -1.
+
+for (5, -1): diff[5] += -1 → diff[5] = -1.
+
+The diff array is [0, 1, 1, -1, 0, -1].
+
+Now, compute prefix for s from 1 to 4:
+
+s=1: current_sum += diff[1] → 1 → prefix[1] = 1.
+
+s=2: current_sum += diff[2] → 1 + 1 = 2 → prefix[2] = 2.
+
+s=3: current_sum += diff[3] → 2 + (-1) = 1 → prefix[3] = 1.
+
+s=4: current_sum += diff[4] → 1 + 0 = 1 → prefix[4] = 1.
+
+So the prefix array is [0, 1, 2, 1, 1].
+
+The brother's part: find the max count.
+
+The max is 2 at s=2.
+
+The mother's part: find the min count, which is 1.
+
+So, the output is 2 1.
+
+But according to the second example's input, the output is 2 1.
+
+The second example's input is:
+
+4 1 2
+
+1 2
+
+2 4
+
+The output is 2 1.
+
+Yes, this matches.
+
+So, the code seems to handle this correctly.
+
+Thus, the code should be correct.
+
+Now, let's implement this in Python.
+
+The code needs to read t test cases, for each test case, read n, d, k, then read k lines of l_i and r_i.
+
+But note that for each test case, the max_s is n -d +1.
+
+So, the code:
+
+Read t.
+
+for _ in range(t):
+
+    n, d, k = map(int, input().split())
+
+    max_s = n - d + 1
+
+    events = []
+
+    for _ in range(k):
+
+        l, r = map(int, input().split())
+
+        a = max(1, l - (d - 1))
+
+        b = min(max_s, r)
+
+        if a > b:
+
+            continue
+
+        events.append( (a, 1) )
+
+        events.append( (b + 1, -1) )
+
+    # create diff array
+
+    diff = [0] * (max_s + 2)  # size is max_s + 2
+
+    for pos, delta in events:
+
+        if 1 <= pos <= max_s + 1:
+
+            diff[pos] += delta
+
+    # compute prefix sum
+
+    current_sum = 0
+
+    prefix = [0] * (max_s + 1)  # s ranges from 1 to max_s
+
+    for s in range(1, max_s + 1):
+
+        current_sum += diff[s]
+
+        prefix[s] = current_sum
+
+    # find best_s for brother
+
+    max_count = -1
+
+    best_s = 1
+
+    for s in range(1, max_s + 1):
+
+        if prefix[s] > max_count:
+
+            max_count = prefix[s]
+
+            best_s = s
+
+        elif prefix[s] == max_count and s < best_s:
+
+            best_s = s
+
+    # find best_m for mother
+
+    min_count = float('inf')
+
+    best_m = 1
+
+    for s in range(1, max_s + 1):
+
+        if prefix[s] < min_count:
+
+            min_count = prefix[s]
+
+            best_m = s
+
+        elif prefix[s] == min_count and s < best_m:
+
+            best_m = s
+
+    print(best_s, best_m)
+
+But wait, in the code, the 'diff' array is of size max_s + 2, and the events are added to positions up to max_s + 1.
+
+But in the code, for the event (b + 1), it is checked if 1 <= pos <= max_s + 1.
+
+So, in the code, if b + 1 is greater than max_s + 1, it is not added.
+
+But for example, if b + 1 is max_s + 1, then it is added.
+
+So, this should handle all cases.
+
+Now, let's test the third example:
+
+Input:
+
+4 1 2
+
+1 2
+
+2 4
+
+Output is 1 4.
+
+Wait, the third example's input is:
+
+4 1 2
+
+1 2
+
+2 4
+
+But according to the output, the output is 1 4.
+
+Wait, the third example's output is:
+
+3 4.
+
+Wait, the third example's input is:
+
+4 1 2
+
+1 2
+
+2 4
+
+The output is 1 4.
+
+Wait, no. Let me check the third example.
+
+The third test case input is:
+
+4 1 2
+
+1 2
+
+2 4
+
+The output is 1 4.
+
+But according to the example, the output is 1 4.
+
+But according to the code, for this test case, the max_s is 4 - 1 + 1 = 4.
+
+The events are:
+
+First job: a=1, b=2 → events (1, 1), (3, -1).
+
+Second job: a=2, b=4 → events (2, 1), (5, -1).
+
+diff array is of size 4 + 2 = 6.
+
+diff[1] = 1, diff[2] = 1, diff[3] = -1, diff[5] = -1.
+
+Other positions are 0.
+
+prefix for s=1: 1.
+
+s=2: 1 + 1 = 2.
+
+s=3: 2 + (-1) = 1.
+
+s=4: 1 + 0 = 1.
+
+So, the prefix array is [0, 1, 2, 1, 1].
+
+So, the brother's best_s is 2, which gives count 2.
+
+The mother's best_m is the minimum count, which is 1.
+
+So, the output is 2 1.
+
+But according to the example, the output is 1 4.
+
+Wait, this suggests a problem.
+
+Wait, the third example's input is:
+
+4 1 2
+
+1 2
+
+2 4
+
+The output is 1 4.
+
+But according to the code's calculation, the brother's best_s is 2, and the mother's best_m is 1.
+
+But the example's output is 1 4.
+
+This suggests a problem.
+
+Wait, what is the correct output for this test case?
+
+The third example's input is:
+
+4 1 2
+
+1 2
+
+2 4
+
+The output is 1 4.
+
+But according to the example's note, the third test case's output is 1 4.
+
+But according to the code, the brother's best_s is 2, and the mother's best_m is 1.
+
+So, the code's output would be 2 1, but the example's output is 1 4.
+
+This indicates a mistake in the code.
+
+What's wrong here?
+
+Let me re-examine the third test case.
+
+The third test case's input is:
+
+n=4, d=1, k=2.
+
+Jobs are [1,2], [2,4].
+
+The brother's visit must overlap with the maximum number of jobs.
+
+The brother's interval is [s, s], which is of length 1.
+
+For each possible s in 1-4.
+
+For s=1:
+
+Job 1: overlaps (1 <= 2 and 1 >= 1 → yes).
+
+Job 2: overlaps (1 <= 4 and 1 >= 2 → 1 >= 2 is false. So no. So count is 1.
+
+For s=2:
+
+Job 1: overlaps (2 <= 2 and 2 >= 1 → yes.
+
+Job 2: overlaps (2 <= 4 and 2 >= 2 → yes. So count is 2.
+
+For s=3:
+
+Job 1: 3 <= 2? No. So no.
+
+Job 2: 3 <= 4 and 3 >= 2 → yes. So count is 1.
+
+For s=4:
+
+Job 1: 4 <= 2? No. Job 2: 4 <= 4 and 4 >= 2 → yes. So count is 1.
+
+So the maximum count is 2, which is achieved at s=2.
+
+So the brother's best_s is 2.
+
+For the mother's part, the minimum count is 1, achieved at s=1, 3, 4.
+
+So the mother's best_m is 1.
+
+So the output is 2 1.
+
+But according to the example, the output is 1 4.
+
+This suggests that there is a mistake in the example or in the code.
+
+Wait, the example's input is:
+
+4 1 2
+
+1 2
+
+2 4
+
+The output is 1 4.
+
+But according to the code's calculation, the output should be 2 1.
+
+But according to the example's note, the third test case's output is 1 4.
+
+This indicates a discrepancy.
+
+Wait, let me check the example's note:
+
+In the third test case, Robert visits for days [1,2], Mrs. Hood visits for days [4,5].
+
+But n=4, so the mother's visit is [4,5] is invalid. Wait, no. The mother's visit is [m, m + d - 1] = [m, m + 0] = [m, m]. So, for the mother's visit to be valid, m must be in 1..4.
+
+So, the example's note says that Robert visits for [1,2], and Mrs. Hood visits for [4,5], but since n=4, this is invalid. So perhaps the example's note is for a different test case.
+
+Wait, the third test case's input is:
+
+4 1 2
+
+1 2

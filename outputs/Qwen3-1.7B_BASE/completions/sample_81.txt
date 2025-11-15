@@ -1,0 +1,585 @@
+<think>
+Okay, let's see. The problem is to find the minimum number of operations where each operation subtracts a power of k from n. And we need to do this until n becomes zero. So, for each test case with n and k, how do we compute the minimum steps?
+
+Hmm. Let's think of examples. Like the first test case: 5 and 2. The steps were subtracting 1 (2^0) then 4 (2^2). So two steps. Another example: 100 and 3. The output is 4. Let's see why. 100 divided by 3 is 33 with remainder 1. Then subtract 3^3 (27) to get 73. Then subtract 3^2 (9) to get 64. Then subtract 3^3 again (27) to get 37. Wait, but maybe there's a better way. Oh wait, maybe the steps are subtracting 3^4 (81) once, then 3^3 (27) once, then 3^2 (9) once, then 3^1 (3) once. Wait, that's 4 steps. So that's the answer.
+
+So the idea is that each time, we subtract the largest possible power of k that is less than or equal to the remaining n. Then repeat until n becomes zero. So the steps would be: subtract the largest possible power each time. But how to compute that efficiently?
+
+Wait, but the largest possible power of k less than or equal to n. For example, if n is 100 and k is 3, the largest power is 3^4 (81). Then subtract that, and then the remaining is 100 - 81 = 19. Then the largest power is 3^2 (9), subtract that, remaining 10. Then 3^2 (9) again. Wait, no, after subtracting 81, the remaining is 19. Then 3^2 is 9, subtract that, remaining 10. Then 3^2 again (9), subtract that, remaining 1. Then subtract 3^0 (1), remaining zero. So that's 4 steps. So that's why the answer is 4.
+
+So the algorithm would be:
+
+While n > 0:
+    Find the largest x such that k^x <= n.
+    Subtract k^x from n.
+    Increment the count.
+
+But how to find x each time efficiently?
+
+Well, for each n, the largest power of k is the largest x where k^x <= n. Let's think about the steps. For example, for n=5 and k=2. The largest x is 2 (since 2^2=4 <=5, 2^3=8>5). Then subtract 4, n becomes 1. Then subtract 1 (2^0), count becomes 2.
+
+Another example: n=3, k=5. Largest x is 0 (since 5^0=1 <=3, but 5^1=5>3). So subtract 1, n becomes 2. Then again subtract 1, n becomes 1. Then again subtract 1, n becomes 0. Total steps 3.
+
+So the process is to subtract the largest possible power each time, and count how many times we do that.
+
+So the problem reduces to, for each n and k, how many times do we subtract the largest possible power of k, until n becomes zero.
+
+But how to compute this efficiently?
+
+The key is to find for each n, the maximum x such that k^x <= n. Then subtract that, and repeat.
+
+But for large n and k (up to 1e9), we can't compute k^x directly each time. So we need a way to compute x quickly.
+
+Let's think about the steps for x. For example, x is the largest such that k^x <= n.
+
+We can compute x by taking the logarithm. Let's see. log_k(n) = x + log_k(n/k^x). But since we need integer x, perhaps the maximum x is floor(log_k(n)).
+
+Wait, but how to compute that in code? Let's think of k^x as the largest possible power of k not exceeding n.
+
+An alternative approach is to find x by checking the exponents. For example, starting from 0, increment until k^x exceeds n.
+
+But for large exponents, this could be slow. For example, if k is 2 and n is 1e9, then the maximum x is 30, since 2^30 is about a billion. So checking up to 30 steps per test case is manageable, since each test case would take O(30) steps.
+
+So the steps for each n and k are:
+
+Initialize count = 0.
+
+While n > 0:
+
+   Find the maximum x such that k^x <= n.
+
+   Subtract k^x from n.
+
+   Increment count.
+
+So the problem is how to compute x quickly.
+
+An efficient way is to iterate x from 0 upwards until k^x exceeds n. For example:
+
+x = 0
+
+while k^x <= n:
+
+   x +=1
+
+But wait, in code, how to compute k^x? For example, in Python, we can compute it as pow(k, x), but for large x (like 30) it's manageable.
+
+So for each n, we can do a loop from x=0 upwards until k^x exceeds n, then subtract that from n and increment the count.
+
+But for k=1, since 1^x is always 1, then for n=1, the maximum x is 0. Because 1^0 is 1, and 1^1 is 1. So for n=1, we subtract 1 once. Wait, but 1^0 is 1. So if n=1 and k=1, then the maximum x is 0, but 1^x is 1. So the loop would check if k^x <=n. For x=0, 1^0=1, which is equal to n=1. So x increases to 1, then k^1=1 again. So the loop would run forever. So that's a problem.
+
+Wait, but in that case, the maximum x is 0. Because 1^x is 1, which is equal to n. So in this case, the maximum x is 0, but the loop would check x=0, then x=1, etc. So how to avoid infinite loop here?
+
+So in this case, for n=1, k=1, the maximum x is 0. Because subtracting 1^0=1 would make n=0. So the count is 1.
+
+So the loop needs to find the maximum x such that k^x <=n. But when k=1, then all exponents x >=0 have k^x=1. So the maximum x is the largest x where 1^x <=n. Since n is >=1, the maximum x is 0. Wait, no. Because for n=1, 1^0=1 <=1. 1^1=1 <=1. So the maximum x is 0? Or is it 1?
+
+Wait, the problem says that in each operation, you can subtract any power of k, including 0. Wait, no. Wait, the problem says "any non-negative integer x". So x can be 0, but when x=0, the power is 1. So for example, in the case of n=1 and k=1, you can subtract 1^0=1 (which is allowed), which makes n=0. So in this case, the count is 1.
+
+But how to find x in this case?
+
+So the maximum x is the largest x such that k^x <=n. For k=1, this is x=0, because 1^0=1 <=n (n is 1). But x=1 would also be 1, so why not take x=1?
+
+Wait, but in the problem statement, the operation is to subtract k^x. So when x=0, it's subtracting 1. So for n=1, the maximum x is 0. Because subtracting 1 once makes n=0. So the count is 1.
+
+So in this case, the maximum x is 0, but the loop would check x=0, then x=1, then x=2, etc. So how do we avoid infinite loops here?
+
+Ah, the problem is that when k=1, the maximum x is not the same as the largest x that satisfies k^x <=n. Because in that case, all exponents x >=0 would give k^x=1. So the maximum x is the maximum x such that 1^x <=n. But for any x >=0, this is true. So the maximum x is the largest possible x. But since x can be any number, this is infinite. So in this case, we can't compute x in the loop, but we have to find the maximum x such that k^x <=n, but since k=1, this is x=0.
+
+So how to handle this case?
+
+In code, when k=1, then the maximum x is 0. So when k=1, we can subtract 1 once, which makes n=0. So the count is 1.
+
+So in code, for k=1, we can immediately return 1 if n is at least 1. Because subtracting 1 once will make it zero. So the steps would be 1.
+
+So the loop would not run for k=1, because in that case, the maximum x is 0, and subtracting k^x (1) would make n=0.
+
+So in code, when k=1, we can check if n is 1, then return 1. Otherwise, if n is 0, return 0. But in our problem, n starts from 1, so for k=1 and n=1, the answer is 1.
+
+So the algorithm is:
+
+if k == 1:
+   if n == 1: return 1
+   else: return 0 (since n is 0, but according to the problem, n starts from 1, so maybe not possible)
+else:
+   find x such that k^x <= n, then subtract it, increment count.
+
+But how to find x?
+
+So the loop approach:
+
+count = 0
+
+while n > 0:
+
+   x = 0
+
+   while True:
+
+      if k^x > n: break
+
+      x +=1
+
+   count +=1
+
+   n -= k^x
+
+But wait, for k=1, this would loop forever. So we need to handle k=1 separately.
+
+So the steps in code:
+
+for each test case:
+
+   n, k = map(int, input().split())
+
+   if k == 1:
+
+      if n == 1:
+
+         print(1)
+
+         continue
+
+      else:
+
+         print(0)
+
+   else:
+
+      count = 0
+
+      while n > 0:
+
+         x = 0
+
+         while True:
+
+            if pow(k, x) > n:
+
+               break
+
+            x +=1
+
+         count +=1
+
+         n -= pow(k, x)
+
+      print(count)
+
+Wait, but in the case where k=2 and n=5, the code would do:
+
+x starts at 0. pow(2,0) = 1 <=5, x becomes 1. pow(2,1)=2 <=5, x becomes 2. pow(2,2)=4 <=5, x becomes 3. pow(2,3)=8>5, break. So x=3, subtract 8 from 5? Wait, no. Wait, the code says:
+
+n = 5, x=0: pow(2,0)=1 <=5, x becomes 1. Then pow(2,1)=2 <=5, x becomes 2. Then pow(2,2)=4 <=5, x becomes 3. pow(2,3)=8>5, break. So x=3. Then subtract pow(2,3)=8 from 5? That would give n = 5-8 = -3, which is wrong.
+
+Wait, no. Wait, the code is:
+
+count +=1
+
+n -= pow(k, x)
+
+But in the example, when x=3, pow(k,x) is 8. So n is 5, subtract 8 gives -3. Which is invalid.
+
+But this suggests that the code is wrong. So why?
+
+Because in the code, the loop is:
+
+x starts at 0, and in each iteration, check if k^x <=n. Then x increments. So when k=2, n=5, the code would find x=3, but pow(2,3)=8>5, so the loop breaks. So x=3 is not valid. So the code is wrong here.
+
+Wait, what's wrong here?
+
+The code is trying to find the maximum x such that k^x <=n. But in the loop, the code is incrementing x until k^x exceeds n. So for example, in the case of n=5, k=2, the code would check x=0 (1 <=5), x=1 (2 <=5), x=2 (4 <=5), x=3 (8>5). So the loop breaks at x=3. So the maximum x is 2. So the code should subtract 2^2=4 from n, making n=1. Then the loop continues again.
+
+But in the code above, the code is doing x=3, which is invalid. So why?
+
+Because the code is incrementing x until pow(k, x) >n. So in this case, the code would check x=0, then 1, then 2, then 3. At x=3, pow(2,3) is 8>5. So the loop breaks. So the code would have x=3, but the maximum x is 2. So the code is wrong here.
+
+So the code is wrong in the way it finds x. So the problem is that the code increments x until the pow(k,x) exceeds n. But in this case, the code would have x=3, but the correct maximum x is 2.
+
+So the code's logic is incorrect. How to fix this?
+
+Ah, because the code is incrementing x until pow(k, x) >n. But in that case, the maximum x is x-1. Because x is incremented to the first x where pow(k,x) >n.
+
+So for example, in the case of n=5 and k=2, the code would have x=3, but the correct x is 2. So the code should subtract pow(k, x-1) instead of pow(k, x).
+
+So the code's logic is wrong. So the correct approach is:
+
+Find the maximum x such that pow(k, x) <=n. Then subtract pow(k, x) from n.
+
+So the code needs to find x such that pow(k, x) <=n and pow(k, x+1) >n.
+
+So the code should loop x from 0 upwards until pow(k,x) >n. Then x is the maximum x where pow(k,x) <=n.
+
+But in the code above, the loop is:
+
+x = 0
+
+while True:
+
+   if pow(k, x) >n: break
+
+   x +=1
+
+So this loop would increment x until pow(k,x) >n. So for the example n=5 and k=2, the loop would run for x=0,1,2, then x=3. So after the loop, x is 3. So the code would subtract pow(k,3)=8 from n=5, which is invalid. So the code is wrong.
+
+So the correct approach is to find the maximum x where pow(k,x) <=n. Then subtract pow(k,x) from n.
+
+So how to find that x?
+
+We can find x by starting from 0 and incrementing until pow(k,x) >n, then x-1 is the maximum x.
+
+So for example, in the case of n=5, k=2, the loop would run x=0,1,2,3. Then x=3 is the first x where pow(k,x) >n. So the maximum x is 2. So the code should subtract pow(k,2) =4 from n=5, making n=1.
+
+So the code needs to find x-1, not x.
+
+So the code should be:
+
+count = 0
+
+while n>0:
+
+   x = 0
+
+   while pow(k, x) <=n:
+
+      x +=1
+
+   count +=1
+
+   n -= pow(k, x-1)
+
+So in the example, after x=3, the code subtracts pow(k, 2) =4.
+
+So the code would correctly compute the steps.
+
+But how to implement this efficiently.
+
+In Python, pow(k, x) can be calculated as k**x, but for large x, this can be slow. However, since k can be up to 1e9 and x up to log2(1e9) ~30, this is manageable.
+
+So the code would look like this:
+
+for each test case:
+
+   n, k = map(int, input().split())
+
+   if k ==1:
+
+      if n ==1:
+
+         print(1)
+
+      else:
+
+         print(0)
+
+   else:
+
+      count =0
+
+      while n>0:
+
+         x=0
+
+         while True:
+
+            if pow(k, x) >n:
+
+               break
+
+            x +=1
+
+         # x is the first x where pow(k,x) >n
+
+         # so the maximum x is x-1
+
+         count +=1
+
+         n -= pow(k, x-1)
+
+      print(count)
+
+But wait, in the case where x is 0, then pow(k, x) is 1. So the loop will run x=0, then check if 1 >n. If n is 1, then it breaks. So x is 0, then subtract pow(k, -1) which is invalid.
+
+Wait, no. Because in the code, the loop is:
+
+x starts at 0.
+
+while pow(k, x) <=n:
+
+   x +=1
+
+So for x=0, pow(k,0)=1 <=n. So x increments to 1.
+
+Then check pow(k,1) <=n. If n is 1, then 1 <=1, so x increments to 2. Then check pow(k,2) <=n. If n is 1, then 2^x is 4, which is >n. So the loop breaks. So x is 2. So the code subtracts pow(k, x-1) = pow(k,1) =k.
+
+But if n is 1, and k is 2, then pow(k,1) is 2>1. So the code would subtract 2 from n=1, which would give n=-1. Which is invalid. But this is impossible, since the code is in the loop where n>0. So in this case, the loop would have x=2, but pow(k, x) is 2^2=4>1. So the code would subtract pow(k, x-1) =pow(2,1)=2, but n=1. So n becomes -1, which is invalid. So this suggests that the code is incorrect again.
+
+Wait, this is a problem. How to handle cases where x is 0?
+
+Wait, let's take an example where n=1 and k=2. So the code would enter the loop. x starts at 0. pow(2,0)=1 <=1, so x increments to 1. Then pow(2,1)=2>1, so loop breaks. So x is 1. Then subtract pow(2, x-1) = pow(2,0)=1. So n becomes 1-1=0. Then the loop ends. So count is 1. Which is correct.
+
+But what if n=1 and k=1? Then the code would enter the loop. x starts at 0. pow(1,0)=1 <=1, so x increments to 1. pow(1,1)=1 <=1, so x increments to 2. pow(1,2)=1 <=1, so x increments to 3. And so on. The loop runs forever. So in this case, the code would have an infinite loop. But for k=1, the code is already handled in the if condition.
+
+So the code is correct when k is not 1. So when k is not 1, the code will not enter the if block, and the loop will run.
+
+So in the case of n=1 and k=2, the code would process correctly.
+
+So the code seems to handle all cases correctly.
+
+Let's test the sample input.
+
+Sample input 1:
+
+5 2
+
+Sample output: 2.
+
+Let's see:
+
+n=5, k=2.
+
+Loop:
+
+x starts at 0. pow(2,0)=1 <=5. x increments to 1. pow(2,1)=2 <=5. x increments to 2. pow(2,2)=4 <=5. x increments to 3. pow(2,3)=8>5. So x=3. subtract pow(2,3-1)=pow(2,2)=4. n becomes 5-4=1. count=1.
+
+Loop again:
+
+x=0. pow(2,0)=1 <=1. x increments to 1. pow(2,1)=2>1. So x=1. subtract pow(2,0)=1. n becomes 0. count=2. Loop ends. Output is 2. Correct.
+
+Another sample input: 3 5.
+
+n=3, k=5.
+
+Loop:
+
+x=0. pow(5,0)=1 <=3. x increments to 1. pow(5,1)=5>3. So x=1. subtract pow(5,0)=1. n becomes 2. count=1.
+
+Loop again:
+
+x=0. pow(5,0)=1 <=2. x increments to 1. pow(5,1)=5>2. subtract 1. n=1. count=2.
+
+Loop again: x=0. pow(5,0)=1 <=1. x increments to 1. pow(5,1)=5>1. subtract 1. n=0. count=3. Output is 3. Correct.
+
+Another sample input: 100 3.
+
+Sample output is 4.
+
+Let's see:
+
+n=100, k=3.
+
+First iteration:
+
+x=0. pow(3,0)=1 <=100. x increments to 1. pow(3,1)=3 <=100. x increments to 2. pow(3,2)=9 <=100. x increments to 3. pow(3,3)=27 <=100. x increments to 4. pow(3,4)=81 <=100. x increments to 5. pow(3,5)=243>100. So x=5. subtract pow(3,4)=81. n=100-81=19. count=1.
+
+Second iteration:
+
+x=0. pow(3,0)=1 <=19. x increments to 1. pow(3,1)=3 <=19. x increments to 2. pow(3,2)=9 <=19. x increments to 3. pow(3,3)=27>19. So x=3. subtract 9. n=19-9=10. count=2.
+
+Third iteration:
+
+x=0. pow(3,0)=1 <=10. x increments to 1. pow(3,1)=3 <=10. x increments to 2. pow(3,2)=9 <=10. x increments to 3. pow(3,3)=27>10. subtract 9. n=10-9=1. count=3.
+
+Fourth iteration:
+
+x=0. pow(3,0)=1 <=1. x increments to 1. pow(3,1)=3>1. subtract 1. n=0. count=4. Output is 4. Correct.
+
+So the code works for this case.
+
+Another sample input: 10 1. Output is 10.
+
+n=10, k=1.
+
+The code will enter the if block (k=1). Since n=10>1, print 0. Wait, but the sample output is 10. Wait, what's wrong here?
+
+Wait, no. The sample input is:
+
+In the last test case, the input is 10 1. So n=10, k=1.
+
+In the code, when k=1, the code checks if n ==1. Since n=10, it prints 0. But the sample output is 10.
+
+Wait, that's a problem. So the code is wrong here.
+
+Wait, according to the problem statement, the sample input includes 10 1, and the output is 10.
+
+But according to our code, when k=1 and n=10, the code would print 0. Which is wrong.
+
+So what's wrong here?
+
+Ah, because in this case, the code is not handling the case when k=1 and n is not 1. Because in the code, when k=1, the code checks if n ==1. But in the sample input, n=10, which is not 1. So the code prints 0. But the correct answer is 10 steps.
+
+So why is the code wrong here?
+
+Because when k=1, the code is supposed to subtract 1 each time, which would take 10 steps. But the code's current logic is to check if n is 1 and return 1. Otherwise, return 0.
+
+But that's not correct. Because in the case where k=1 and n is not 1, the code should return the number of steps required to subtract 1^0, 1^1, ..., 1^x until n becomes 0.
+
+But in this case, since k=1, the code is allowed to subtract any power of 1, including 1^0 (which is 1). So for n=10, the steps are:
+
+10 -1^0=10-1=9 (count=1)
+
+9-1^0=9-1=8 (count=2)
+
+...
+
+10-1^0=9-1=8 (count=9)
+
+Then subtract 1^0 again, making 8-1=7 (count=10). So total steps 10.
+
+But the code, as written, returns 0 in this case. So the code is wrong.
+
+So the code needs to handle the case when k=1, regardless of n.
+
+So the code's logic for k=1 is wrong.
+
+So the code needs to handle the case when k=1 as follows:
+
+if k ==1:
+
+   if n ==1:
+
+      print(1)
+
+   else:
+
+      print(n)  # because each step subtracts 1^0=1, so n steps needed.
+
+Wait, but in this case, n=10, k=1, the code would print 10. Which is correct.
+
+So the code's logic for k=1 is wrong. The code should return n if k=1 and n>1.
+
+But in the previous code, the code returns 0 when k=1 and n>1.
+
+So the code needs to be fixed.
+
+So the code should be:
+
+if k ==1:
+
+   print(n if n>1 else 1)
+
+But wait, when n=1, it's 1 step. When n>1, it's n steps. So for n=10, it's 10 steps.
+
+So the code needs to be modified.
+
+So the code's if block should be:
+
+if k ==1:
+
+   if n ==1:
+
+      print(1)
+
+   else:
+
+      print(n)
+
+So that when k=1, the code returns the correct number of steps.
+
+So for the sample input 10 1, the code would print 10, which is correct.
+
+So that's the error in the previous code.
+
+So the code's logic for k=1 is wrong. It should return n when k=1 and n>1, not 0.
+
+So the code needs to be updated accordingly.
+
+So the code now would be:
+
+for each test case:
+
+   n, k = map(int, input().split())
+
+   if k ==1:
+
+      if n ==1:
+
+         print(1)
+
+      else:
+
+         print(n)
+
+   else:
+
+      count =0
+
+      while n>0:
+
+         x=0
+
+         while pow(k, x) <=n:
+
+            x +=1
+
+         count +=1
+
+         n -= pow(k, x-1)
+
+      print(count)
+
+So this should handle all cases.
+
+Now let's check the sample input 10 1:
+
+n=10, k=1. So the code prints 10. Correct.
+
+Another sample input: 1 1. The code prints 1. Correct.
+
+Another sample input: 1 2. The code enters the else block. n=1. x=0. pow(2,0)=1 <=1. x increments to 1. pow(2,1)=2>1. So subtract pow(2,0)=1. count=1. n=0. So output 1. Correct.
+
+Another sample input: 3 5. The code would process correctly as before.
+
+So the code now handles all cases correctly.
+
+So the final code is as follows.
+</think>
+
+To solve this problem, we need to determine the minimum number of operations required to reduce a given integer `n` to zero using powers of another integer `k`. Each operation allows us to subtract any power of `k` from `n`.
+
+### Approach
+1. **Special Case Handling for k = 1**: When `k` is 1, any power of 1 is always 1. Therefore, the only way to reduce `n` to zero is by subtracting 1 repeatedly. If `n` is 1, it takes exactly one operation. If `n` is greater than 1, it takes exactly `n` operations.
+2. **General Case for k > 1**: For `k > 1`, we repeatedly find the largest power of `k` that does not exceed `n` and subtract it from `n`. We keep track of the number of operations required until `n` becomes zero.
+
+### Solution Code
+```python
+import sys
+
+def main():
+    input = sys.stdin.read
+    data = input().split()
+    t = int(data[0])
+    index = 1
+    results = []
+    for _ in range(t):
+        n = int(data[index])
+        k = int(data[index + 1])
+        index += 2
+        if k == 1:
+            if n == 1:
+                results.append(1)
+            else:
+                results.append(n)
+        else:
+            count = 0
+            while n > 0:
+                x = 0
+                while True:
+                    if pow(k, x) > n:
+                        break
+                    x += 1
+                count += 1
+                n -= pow(k, x - 1)
+            results.append(count)
+    print('\n'.join(map(str, results)))
+
+if __name__ == "__main__":
+    main()
+```
+
+### Explanation
+1. **Reading Input Efficiently**: The input is read all at once and split into a list for efficient processing.
+2. **Handling k = 1**: Directly compute the result based on the value of `n` since subtracting 1 repeatedly is the only feasible operation.
+3. **General Case Handling**: For each `k > 1`, we find the largest power of `k` that does not exceed the current value of `n` using a loop. We increment the operation count each time we subtract this power and continue until `n` becomes zero.
+
+This approach ensures that we efficiently determine the minimum number of operations required for each test case, adhering to the constraints and optimizing both time and space complexity.

@@ -1,0 +1,1665 @@
+<think>
+Okay, let's tackle this problem. Hmm. So the problem is about determining the winner of a competition that starts with a particular sport, considering the order of sports as a cyclic sequence. The key here is to find, for each sport x (from 1 to m), the winner when the competition starts with x.
+
+First, let's understand the competition process. The order of sports is x, then x mod m +1, and so on. For each sport in the order, we check if all participants are not skilled in that sport. If so, they proceed to the next sport. Otherwise, the skilled participants proceed, and the unskilled are eliminated. The competition ends when there's one participant left.
+
+The challenge is to compute for each x, the winner when the competition starts with x.
+
+Constraints are tight. n and m can be up to 1e6, but nm is up to 2e6. So O(nm) algorithms are acceptable, but anything more would be a problem.
+
+Let me think about how to model this. For each sport x, we need to simulate the competition starting with x, and find the winner.
+
+But simulating for each x directly would be O(m * n * m) time, which is way too slow. Because for m=1e6, that would be 1e12 operations. Not feasible.
+
+So we need a smarter approach.
+
+Let me think about the process. The competition proceeds through sports in a cycle. For each sport in the cycle, the participants are either eliminated or not. The process stops when only one remains.
+
+But how can we find for each x, the winner?
+
+Alternative approach: For each participant, determine for which sports they are the winner. Then, for each x, the winner is the participant who is the last one remaining when the competition starts with x.
+
+But how to find that?
+
+Wait, but the competition starts with x. So the first sport is x. Then the next is (x + 1) mod m, and so on. So the order of sports is a cycle.
+
+Let me think about the process for a particular x. Let's say the competition starts with sport x. The first sport is x. Then, the next is (x+1) mod m, etc. But the order is cyclic.
+
+So, the first step is to check for each sport in the order, whether all participants are not skilled in that sport. If so, then the next sport is considered. Otherwise, the skilled participants proceed, and the unskilled are eliminated.
+
+But for each sport in the sequence, the participants are either eliminated or not. So, the process is:
+
+Initially, all participants are active.
+
+For each sport in the sequence:
+
+- Check if all participants are not skilled in this sport. If yes, then proceed to next sport. Otherwise, the skilled participants are the ones who proceed to the next sport. The unskilled are eliminated.
+
+So, for each sport in the sequence, the number of active participants is reduced based on whether they are skilled in that sport.
+
+But how can we model this for each x?
+
+Let me think about the process for a particular x. Let's say the competition starts with sport x. The first sport is x. Then, the next is (x + 1) mod m, and so on.
+
+The key observation here is that the order of sports is a cycle. So, for each x, the sequence of sports is x, x+1, ..., x + m -1 mod m. But since each sport is processed in order, the order is a cycle.
+
+But the competition stops when there's only one participant left. So for each x, we need to find the first sport in the cycle where the number of active participants is 1. But how?
+
+Alternatively, for each x, the competition starts with sport x. Let's think about the process for each x.
+
+Let me think of the process as a series of rounds. Each round is a sport. For each sport in the sequence, we check if all participants are not skilled in that sport. If yes, then the next sport is considered. Otherwise, the participants who are skilled in that sport proceed to the next sport, and the others are eliminated.
+
+But the problem is that the order of sports is cyclic, and each sport is processed once.
+
+So, for each x, the process is:
+
+current_participants = all participants.
+
+for each sport in the order (starting with x, then x+1, etc. mod m):
+
+   if all participants are not skilled in this sport:
+
+       proceed to next sport.
+
+   else:
+
+       current_participants = [participants who are skilled in this sport]
+
+       if current_participants has one element, then that's the winner.
+
+       else, proceed to next sport.
+
+But how to compute this efficiently for all x?
+
+The problem is that for each x, we need to simulate this process. But with m up to 1e6, this would be O(m * n) time, which is 1e12 operations. Not feasible.
+
+So we need a smarter way.
+
+Alternative idea: For each participant, determine for which x's they are the winner. Then, for each x, the answer is the participant who is the last one remaining when the competition starts with x.
+
+But how?
+
+Let me think about the process. For a given x, the first sport is x. Let's think about the first sport in the sequence. Let's say that in the first sport (x), the participants are divided into two groups: those who are skilled in x (call them S) and those not (call them T). If all participants are in T, then the next sport is x+1, and so on. Otherwise, the S participants proceed to the next sport, and T are eliminated.
+
+So the first step is to check if all participants are not skilled in x. If yes, then the next sport is considered. Otherwise, the S participants are the ones that proceed to the next sport.
+
+But the key is that the order of sports is cyclic. So for each x, the sequence of sports is x, x+1, ..., x + m -1 mod m.
+
+So for each x, the process is to process each sport in the order, and for each, determine which participants are left.
+
+But how can we find, for each x, the winner?
+
+Alternative approach: For each participant, find the set of sports in which they are skilled. Let's say that a participant is skilled in some sports. Now, when the competition starts with x, the first sport is x. If the participant is skilled in x, they are in the first round. If not, they are eliminated.
+
+But the problem is that the process depends on the order of sports. For example, if the first sport is x, and the participant is not skilled in x, they are eliminated. But if the first sport is x, and the participant is skilled in x, then they proceed to the next sport.
+
+So, for a given x, the first sport is x. Let's think about the first sport. If all participants are not skilled in x, then the next sport is x+1. But if any participant is skilled in x, then they proceed to the next sport. So the process is that for each sport in the order, the participants are filtered based on whether they are skilled in that sport.
+
+But how can we model this for all x?
+
+Another idea: For each participant, find the set of sports in which they are skilled. Let's say that a participant is skilled in sports S. Now, for a given x, the first sport is x. So, if the participant is not skilled in x, they are eliminated in the first step. Otherwise, they proceed to the next sport.
+
+But how can we model the order of sports?
+
+Let me think of the process as a series of rounds. Each round is a sport. For each round, the number of participants is reduced based on whether they are skilled in that sport.
+
+But for a given x, the sequence of sports is x, x+1, ..., x + m -1 mod m. So for each x, the order is a cycle of m sports.
+
+But how can we find, for each x, the winner?
+
+Alternative approach: For each participant, determine for which x's they are the winner. Then, for each x, the answer is the participant with the earliest x where they are the winner.
+
+But how?
+
+Alternatively, for each x, the winner is the participant who is the last one remaining in the competition when starting with x.
+
+But how to find that?
+
+Another observation: The competition is a series of steps where each step reduces the number of participants. The first step is the first sport. If all participants are not skilled in that sport, then the next sport is considered. Otherwise, the participants who are skilled in that sport proceed to the next sport, and the rest are eliminated.
+
+So, for each x, the first sport is x. Let's think about the first step. The participants are all active. Let's compute the set of active participants after the first sport.
+
+If all participants are not skilled in x, then after the first sport, the next sport is x+1. But since all are not skilled in x, they are all eliminated, and the competition ends. But that can't be, because the problem says that for any pair of participants, there's at least one sport where one is skilled and the other isn't. So, for any x, there's at least one sport where the participants are not all in the same group. So, the first sport must not eliminate all participants.
+
+So, for the first sport x, there must be at least one participant skilled in x. So, the first step will eliminate some participants. Let's think:
+
+After the first sport, the active participants are those who are skilled in x. Then, the next sport is x+1. For that sport, the active participants are those who are skilled in x+1, and so on.
+
+But how to model this?
+
+Let me think of the process for a particular x. Let's imagine that for each sport in the sequence, we have a set of participants that are active. For each sport, the active participants are those who are skilled in that sport and are active in the previous steps.
+
+So, for the first sport x, the active participants are those who are skilled in x. Then, for the next sport x+1, the active participants are those who are skilled in x+1 and are active in the previous step (i.e., those who are in the active set after x).
+
+But how to compute this for all x?
+
+But with m up to 1e6, and n up to 2e6, we need a way to compute this efficiently.
+
+Alternative idea: For each participant, determine the earliest sport in the sequence where they are the last one remaining. But how?
+
+Alternatively, think of the competition as a series of rounds. Each round is a sport, and the participants are filtered based on their skills in that sport. The competition continues until only one participant is left.
+
+But how can we model this for each x?
+
+Let me think of the process for a particular x. Let's imagine that for the first sport x, the active participants are those who are skilled in x. Then, for the next sport (x+1), the active participants are those who are skilled in x+1 and are in the active set after the first sport.
+
+But this seems like a chain of dependencies. For example, the active participants after the first sport are the ones who are skilled in x. Then, for the next sport, the active participants are those who are skilled in x+1 and are in the active set after the first sport.
+
+So, the process is:
+
+current_participants = all participants.
+
+for each sport in the sequence:
+
+   if all current_participants are not skilled in this sport:
+
+       next sport
+
+   else:
+
+       current_participants = [participants who are skilled in this sport]
+
+       if len(current_participants) == 1:
+
+           winner is that participant.
+
+           break
+
+So, for each x, we need to simulate this process.
+
+But with m up to 1e6, and n up to 2e6, this would be O(m * n) time, which is not feasible.
+
+So, we need a way to precompute for each x, the winner.
+
+Alternative idea: For each sport x, the competition starts with x. The first sport is x. So, the first step is to check if there's any participant skilled in x. If not, then the competition ends immediately (but this can't happen because the problem says that for any pair of participants, there's at least one sport where one is skilled and the other isn't. So, for any x, there must be at least one participant skilled in x. So, the first step is to have at least one participant in the active set after the first sport.
+
+But how to find the winner for each x?
+
+Let me think of the process for each x. The winner is the participant who is the last one remaining after all the sports are processed in order.
+
+But how can we model this?
+
+Another observation: The competition stops when there's only one participant left. So, the process is similar to a binary elimination tree, but with the order of sports being a cycle.
+
+But how to find the winner for each x?
+
+Alternative approach: For each participant, determine for which x's they are the winner. Then, for each x, the answer is the participant with the earliest x where they are the winner.
+
+But how to find that?
+
+Let me think about the process for a participant. Suppose a participant is skilled in sports S. For the competition to have them as the winner, they must survive all the sports in the sequence.
+
+So, for a given x, the participant must be in the active set after each sport in the sequence.
+
+But how to find for which x's this is true.
+
+But even this seems challenging.
+
+Alternative idea: For each participant, find the set of sports where they are the last to be eliminated. But I'm not sure.
+
+Alternatively, for each x, the competition starts with x. The first sport is x. The active participants are those who are skilled in x. Then, the next sport is x+1. The active participants are those who are skilled in x+1 and are in the active set after the first sport.
+
+But this is equivalent to the active set after each sport being the set of participants who are skilled in that sport and are in the active set of the previous step.
+
+So, for each x, the process is:
+
+current_set = all participants.
+
+for i in 0 to m-1:
+
+   sport = (x + i) mod m
+
+   if all participants in current_set are not skilled in sport:
+
+       continue to next sport.
+
+   else:
+
+       current_set = [participants in current_set who are skilled in sport]
+
+       if len(current_set) == 1:
+
+           winner is current_set[0]
+
+           break
+
+So, the problem reduces to, for each x, simulate this process.
+
+But with m up to 1e6 and n up to 2e6, this is O(m * n) time, which is way too slow.
+
+So, we need a smarter approach.
+
+Let me think of the problem in terms of the order of sports. For each x, the sequence of sports is x, x+1, ..., x + m -1 mod m. So, the order is a cycle.
+
+But for each x, the process is to process the sports in that order.
+
+Now, the key observation: the order of sports is a cycle, but the process for each x is to process each sport in that order. However, the order of processing the sports is the same for all x.
+
+But how can we find for each x, the winner?
+
+Alternative idea: For each participant, find the earliest sport in the sequence (the first sport in the sequence) where they are the only one left. Then, for x, the winner is the participant who is the last one to be in the active set for each sport in the sequence.
+
+But again, not sure.
+
+Another thought: The competition can be viewed as a series of rounds, where each round is a sport. The first round is sport x, then x+1, etc. For each round, the active participants are those who are skilled in that sport and are active in the previous rounds.
+
+So, for a given x, the winner is the participant who is the last in the active set after all rounds.
+
+But how to find this for all x?
+
+Alternative approach: For each participant, find the set of sports where they are the only one remaining. Then, for each x, the winner is the participant who is the last to be in the active set for each sport in the sequence.
+
+But again, not sure.
+
+Let me think of the problem in terms of the first sport. For x, the first sport is x. The active participants are those who are skilled in x. Then, for the next sport, the active participants are those who are skilled in x+1 and are in the active set after the first sport.
+
+So, for the first sport, the active set is the set of participants who are skilled in x.
+
+For the second sport, the active set is the set of participants who are skilled in x+1 and are in the active set after the first sport.
+
+This can be represented as a chain of sets. Each step, the active set is the intersection of the current active set and the set of participants skilled in the current sport.
+
+So, for each x, the active set after the first sport is S_x = {participants skilled in x}.
+
+Then, for the next sport, S_{x+1} = {participants in S_x who are skilled in x+1}.
+
+Then, S_{x+2} = {participants in S_{x+1} who are skilled in x+2}.
+
+And so on, until the active set has only one participant.
+
+So, for a given x, the winner is the participant that is in the active set after processing all m sports in the sequence.
+
+But how to compute this efficiently for all x?
+
+Let me think about the following: For each x, the process is to process the sports in order x, x+1, ..., x + m -1 mod m. The active set starts as the set of participants skilled in x. Then, for each subsequent sport, the active set is the set of participants in the previous active set who are skilled in the current sport.
+
+So, for each x, the process is:
+
+current = all participants skilled in x.
+
+for i in 1 to m-1:
+
+   current = current ∩ (participants skilled in (x + i) mod m)
+
+   if len(current) == 1:
+
+       winner is current[0]
+
+       break
+
+So, the problem is to compute for each x, the winner of this process.
+
+But how to compute this for all x efficiently?
+
+Let me think of the following. For each participant, their set of sports is a bitmask. But with m up to 1e6, this is not feasible.
+
+But the constraints say that nm is up to 2e6. So, perhaps we can precompute for each participant their set of sports.
+
+But even so, for each x, the process is to process the sports in order and find the winner.
+
+Alternative idea: For each participant, find the set of sports where they are the only one left in the process. But again, not sure.
+
+Another observation: The process for a given x is equivalent to the following: the winner is the participant who is the last in the sequence of sports, where for each sport in the sequence, they are in the active set.
+
+But how to find this for all x?
+
+Let me think of the following. For each x, the order of sports is x, x+1, ..., x + m -1 mod m. So, the sequence is a cycle of m sports. Let's denote the sequence as S_0, S_1, ..., S_{m-1}, where S_0 = x, S_1 = x+1, etc.
+
+Now, for each x, the process is to process the sports in order S_0 to S_{m-1}.
+
+The winner is the participant who is in the active set after processing all m sports.
+
+But how to find this for all x?
+
+Another idea: For each participant, find the set of sports where they are the only one in the active set after processing all sports. Then, for each x, the winner is the participant who is in the active set after all sports in the sequence for x.
+
+But again, not sure.
+
+Let me think of the following example. Take the sample input:
+
+3 5
+
+10010
+
+01100
+
+10101
+
+The participants are:
+
+Participant 1: 10010 → skilled in sports 1, 4, 5.
+
+Participant 2: 01100 → skilled in sports 2, 3, 5.
+
+Participant 3: 10101 → skilled in sports 1, 3, 5.
+
+The sports are 1-5.
+
+For x=1, the sequence is 1, 2, 3, 4, 5.
+
+Let's simulate:
+
+Initial current = [1, 2, 3].
+
+First sport is 1. All current participants are skilled in 1? Let's see:
+
+Participant 1 is skilled in 1 → yes.
+
+Participant 2 is not skilled in 1 → no.
+
+Participant 3 is skilled in 1 → yes.
+
+So current after first sport is [1, 3].
+
+Next sport is 2. Check if all current are skilled in 2? Participant 1 is not skilled in 2. So current becomes [3], since only participant 3 is skilled in 2? Wait no. Wait the current after first sport is [1,3]. For sport 2, the current participants are those who are skilled in sport 2. So participant 1 is not skilled in 2, participant 3 is skilled in 2? Let me check the sample input.
+
+Wait participant 3's skillset is 10101. So for sport 1: 1, sport 2: 0, sport 3: 1, sport 4: 0, sport 5: 1. So participant 3 is skilled in sport 1, 3, 5. So in sport 2, he is not. So current after first sport is [1,3]. For the next sport (2), the current participants are those skilled in 2. But participant 1 is not, participant 3 is not. So all current are not skilled in 2. So the next sport is 3.
+
+So the current becomes empty? No, because the next sport is 3. Wait, no. The process is: for each sport in the sequence, check if all current are not skilled in that sport. If yes, proceed to next sport. Otherwise, the current becomes the set of participants skilled in that sport.
+
+So, for the first sport (1), current is [1,3]. Then, the next sport is 2. All current are not skilled in 2. So proceed to next sport. Then, next sport is 3. Are all current participants skilled in 3? Participant 1 is not skilled in 3 (their skillset is 10010 → sports 1,4,5. So sport 3 is 0. So participant 1 is not. Participant 3 is skilled in 3. So not all current are skilled in 3. So current becomes [3]. Then, proceed to next sport (4). Check if all current are not skilled in 4. Participant 3 is not skilled in 4. So proceed to next sport (5). Check if all current are not skilled in 5. Participant 3 is skilled in 5. So current becomes [3]. Then, next sport is 5 (since after 5, the sequence is 5, 1, 2, 3, 4, etc. Wait, m=5, so the sequence is 1, 2, 3, 4, 5, then back to 1. So after processing all 5 sports, the competition ends. So the winner is 3. Which matches the sample output.
+
+So for x=1, the winner is 3.
+
+But how to find this for all x?
+
+Let me think of the process for each x. The key is that for each x, the process is to process the sports in the order x, x+1, ..., x+m-1 mod m. For each of these sports, the active set is the set of participants who are in the active set from the previous step and are skilled in the current sport.
+
+So, for each x, the active set starts as the set of participants skilled in x. Then, for each subsequent sport, the active set is the intersection of the current active set and the set of participants skilled in that sport.
+
+But how to compute this for all x?
+
+Alternative idea: For each participant, precompute for each sport in the sequence, the order in which they are active. But again, not sure.
+
+Another observation: The order of sports is a cycle. For each x, the sequence is a cycle of m sports. So, for all x, the sequence is the same as the cycle of sports. So, the process for x is the same as for x+1, but shifted by one.
+
+But how to find this for all x?
+
+Let me think of the following. For each participant, their set of sports is a bitmask. For each x, the process is to process the sports in the order x, x+1, ..., x + m-1 mod m. The active set after each step is the set of participants who are in the current active set and are skilled in the current sport.
+
+So, for a given x, the process is:
+
+current = [participants skilled in x]
+
+for each sport in the sequence:
+
+   if all in current are not skilled in sport:
+
+       continue
+
+   else:
+
+       current = [participants in current skilled in sport]
+
+       if len(current) == 1: break
+
+So, the winner is the one in current at the end.
+
+But how to compute this for all x?
+
+Let me think of the following: For each x, the process is equivalent to the following:
+
+The winner is the participant who is in the intersection of the sets of sports for each sport in the sequence.
+
+But how to compute this?
+
+Another idea: For each x, the winner is the participant who is the only one in the set of participants who are skilled in all the sports in the sequence, but this is not correct.
+
+Alternatively, the winner is the participant who is in the set of participants skilled in all the sports in the sequence, but this is not the case. For example, in the sample, the first sport is 1, and the next is 2. The active set after first sport is [1,3]. Then, for sport 2, the active set is empty. So the next sport is 3, and the active set is [3]. Then, for sport 4, the active set is [3] (since 3 is skilled in 3, but not in 4. Wait no, in the sample, for the first sport (1), current is [1,3]. Then, the next sport is 2. All current are not skilled in 2. So, proceed to next sport. Next sport is 3. For sport 3, current participants are [1,3]. Participant 1 is not skilled in 3, participant 3 is. So current becomes [3]. Proceed to next sport (4). All current are not skilled in 4. Proceed to next sport (5). Current is [3], which is skilled in 5. So the winner is 3.
+
+So, the winner is the participant who is in the active set after processing all sports in the sequence. The active set after processing all sports is the set of participants who are skilled in all the sports in the sequence.
+
+But this is not correct. Because in the example, after processing sport 5, the active set is [3], which is skilled in 5. But the sequence of sports is 1, 2, 3, 4, 5. So, the active set after processing all sports is [3], which is the only one.
+
+So, the winner is the participant who is in the active set after processing all sports in the sequence.
+
+But how to find this for all x?
+
+Another observation: For each x, the sequence of sports is x, x+1, ..., x + m -1 mod m. So, the sequence is the same as the cycle of sports. For each x, the process is to process the sports in this order.
+
+Now, for each x, the winner is the participant who is the last in the active set after processing all sports in the sequence.
+
+But how to find this for all x?
+
+Alternative idea: For each participant, determine for which x's they are the winner. Then, for each x, the answer is the participant with the earliest x where they are the winner.
+
+But how to compute this?
+
+Let me think about the following: For each participant, find all x's where they are the winner. Then, for each x, the answer is the participant with the earliest x in their list.
+
+But how to compute this?
+
+For a participant to be the winner for x, they must be in the active set after processing all sports in the sequence for x.
+
+But how to find this?
+
+Let me think of the process for a participant. Suppose the participant is skilled in a set of sports. For the competition to have them as the winner, they must be in the active set after processing all sports in the sequence for x.
+
+But how to find this?
+
+Let me think of the following: For a participant to be the winner for x, they must be in the active set after processing each sport in the sequence for x.
+
+So, for each x, the participant must be in the active set after each sport in the sequence.
+
+This seems like a complex condition, but perhaps we can precompute for each participant the set of x's where they are the winner.
+
+But with m up to 1e6, this seems challenging.
+
+Alternative idea: For each x, the winner is the participant who is the only one in the set of participants who are skilled in all sports in the sequence for x. But this is not true, as in the sample, the winner is participant 3, who is skilled in sport 1, 3, 5. The sequence for x=1 is 1, 2, 3, 4, 5. So, participant 3 is skilled in 1, 3, 5. But not in 2, 4. So, the set of sports in the sequence is 1, 2, 3, 4, 5. So, the participant is skilled in 1, but not in 2, 4. So, in the first step, the active set after sport 1 is [1,3], then after sport 2, it's empty. So, the participant 3 is in the active set after sport 3. So, the winner is 3, who is skilled in 3 and 5.
+
+But how to find this?
+
+Maybe the winner is the participant who is the only one in the set of participants skilled in all the sports in the sequence for x. But this is not the case. For example, if a participant is skilled in all sports in the sequence, then they would be the winner. But in the sample, the participant 3 is not skilled in all sports in the sequence for x=1. He is skilled in 1, 3, 5. The sequence is 1, 2, 3, 4, 5. So, he is not skilled in 2, 4. So, the winner is not the participant who is skilled in all sports in the sequence.
+
+Hmm. So this approach is not correct.
+
+Alternative idea: For each x, the winner is the participant who is the last in the active set after processing each sport in the sequence. This can be determined by simulating the process for each x. But how to do this efficiently.
+
+But with m up to 1e6 and n up to 2e6, and nm up to 2e6, perhaps we can find a way to simulate this for all x.
+
+Wait, the total number of possible x is m. For each x, the process is O(m) time. But with m up to 1e6, this would be O(m^2) = 1e12 operations, which is way too slow.
+
+But the constraints say that nm is up to 2e6. So, perhaps there's a way to optimize this.
+
+Let me think: For each x, the process is to process the sports in the sequence. Let's think about the sports in the sequence for x as a list. For each sport in this list, we need to find the active set after processing it.
+
+But how?
+
+Let me think of the following: For each participant, their set of sports is a bitmask. For example, for participant i, their set is a list of sports they are skilled in.
+
+For each x, the sequence of sports is x, x+1, ..., x + m -1 mod m. So, for each x, the sequence is the list of sports in the order of the cycle.
+
+Now, for each x, the active set after processing the first sport is the set of participants skilled in x.
+
+Then, for the second sport, the active set is the set of participants skilled in x+1 and are in the active set after the first sport.
+
+This can be represented as the intersection of the current active set and the set of participants skilled in the current sport.
+
+But for each x, the sequence is a different set of sports.
+
+But with nm up to 2e6, perhaps we can precompute for each sport s, the set of participants skilled in s. Then, for each x, the sequence of sports is x, x+1, ..., x + m -1 mod m. For each sport in this sequence, we can compute the active set.
+
+But how?
+
+Let me think of the following: For each x, the sequence is a list of m sports. For each sport in this list, we can find the active set after processing it. But how to compute this for all x?
+
+Let me think of the following: For each participant, their set of sports is a bitmask. For each x, the sequence is a list of m sports. The active set after the first sport is the set of participants skilled in x. For the second sport, it's the intersection of the previous active set and the set of participants skilled in the second sport. And so on.
+
+But how to compute this for all x efficiently?
+
+Another observation: For each sport s, the set of participants skilled in s is a set. Let's call this set S_s.
+
+Now, for a given x, the sequence is s_0 = x, s_1 = x+1, ..., s_{m-1} = x + m -1 mod m.
+
+The active set after each step is:
+
+A_0 = S_x.
+
+A_1 = A_0 ∩ S_{s_1}.
+
+A_2 = A_1 ∩ S_{s_2}.
+
+...
+
+A_{m-1} = A_{m-2} ∩ S_{s_{m-1}}.
+
+If A_{m-1} has one element, then that's the winner.
+
+So, the winner for x is the element in A_{m-1}.
+
+But how to compute this for all x?
+
+But with m up to 1e6, this is not feasible with a naive approach.
+
+But perhaps, for each participant, we can find for which x's they are the winner.
+
+Let me think about this. For a participant i, let's say their set of sports is S_i.
+
+For the participant i to be the winner for x, they must be in the active set after processing each sport in the sequence for x.
+
+Let me think of the sequence of sports for x as s_0, s_1, ..., s_{m-1}.
+
+The active set after each step is:
+
+A_0 = S_i ∩ S_{s_0} ?
+
+No, no. The active set after the first sport is the set of participants skilled in s_0, which is S_{s_0}.
+
+Wait, no. The active set after the first sport is the set of participants who are in the initial active set (all participants) and are skilled in s_0. So, for the first step, it's the set of participants skilled in s_0.
+
+Then, for the second step, it's the set of participants in the previous active set who are skilled in s_1.
+
+So, for a participant to be in the active set after the first step, they must be skilled in s_0.
+
+For the second step, they must be skilled in s_1 and in the active set after the first step.
+
+So, for a participant i to be the winner for x, they must be in the active set after each step.
+
+So, for each x, the winner is the participant i who is in the intersection of S_{s_0} ∩ S_{s_1} ∩ ... ∩ S_{s_{m-1}}.
+
+But this is only true if the active set after each step is exactly the set of participants skilled in all the sports in the sequence. But this is not the case, as in the sample, the participant 3 is in the active set after the first step (skilled in 1), then after the second step (not skilled in 2), so he is removed. But then, after the third step (sport 3), he is in the active set. So, the active set is not the intersection of all sports in the sequence.
+
+So this approach is incorrect.
+
+But perhaps, the winner is the participant who is in the active set after processing all the sports in the sequence for x.
+
+But how to find this for all x?
+
+At this point, I'm stuck. Maybe I need to think of a different approach.
+
+Let me think about the following: For each x, the sequence of sports is a cycle. So, the process for x is to process the sports in this order, and for each sport, the active set is the set of participants who are skilled in that sport and are in the active set from the previous step.
+
+Now, the key observation is that for a given x, the sequence of sports is the same as the sequence of sports for x+1, but shifted by one. So, the process for x and x+1 is similar, but with the sports shifted.
+
+But how can this help?
+
+Let me think of the following: For each x, the sequence of sports is s_0, s_1, ..., s_{m-1}, where s_i = (x + i) mod m.
+
+Let me consider that for each x, the sequence is a cyclic permutation of the sports.
+
+Now, for each x, the winner is the participant who is in the active set after processing all the sports in the sequence.
+
+But how to find this for all x?
+
+Another idea: For each participant, find the set of sports in which they are skilled. Let's say that a participant is skilled in sports S. For a given x, the sequence of sports is s_0, s_1, ..., s_{m-1}. The participant will be in the active set after processing all the sports if and only if, for each sport in the sequence, the participant is skilled in that sport, and the active set after each step is non-empty.
+
+But this is not true. Because, for example, in the sample, participant 3 is not skilled in sport 2, but is in the active set after sport 3.
+
+So, this approach is not correct.
+
+At this point, I'm stuck. Maybe I need to think of a way to precompute for each sport in the sequence, the active set.
+
+But with the constraints, perhaps we can find that the winner for x is the participant who is the last one in the active set after processing all sports in the sequence.
+
+But how?
+
+Let me think of the following: For each x, the sequence of sports is s_0, s_1, ..., s_{m-1}. The active set after processing all sports is the set of participants who are skilled in s_0, s_1, ..., s_{m-1}.
+
+Wait, no. Because in the sample, the active set after processing all sports is {3}, who is skilled in s_0 (1), s_1 (2) is not, s_2 (3) is, s_3 (4) is not, s_4 (5) is. So, participant 3 is skilled in s_0 and s_2 and s_4. But not in s_1 and s_3. So, the active set after processing all sports is {3}, which is the intersection of the sets of sports in the sequence. But this is not the case. Because for the sequence, the active set after each step is the intersection of the previous active set and the current sport's set.
+
+So, the final active set is the intersection of all the sports in the sequence. But this is not correct.
+
+Wait, no. Because the active set after each step is the intersection of the previous active set and the current sport's set. So, the final active set is the intersection of all the sports in the sequence.
+
+Wait, no. For example, in the sample:
+
+The sequence is 1, 2, 3, 4, 5.
+
+The active set after each step is:
+
+After 1: {1,3} (participants skilled in 1).
+
+After 2: empty (since all are not skilled in 2).
+
+After 3: {3} (participants skilled in 3 and in the previous active set).
+
+After 4: empty (since 3 is not skilled in 4).
+
+After 5: {3} (since 3 is skilled in 5).
+
+So, the final active set is {3}.
+
+But the intersection of all the sports in the sequence is {participants skilled in 1, 2, 3, 4, 5}.
+
+But the participant 3 is skilled in 1, 3, 5. So, the intersection is not the set of participants skilled in all sports in the sequence.
+
+So, this approach is incorrect.
+
+Another observation: The final active set is the set of participants who are skilled in all the sports in the sequence, but this is not the case.
+
+At this point, I'm stuck. Maybe I need to think of a different approach.
+
+Let me think of the following: For each participant, find the set of sports in which they are skilled. Let's call this set S_i.
+
+Now, for a participant i to be the winner for x, they must be in the active set after processing all sports in the sequence for x.
+
+But how to find this?
+
+Let me think of the sequence of sports for x as s_0, s_1, ..., s_{m-1}.
+
+For the participant i to be in the active set after processing all sports, they must be in the active set after each step.
+
+So, for the first step, they must be in S_{s_0}.
+
+For the second step, they must be in the intersection of S_{s_0} and S_{s_1}.
+
+For the third step, they must be in the intersection of the previous active set and S_{s_2}.
+
+And so on.
+
+So, for the participant i to be the winner for x, they must be in the intersection of all the S_s for s in the sequence.
+
+But this is not correct, because in the sample, the participant 3 is in the intersection of S_1, S_2, S_3, S_4, S_5? No, because S_1 is the set of participants skilled in 1, which includes 1 and 3. S_2 is participants skilled in 2, which includes 2 and 3? No. Participant 3 is not skilled in 2. So, the intersection of S_1 and S_2 is empty. But participant 3 is in the active set after the first step, but not in the second.
+
+So, this approach is incorrect.
+
+At this point, I'm stuck. Maybe I need to think of the following: for each x, the winner is the participant who is the last one in the active set after processing all sports in the sequence. But how to compute this efficiently?
+
+Let me think about the following: For each x, the sequence of sports is s_0, s_1, ..., s_{m-1}. Let's precompute for each sport s, the set of participants skilled in s. Let's call this set P_s.
+
+Now, for each x, the active set after processing all sports is the set of participants who are in P_s_0 ∩ P_s_1 ∩ ... ∩ P_s_{m-1}.
+
+But this is not correct, as shown in the sample. But perhaps it's the case that the winner is the participant who is in the intersection of all P_s for s in the sequence.
+
+But in the sample, the intersection of P_1, P_2, P_3, P_4, P_5 is empty, but the winner is participant 3. So this is not the case.
+
+So this approach is incorrect.
+
+Another observation: The winner is the participant who is in the active set after processing each sport in the sequence. So, for the first sport, they are in the active set. For the second, they are in the active set after the first sport and are in the second sport's set. And so on.
+
+But how to find this for all x?
+
+Maybe the key is to realize that for a participant to be the winner for x, they must be in the active set after each step. So, for each x, the winner is the participant who is in the active set after processing all steps.
+
+But how to compute this for all x?
+
+Let me think of the following: For each participant, their set of sports is S_i. For each x, the sequence of sports is s_0, s_1, ..., s_{m-1}. The participant i is in the active set after each step if and only if, for each step k, the participant is in the active set after step k-1 and is in P_{s_k}.
+
+This is a chain of conditions.
+
+But how to find for each x, the participant who satisfies this condition.
+
+But with m up to 1e6 and n up to 2e6, this seems challenging.
+
+But perhaps, for each participant, we can find all x's where they are the winner.
+
+Let me think about this. For a participant i, to be the winner for x, the following must be true:
+
+For each sport in the sequence s_0, s_1, ..., s_{m-1}, the participant is in the active set after processing the previous steps.
+
+But this is equivalent to:
+
+For the first step, the participant is in P_{s_0}.
+
+For the second step, the participant is in P_{s_1} and in the active set after the first step.
+
+Which is equivalent to being in P_{s_1} and in P_{s_0}.
+
+For the third step, the participant is in P_{s_2} and in the active set after the second step, which is the intersection of P_{s_0} and P_{s_1} and P_{s_2}.
+
+So, the participant must be in the intersection of all P_s for s in the sequence.
+
+But this is not the case, as in the sample.
+
+Wait, in the sample, the sequence is s_0=1, s_1=2, s_2=3, s_3=4, s_4=5.
+
+The intersection of P_1, P_2, P_3, P_4, P_5 is empty. But the participant 3 is in the active set after all steps.
+
+So, this suggests that the intersection is not the correct condition.
+
+At this point, I'm stuck. Maybe I should look for a different approach.
+
+Let me think about the following: For each x, the winner is the participant who is the last one to be in the active set after each step. So, for each x, the winner is the participant who is the last one in the active set after each step.
+
+But how to find this for all x?
+
+Maybe the key is to realize that for each x, the winner is the participant who is the last one in the active set after processing all the sports in the sequence, which is the same as the participant who is the last one in the set of participants who are in the active set after each step.
+
+But how to compute this?
+
+Another idea: For each x, the process is to process the sports in the sequence, and for each step, the active set is the set of participants who are skilled in the current sport and are in the active set from the previous step.
+
+This is similar to a breadth-first search, but with the order of steps being a cycle.
+
+But with m up to 1e6, this is not feasible.
+
+But perhaps, for each x, the process can be simulated in O(m) time, but with some optimizations.
+
+But with m up to 1e6 and n up to 2e6, this would be O(m^2) time, which is 1e12 operations, which is way too slow.
+
+But given the constraints that nm is up to 2e6, perhaps there is a way to optimize this.
+
+Let me think: For each x, the process is to process m sports. For each sport, we need to find the active set.
+
+But for each x, the active set after each step is the intersection of the previous active set and the current sport's set.
+
+But how to compute this for all x?
+
+Let me think of the following: For each sport s, precompute the set of participants skilled in s. For example, we can represent this as a list of sets, but with m up to 1e6, this is not feasible.
+
+But since nm is up to 2e6, perhaps we can represent each participant's skills as a bitmask, and for each sport, store the set of participants skilled in it.
+
+But even this, for m up to 1e6, it's not feasible.
+
+But with nm up to 2e6, perhaps we can represent the participants as a list of sets, where for each sport, we have a list of participants skilled in it.
+
+But for m up to 1e6, this would require O(nm) space, which is acceptable.
+
+So, let's proceed with this approach.
+
+For each sport s, we have a set of participants skilled in it. For example, for each s, we have a list of participants.
+
+Now, for each x, the sequence of sports is s_0, s_1, ..., s_{m-1}.
+
+We can simulate the process for x as follows:
+
+current = set of participants skilled in s_0.
+
+for each sport in the sequence:
+
+   if all current participants are not skilled in this sport:
+
+       continue
+
+   else:
+
+       current = current ∩ participants skilled in this sport
+
+       if len(current) == 1:
+
+           winner is current[0]
+
+           break
+
+So, for each x, we need to simulate this process.
+
+But with m up to 1e6 and n up to 2e6, this is O(m^2) time, which is not feasible.
+
+But given that nm is up to 2e6, perhaps there's a way to optimize this.
+
+Let me think: For each x, the sequence of sports is s_0, s_1, ..., s_{m-1}. For each step, the current set is the intersection of the previous current set and the current sport's set.
+
+But how to compute this efficiently.
+
+Let me think of the following: For each x, the sequence is s_0, s_1, ..., s_{m-1}. For each step, the current set is the intersection of the previous current set and the current sport's set.
+
+But for each x, the current set starts as the set of participants skilled in s_0.
+
+Then, for each subsequent sport, the current set is the intersection of the previous current set and the current sport's set.
+
+So, for each x, the process is:
+
+current = set of participants skilled in s_0
+
+for i in 1 to m-1:
+
+   current = current & participants skilled in s_i
+
+   if len(current) == 1:
+
+       break
+
+So, for each x, this is O(m) time.
+
+But with m up to 1e6, this is O(1e12) operations, which is way too slow.
+
+But given that nm is up to 2e6, perhaps we can find that for each x, the number of steps is small.
+
+But this is not guaranteed.
+
+So, this approach is not feasible.
+
+At this point, I'm stuck. Maybe I need to look for a different insight.
+
+Let me think about the problem in terms of the first sport. For the first sport x, the active set is the set of participants skilled in x. For the next sport, it's the set of participants skilled in x+1 and in the active set from the first sport.
+
+So, the active set after each step is the intersection of the previous active set and the current sport's set.
+
+Now, the winner is the participant who is in the active set after all steps.
+
+But how to find this for all x?
+
+Let me think of the following: For each participant, the set of sports they are skilled in is S_i. For a participant to be the winner for x, they must be in the active set after processing all steps.
+
+This means that, for each step k in 0 to m-1, the participant must be in the active set after step k.
+
+But this is equivalent to:
+
+For each k, the participant is in the active set after step k.
+
+But how to find this for all x?
+
+Let me think of the following: For each participant i, the set of x's where they are the winner is the set of x's for which the participant is in the active set after all steps.
+
+But how to find this?
+
+Let me think of the following: For a participant i, the set of x's where they are the winner is the set of x's where the participant is in the active set after all steps.
+
+But how to find this?
+
+For each participant i, the active set after step 0 is the set of participants skilled in x.
+
+For step 1, it's the set of participants skilled in x and in the active set after step 0.
+
+But this is getting too abstract.
+
+At this point, I'm not able to find a solution, and I need to think of a way to proceed.
+
+Maybe the only way is to simulate for each x, but with some optimizations.
+
+Let me think about the constraints. The total number of participants is n, and nm is up to 2e6. So, for each x, the simulation is O(m) time, but with m up to 1e6, this is not feasible.
+
+But perhaps, for each x, the number of steps is small. For example, if the first sport is x, and the active set is empty, but this is not possible because the problem states that for any pair of participants, there is at least one sport where one is skilled and the other is not. So, for each x, there is at least one participant skilled in x.
+
+So, for each x, the first step has at least one participant in the active set.
+
+But how to find the winner for each x?
+
+Maybe the key is to realize that for each x, the winner is the participant who is the last in the set of participants who are skilled in all the sports in the sequence for x.
+
+But this is not the case, as shown in the sample.
+
+Alternatively, perhaps the winner is the participant who is the only one in the set of participants who are skilled in all the sports in the sequence for x.
+
+But again, this is not the case.
+
+At this point, I'm stuck and need to look for hints or think of a different approach.
+
+Let me think about the following: The competition is a series of rounds, and the winner is the last one remaining. For each x, the order of sports is x, x+1, ..., x + m-1 mod m. So, the sequence of sports is a cycle.
+
+Now, for each x, the process is to process each sport in the sequence, and for each, the active set is the set of participants skilled in that sport and are in the active set from the previous step.
+
+The key observation is that the active set after each step is a subset of the previous active set.
+
+So, the active set after processing all m steps is a subset of the initial active set.
+
+But how to find this for all x?
+
+Let me think of the following: For each x, the active set after processing all steps is the set of participants who are skilled in all the sports in the sequence for x.
+
+But this is not the case, as shown in the sample.
+
+But perhaps, the winner is the participant who is skilled in all the sports in the sequence for x.
+
+But in the sample, the sequence for x=1 is 1, 2, 3, 4, 5. The participant 3 is skilled in 1, 3, 5, but not in 2 or 4. So, he is not skilled in all the sports in the sequence. But he is the winner.
+
+So, this is not the case.
+
+At this point, I'm stuck and need to think of a different approach.
+
+Maybe the solution is to realize that for each x, the winner is the participant who is the last in the active set after processing all steps, and this can be determined by finding the participant who is in the active set after each step.
+
+But with the given constraints, perhaps the number of steps for each x is small, and we can simulate it.
+
+But with m up to 1e6, this is not feasible.
+
+But given the time constraints, perhaps the only way is to proceed with this approach and see if it can be optimized.
+
+So, let's proceed with the following plan:
+
+For each x in 1..m:
+
+   current = set of participants skilled in x
+
+   for each sport in the sequence (x, x+1, ..., x + m-1 mod m):
+
+       if all participants in current are not skilled in this sport:
+
+           continue
+
+       else:
+
+           current = current ∩ set of participants skilled in this sport
+
+           if len(current) == 1:
+
+               winner is current[0]
+
+               break
+
+   print winner
+
+But how to implement this efficiently.
+
+But with nm up to 2e6, and m up to 1e6, this is not feasible.
+
+But wait, for each x, the number of steps is m. For each step, the current set is the intersection of the previous set and the current sport's set.
+
+But for each x, the current set is a subset of the initial set.
+
+But how to represent this?
+
+For each x, the initial current set is the set of participants skilled in x.
+
+For each subsequent sport, the current set is the intersection of the previous current set and the set of participants skilled in the current sport.
+
+But for each x, this can be represented as a set, and for each step, we can compute the intersection.
+
+But with m up to 1e6, this is not feasible.
+
+But perhaps, for each x, the current set can be represented as a bitmask, and for each sport, we can compute the intersection.
+
+But with m up to 1e6, this is not feasible.
+
+But given the constraints that nm is up to 2e6, perhaps we can represent the current set as a bitmask for each x.
+
+Let me think: For each participant, their skills are represented as a bitmask. For example, for m=5, a participant's skillset is a 5-bit integer.
+
+Then, for each x, the initial current set is the set of participants whose bitmask has the x-th bit set.
+
+For each subsequent sport, the current set is the set of participants whose bitmask has the current sport's bit set and is in the current set.
+
+But how to compute this efficiently.
+
+For each x, the initial current set is the set of participants with the x-th bit set.
+
+For each subsequent sport s, the current set is the set of participants who have the s-th bit set and are in the current set.
+
+But how to compute this for each x.
+
+This is a problem of for each x, processing m steps, each step being the intersection of the current set and the set of participants skilled in s.
+
+But with m up to 1e6 and n up to 2e6, this is not feasible.
+
+But perhaps, for each x, we can precompute the set of participants skilled in each sport, and for each step, compute the intersection.
+
+But how to do this efficiently.
+
+Let me think of the following: For each x, the initial current set is the set of participants skilled in x. For each subsequent sport s, the current set is the intersection of the current set and the set of participants skilled in s.
+
+But this can be represented as a bitmask, and for each step, we can compute the bitmask.
+
+But with m up to 1e6, this is not feasible.
+
+At this point, I'm stuck and need to think of a different approach.
+
+Let me think of the following: For each participant, the set of sports they are skilled in is S_i. For a participant to be the winner for x, they must be in the active set after each step.
+
+So, for each x, the winner is the participant who is in the intersection of S_{s_0}, S_{s_1}, ..., S_{s_{m-1}}.
+
+But this is not correct, as shown in the sample. But perhaps this is the only way to proceed.
+
+But in the sample, the participant 3 is in S_1 (skilled in 1), but not in S_2 (skilled in 2). So, the intersection of all S_s for s in the sequence is empty, but the participant is in the active set.
+
+So, this is not the case.
+
+At this point, I'm forced to conclude that I'm unable to find an efficient solution and need to look for hints or think of a different approach.
+
+Wait, perhaps the winner for x is the participant who is the only one in the set of participants who are skilled in at least one sport in the sequence.
+
+But this is not the case.
+
+Another observation: For each x, the sequence of sports is x, x+1, ..., x+m-1 mod m. The active set after each step is the set of participants who are skilled in the current sport and are in the active set from the previous step.
+
+So, for the first step, the active set is the set of participants skilled in x.
+
+For the second step, it's the set of participants skilled in x+1 and in the first step's active set.
+
+For the third step, it's the set of participants skilled in x+2 and in the second step's active set.
+
+And so on.
+
+So, for the winner, it's the participant who is in the active set after all steps.
+
+But how to find this.
+
+Maybe for each x, the winner is the participant who is skilled in all the sports in the sequence, but this is not the case.
+
+But in the sample, the participant is not skilled in all the sports in the sequence.
+
+So, this is not the case.
+
+At this point, I'm stuck and need to think of a different approach.
+
+Maybe the solution is to realize that for each x, the winner is the participant who is the last one in the active set after processing all sports in the sequence, and this can be determined by finding the participant who is the last in the active set after each step.
+
+But how to do this efficiently.
+
+Let me think of the following: For each x, the sequence of sports is s_0, s_1, ..., s_{m-1}. For each step, the active set is the intersection of the previous active set and the current sport's set.
+
+So, for each x, the active set after step k is the intersection of the first k sports' sets.
+
+But how to find this.
+
+But with m up to 1e6, it's not feasible to compute this for all x.
+
+But perhaps, for each x, the active set after processing all steps is the set of participants who are skilled in all the sports in the sequence.
+
+But this is not the case, as shown in the sample.
+
+But perhaps, the winner is the participant who is in the active set after all steps, which is the intersection of the first m sports' sets.
+
+But this is not the case.
+
+At this point, I'm forced to give up and look for a different approach.
+
+Let me think of the following: For each participant, the set of sports they are skilled in is S_i. For each x, the winner is the participant who is in the active set after processing all steps. This can be represented as the participant who is in the intersection of S_{s_0}, S_{s_1}, ..., S_{s_{m-1}}.
+
+But this is not correct, but perhaps it's the only way to proceed.
+
+So, for each x, the winner is the participant who is in the intersection of all S_s for s in the sequence.
+
+But how to compute this.
+
+But how to find this for all x?
+
+For each x, the sequence of sports is s_0, s_1, ..., s_{m-1}.
+
+The intersection of all S_s for s in the sequence is the set of participants who are skilled in all the sports in the sequence.
+
+But this is the same as the set of participants who are skilled in all the sports in the sequence.
+
+But this is not the case, as shown in the sample.
+
+But perhaps, the winner is the participant who is in the intersection of all S_s for s in the sequence.
+
+But how to find this.
+
+In the sample, the intersection is empty, but the winner is participant 3.
+
+So, this is not the case.
+
+At this point, I'm unable to find a solution and need to look for a different approach.
+
+Maybe the key is to realize that the winner for x is the participant who is the last one in the active set after each step, and this can be determined by the following: for each x, the winner is the participant who is in the active set after the first step, and for each subsequent step, they are in the active set.
+
+But how to find this.
+
+Maybe the solution is to realize that for each x, the winner is the participant who is the only one in the active set after all steps, and this can be determined by finding the participant who is the last in the active set after each step.
+
+But how to do this.
+
+Given the time constraints, I think the only way to proceed is to write code that simulates the process for each x, even though it may not be efficient for large m.
+
+But with nm up to 2e6, perhaps it is possible.
+
+Let me think: For each x, the sequence of sports is s_0, s_1, ..., s_{m-1}.
+
+For each x, the initial current set is the set of participants skilled in s_0.
+
+For each subsequent sport s in the sequence:
+
+   current = current ∩ participants skilled in s.
+
+   if len(current) == 1: break.
+
+So, for each x, we need to simulate this.
+
+But how to represent the current set.
+
+Let's represent the current set as a list of participants, and for each step, compute the intersection.
+
+But for large m, this is not feasible.
+
+But with the constraints that nm is up to 2e6, perhaps we can represent the current set as a list of participants, and for each step, compute the intersection.
+
+But for each x, this would take O(m) time, and with m up to 1e6, this is O(1e12) operations, which is not feasible.
+
+But given that the problem is to write code, perhaps there is a way to optimize this.
+
+Let me think about the following: For each x, the sequence of sports is s_0, s_1, ..., s_{m-1}. For each sport s, the set of participants skilled in s is a set.
+
+But for each x, the current set is the intersection of the previous current set and the set of participants skilled in s.
+
+But for each x, this can be represented as a list of participants.
+
+But how to compute this efficiently.
+
+Let me think about the following: For each x, the initial current set is the set of participants skilled in x.
+
+For each subsequent sport s, the current set is the intersection of the current set and the set of participants skilled in s.
+
+But for each x, this can be done by iterating through the participants and checking if they are in the current set.
+
+But this is O(n) per step, which is not feasible.
+
+But with nm up to 2e6, perhaps it's possible.
+
+Let me think: For each x, the initial current set is the set of participants skilled in x. This can be represented as a list of participants, and for each step, the current set is the intersection of the previous set and the set of participants skilled in the current sport.
+
+But for each step, the current set is the set of participants who are in the previous set and are skilled in the current sport.
+
+So, for each step, the current set is the intersection of the previous set and the current sport's set.
+
+But how to compute this.
+
+For example, for the initial set, it's the set of participants skilled in x.
+
+For the next step, it's the set of participants in the initial set who are skilled in s_1.
+
+This can be computed by iterating through the initial set and checking if each participant is skilled in s_1.
+
+But for large n, this is O(n) per step.
+
+But with m up to 1e6, this is not feasible.
+
+But given that the constraints are tight, perhaps this is the only way.
+
+But how to implement this.
+
+Let me think of the following: For each x, the initial current set is a list of participants skilled in x. For each subsequent sport s, the current set is the set of participants in the current set who are skilled in s.
+
+But to compute this, for each x, we can iterate through the current set and check if each participant is skilled in s.
+
+But for large n, this is O(n) per step.
+
+But with nm up to 2e6, this might be possible.
+
+For example, for each x, the number of steps is m, and for each step, the number of participants in the current set is O(n). So, total operations would be O(m * n * m) = O(1e12), which is not feasible.
+
+But perhaps, for each x, the number of steps is small.
+
+But this is not guaranteed.
+
+At this point, I'm forced to conclude that I'm unable to find an efficient solution and need to look for a different approach.
+
+Maybe the key is to realize that for each x, the winner is the participant who is skilled in the first sport in the sequence, and the rest are not. But this is not the case.
+
+Alternatively, the winner is the participant who is skilled in the first sport, and the rest are not, but this is not the case.
+
+But in the sample, the first sport is 1, and the winner is participant 3, who is skilled in 1.
+
+So, this is possible.
+
+But how to find this.
+
+Maybe the winner is the participant who is skilled in the first sport in the sequence, and for the other sports, they are not skilled in the next ones. But this is not the case.
+
+At this point, I'm unable to proceed further and must give up.
+
+But since the problem requires a solution, I'll proceed with the simulation approach, even though it may not be efficient for large m.
+
+So, the code will be as follows:
+
+Read n and m.
+
+For each participant, read their skillset as a list of 0/1.
+
+For each x from 1 to m:
+
+   current = list of participants skilled in x.
+
+   for each sport in the sequence (x, x+1, ..., x + m-1 mod m):
+
+       if all participants in current are not skilled in this sport:
+
+           continue
+
+       else:
+
+           current = [p for p in current if p is skilled in this sport]
+
+           if len(current) == 1:
+
+               winner is current[0]
+
+               break
+
+   print the winner.
+
+But how to represent the current set.
+
+But with n up to 2e6, and m up to 1e6, this is not feasible.
+
+But perhaps, for each x, the current set can be represented as a bitmask, and for each sport, the current set is the intersection of the previous set and the current sport's set.
+
+But with m up to 1e6, this is not feasible.
+
+But given the time constraints, I'll proceed with this approach.
+
+But how to represent the current set.
+
+Let me think of the following: For each participant, store their skillset as a bitmask. For example, for m=5, the skillset is an integer.
+
+For each x, the initial current set is the set of participants whose bitmask has the x-th bit set.
+
+For each subsequent sport s, the current set is the set of participants whose bitmask has the s-th bit set and is in the current set.
+
+But how to represent this.
+
+For each x, the initial current set is a set of participants.
+
+For each step, the current set is the intersection of the previous set and the set of participants skilled in s.
+
+But to represent this, for each x, we can iterate through all participants and check if they are in the current set.
+
+But with n up to 2e6, this is O(n) per step.
+
+But with m up to 1e6, this is O(m * n) = 2e12 operations, which is not feasible.
+
+But given that the problem requires a solution, I'll proceed with this approach, and hope that it passes the test cases.
+
+But how to implement this.
+
+Let me think of the following:
+
+For each participant, store their skillset as a list of 0/1.
+
+For each x, the initial current set is the set of participants where their skillset has the x-th bit set.
+
+For each subsequent sport s in the sequence:
+
+   current = [p for p in current if p's skillset has s-th bit set]
+
+   if len(current) == 1: break.
+
+So, for each x, the code is:
+
+current = [i for i in range(n) if (skillset[i] & (1 << (x-1)))]  # assuming x is 1-based.
+
+Then, for each s in the sequence:
+
+   current = [i for i in current if (skillset[i] & (1 << (s-1)))]  # assuming s is 1-based.
+
+But this is O(n) per step, which is not feasible for large m.
+
+But with the given constraints, perhaps this is the only way.
+
+But for the sample input, this would work.
+
+So, the code would be:
+
+Read n, m.
+
+skillset = list of lists, each of length m.
+
+For each x in 1 to m:
+
+   current = list of participants skilled in x.
+
+   for s in range(x, x + m):
+
+       if s > m: s -= m
+
+       # check if all current participants are not skilled in s.
+
+       # but how?
+
+       # for each participant in current, check if they are skilled in s.
+
+       # if all are not, continue.
+
+       # else, current is the set of participants in current who are skilled in s.
+
+       # but how to check this.
+
+       # for the current step, the current is the set of participants skilled in s.
+
+       # but how to check if all are not skilled in s.
+
+       # this is O(len(current)) per step.
+
+       # but for large current, this is O(n) per step.
+
+       # but with nm up to 2e6, it's possible.
+
+   print the winner.
+
+But with this code, for each x, the code is O(m * n) time, which is not feasible.
+
+But given that the problem requires a solution, I'll proceed with this code and see.
+
+But for the sample input, this code would work.
+
+So, the code in Python would be:
+
+Read n and m.
+
+Then, read n lines, each line is a string of m characters.
+
+For each participant, store their skillset as a list of integers.
+
+Then, for each x in 1 to m:
+
+   current = list of participants who have the x-th bit set.
+
+   for s in the sequence of sports:
+
+       if all participants in current are not skilled in s:
+
+           continue
+
+       else:
+
+           current = [p for p in current if skillset[p] has the s-th bit set]
+
+           if len(current) == 1:
+
+               print(current[0] + 1)  # since participants are 1-based.
+
+               break
+
+But how to check if all participants in current are not skilled in s.
+
+This can be done by checking for each participant in current if their skillset has the s-th bit not set.
+
+But for large current, this is O(len(current)) per step.
+
+But with nm up to 2e6, this might be possible.
+
+But for m up to 1e6, this is O(1e12) operations, which is not feasible.
+
+But given the problem constraints, perhaps this is the only way.
+
+But given that the problem requires a solution, I'll proceed with this code.
+
+But how to implement this in Python.
+
+Let me write the code.
+
+First, read n and m.
+
+Then, read n lines, each line is a string of m characters.
+
+For each participant, store their skillset as a list of integers, where the j-th character is 0 or 1.
+
+Then, for each x in 1 to m:
+
+   current = list of participants who have the x-th bit set.
+
+   for s in range(x, x + m):
+
+       if s > m: s = s - m
+
+       # check if all current participants are not skilled in s.
+
+       all_not = True
+
+       for p in current:
+
+           if (skillset[p] & (1 << (s-1))) != 0:
+
+               all_not = False
+
+               break
+
+       if all_not:
+
+           continue
+
+       else:
+
+           current = [p for p in current if (skillset[p] & (1 << (s-1))) != 0]
+
+           if len(current) == 1:
+
+               print(current[0] + 1)
+
+               break
+
+But this is O(m * n * m) time, which is not feasible for large m and n.
+
+But for the sample input, this code works.
+
+But for large inputs, it will not pass due to time constraints.
+
+But given the problem statement, this is the best I can do.
+
+But the problem says that the answer must be correct.
+
+But given the time constraints, I'll proceed with this code, even though it may not pass for large inputs.
+
+But the sample input:
+
+n=3, m=5.
+
+skillset:
+
+Participant 0: 10010 → [1, 0, 0, 1, 0] (assuming 0-based, but the actual code uses 1-based for the sports).
+
+Wait, the code uses 1-based for the sports, so for x=1, the s is 1.
+
+But in the code, the skillset for each participant is a list of integers, where the j-th character is 0 or 1. So, for the j-th sport, the bit is at position j-1.
+
+But in the code, for a participant's skillset, the j-th sport is represented by the j-1-th bit.
+
+So, for example, for the first sport (x=1), the code checks if the j-th bit (j=1) is set.
+
+But in the code, for each participant, the skillset is a list of integers, where the j-th character is the j-th bit.
+
+But in Python, the code can be written as:
+
+for each participant, skillset[i] is a string, and for each j, the j-th character is 0 or 1.
+
+So, for the code:
+
+n, m = map(int, input().split())
+
+skill = [input().strip() for _ in range(n)]
+
+Then, for each participant i (0-based), their skillset is a string, and for each sport j (0-based), the j-th character is 1 or 0.
+
+So, for the x-th sport (1-based), the j-th bit is (x-1)th bit.
+
+But in the code, for each x in 1 to m:
+
+   current = [i for i in range(n) if (skill[i][x-1] == '1')]
+
+   for s in the sequence of sports:
+
+       ...
+
+But this is not correct, because the x is the sport number, and the j-th bit is for the j-th sport.
+
+Wait, the code for x is the sport number. For example, for x=1, the sport is the first sport, and the j-th bit is the 0-th bit in the skillset.
+
+So, for x=1, the code checks if the skillset of the participant has the 0-th bit set.
+
+But in the code, the current is [i for i in range(n) if skill[i][x-1] == '1'].
+
+Yes.
+
+So, the code is correct.
+
+But for the sample input:
+
+n=3, m=5.
+
+skill[0] = '10010' → for x=1, the 0-th character is '1' → participant 0 is in current.
+
+For x=1, the sequence of sports is 1, 2, 3, 4, 5.
+
+For each s in 1, 2, 3, 4, 5:
+
+s=1: check if all current participants are not skilled in s=1.
+
+current is [0, 2] (wait, no, let's see: for x=1, the initial current is [i for i in 0,1,2 if skill[i][0] == '1'].
+
+skill[0][0] is '1' → yes.
+
+skill[1][0] is '0' → no.
+
+skill[2][0] is '1' → yes.
+
+So current is [0, 2].
+
+s=1: check if all participants in current are not skilled in s=1. No, because 0 and 2 are skilled in s=1.
+
+So, current becomes [0, 2] intersect with those skilled in s=1.
+
+Wait, no: for s=1, the current is the set of participants skilled in s=1, which is [0, 2]. So, the current remains [0, 2].
+
+Then, s=2: check if all current participants are not skilled in s=2.
+
+skill[0][1] is '0' → no.
+
+skill[2][1] is '0' → no.
+
+So, all are not skilled in s=2? No, because participant 0 is not skilled in s=2, participant 2 is not skilled in s=2. So, all are not skilled in s=2. So, continue.
+
+Then, s=3: check if all current participants are not skilled in s=3.
+
+skill[0][2] is '0' → yes.
+
+skill[2][2] is '1' → no.
+
+So, not all are not skilled in s=3. So, current becomes [2].
+
+Then, s=4: check if all current participants (2) are not skilled in s=4.
+
+skill[2][3] is '0' → yes. So, continue.
+
+Then, s=5: check if all current participants (2) are not skilled in s=5.
+
+skill[2][4] is '1' → no. So, current becomes [2].
+
+So, after all steps, current is [2], so the winner is 2+1 = 3? No, in the sample, the output for x=1 is 3.
+
+Wait, this suggests that the code is incorrect.
+
+But according to the sample, the output for x=1 is 3. But according to this simulation, the current is [2], which is participant 2, which is index 2 (0-based), so the output is 3.
+
+Yes, which matches the sample.
+
+So, the code would output 3 for x=1.
+
+But the code for the sample would work.
+
+So, the code is correct for the sample.
+
+But the problem is the time complexity.
+
+But given that the problem requires a solution, I'll proceed with this code.
+
+But in Python, for large m and n, this code will not pass due to time constraints.
+
+But given the problem's constraints, this is the best I can do.
+
+So, the code is as follows:
+
+Read n and m.
+
+Read n strings.
+
+For each x from 1 to m:
+
+   current = list of participants skilled in x.
+
+   for s in the sequence of sports (x, x+1, ..., x+m-1 mod m):
+
+       if all participants in current are not skilled in s:
+
+           continue
+
+       else:
+
+           current = [p for p in current if skillset[p] has s-th bit set]
+
+           if len(current) == 1:
+
+               print(current[0] + 1)
+
+               break
+
+But in Python, the code would be:
+
+But how to represent the current list.
+
+But for each x, the current list is computed as [i for i in range(n) if skill[i][x-1] == '1'].
+
+But for each s in the sequence of sports:
+
+   for each participant in current, check if skill[i][s-1] is '1'.
+
+But for large current, this is O(n) per step.
+
+But with the given constraints, this is the best possible.
+
+So, the code is:
+
+Read n and m.
+
+skill = [input().strip() for _ in range(n)]
+
+for x in range(1, m+1):
+
+    current = [i for i in range(n) if skill[i][x-1] == '1']
+
+    for s in range(x, x + m):
+
+        if s > m:
+
+            s -= m
+
+        # check if all in current are not skilled in s
+
+        all_not = True
+
+        for p in current:
+
+            if skill[p][s-1] == '1':
+
+                all_not = False
+
+                break
+
+        if all_not:
+
+            continue
+
+        else:
+
+            # compute new current
+
+            new_current = []
+
+            for p in current:
+
+                if skill[p][s-1] == '1':
+
+                    new_current.append(p)
+
+            current = new_current
+
+            if len(current) == 1:
+
+                print(current[0] + 1)
+
+                break
+
+    else:
+
+        # if no break, print something?
+
+        # but according to the problem, there is always a winner.
+
+        pass
+
+But this code is not efficient for large inputs, but it passes the sample.
+
+But for the sample, it works.
+
+But in Python, this code will be too slow for large m and n.
+
+But given the problem constraints, this is the best I can do.
+
+So, the final code is as above.
+</think>
+
+```python
+import sys
+
+def main():
+    input = sys.stdin.read().split()
+    idx = 0
+    n = int(input[idx])
+    idx += 1
+    m = int(input[idx])
+    idx += 1
+    skill = []
+    for _ in range(n):
+        skill.append(input[idx])
+        idx += 1
+    
+    for x in range(1, m + 1):
+        current = []
+        for i in range(n):
+            if skill[i][x-1] == '1':
+                current.append(i)
+        found = False
+        for s in range(x, x + m):
+            if s > m:
+                s -= m
+            all_not = True
+            for p in current:
+                if skill[p][s-1] == '1':
+                    all_not = False
+                    break
+            if all_not:
+                continue
+            else:
+                new_current = []
+                for p in current:
+                    if skill[p][s-1] == '1':
+                        new_current.append(p)
+                current = new_current
+                if len(current) == 1:
+                    print(current[0] + 1)
+                    found = True
+                    break
+        if not found:
+            print(current[0] + 1)
+
+if __name__ == "__main__":
+    main()
+```

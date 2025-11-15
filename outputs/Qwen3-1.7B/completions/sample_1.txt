@@ -1,0 +1,782 @@
+<think>
+Okay, let's tackle this problem. So, the task is to find the minimum possible sum of a segment [l, r] after performing exactly one reverse operation on any subsequence of the array. Hmm.
+
+First, I need to understand what exactly the reverse operation does. The problem says that we can choose any subset of indices (i1, i2, ..., ik) such that they are in increasing order. Then, for each x in 1..k, the element at position i_x is replaced by the element at position i_{k-x+1}. So, for example, if we choose indices 1 and 3, then the element at position 1 becomes the element at position 3, and vice versa. But if we choose indices 1, 2, 3, then the elements at positions 1 and 3 swap with each other, and the element at position 2 remains the same. Wait, no. Wait, the reverse is done for the entire subsequence. So, for a subsequence of size k, the elements are reversed in the order they are chosen. So, for example, if the subsequence is [i1, i2, i3], then the first element in the subsequence becomes the last element in the subsequence, and so on. So, the actual elements that are swapped are the elements at positions i1 and ik, i2 and ik-1, etc.
+
+So, the key is that when we reverse a subsequence, the elements in the subsequence are reversed in their order. But the problem says that the subsequence can be any subset of indices. So, for example, if we choose a subset of indices, the elements in that subset are reversed. But the order of the elements in the original array is preserved, except that the elements in the subset are reversed.
+
+But how does this affect the sum of the segment [l, r]?
+
+The problem is to find the minimal possible sum of the segment [l, r] after performing exactly one such reverse operation.
+
+Let me think about the approach. Since the operation can be done on any subsequence, but we need to find the minimal sum. Let's think about what's the best way to choose the subsequence to minimize the sum.
+
+But what's the minimal possible sum? Let's think about what changes the sum. The sum of the segment [l, r] is the sum of the elements in positions l to r. When we perform a reverse operation on a subsequence, some elements in this segment will be swapped. So, the sum of the segment can change depending on which elements are reversed.
+
+But how can we find the optimal subsequence to reverse?
+
+Let me think about possible scenarios. Since the reverse operation can be applied to any subset of elements, perhaps the optimal way is to select a subset of elements in the [l, r] segment such that when reversed, the sum of the segment is minimized.
+
+But how?
+
+Let me consider that the reverse operation can be applied to any subset of elements. So, for example, if we reverse a subset of elements, the sum of the segment [l, r] will change by the sum of the elements that are moved into the segment and the sum of the elements that are moved out. But since the reverse operation is done on the subset, the elements in the subset are reversed in their positions. However, the elements outside the subset remain the same.
+
+So, the sum of the segment [l, r] after the operation is equal to the original sum minus the sum of the elements that are in the segment and are removed from the segment (if they are part of the reversed subset) plus the sum of the elements that are in the subset and are moved into the segment. Wait, no. Let me think again.
+
+Let me take an example. Suppose the original segment is [a, b, c, d], and we reverse the subsequence [a, c]. Then, after reversing, the elements in the subsequence are [c, a]. So, the new elements in the segment are [c, b, a, d]. So, the sum of the segment is (c + b + a + d) = original sum. But the original sum was a + b + c + d. So, the sum remains the same. Wait, but in this case, the sum of the segment is the same as before. So, how does that help?
+
+Wait, but the reverse operation can be applied to any subset of elements. So, the sum of the segment [l, r] could change depending on which elements are in the subset. For example, if the subset is [a, b], then reversing them would swap their positions. But since the elements are in the segment, their positions are within the segment. So, the sum of the segment would be the same as before, unless the subset is not the entire segment. Wait, no. Let me think again.
+
+Suppose the original segment is [a, b, c, d], and we reverse the subset [a, c]. Then, the new elements in the segment are [c, b, a, d]. The sum is c + b + a + d = same as before. So, the sum is unchanged. So, if the subset is not the entire segment, but some elements within it, then the sum of the segment remains the same. So, how can the sum change?
+
+Wait, perhaps the sum can change if the subset includes elements that are not in the segment. Wait, no. Because the reverse operation is applied to a subset of indices. So, if the subset is not entirely within the segment [l, r], then the elements outside the segment are not affected. But the elements in the segment are modified only if they are part of the subset. For example, if the subset includes elements from the segment and others, then the elements in the segment are reversed. But the elements outside the segment are not changed. So, the sum of the segment is the sum of the original elements in the segment, minus the elements in the subset that are in the segment, and then adding the elements from the subset in the reverse order. Wait, no. Let me think again.
+
+Suppose the original segment is [l, r], and we reverse a subset S of elements within the segment. The elements in S are reversed. So, for example, if S is {i1, i2, ..., ik}, then after the reverse, the elements in positions i1, i2, ..., ik are reversed. So, the sum of the segment [l, r] is the sum of the original elements in the segment, minus the sum of the elements in S (since they are replaced by their reversed counterparts), but that's not correct. Because the elements in S are being swapped. For example, if the original elements in S are x, y, z, then after reversal, they become z, y, x. So, the sum of the segment would be (original sum of S) - x - y - z + z + y + x = same as original sum. So, the sum of the segment is unchanged. So, this suggests that reversing any subset of elements within the segment [l, r] does not change the sum of the segment. But that's not possible. Because if the subset is the entire segment, then reversing it would change the elements, but the sum of the segment would be the same as before. Wait, no. Because the sum of the elements in the segment is the same as before, since the elements are reversed. For example, if the segment is [a, b, c], reversing it gives [c, b, a], sum is same. So, the sum remains the same.
+
+Wait, so in that case, the sum of the segment [l, r] is always the same after any reverse operation on any subset of elements. But that can't be right. Because the problem says that the reverse operation is applied to any subsequence. But if the sum of the segment is the same regardless of the operation, then the answer is the original sum of the segment. But that's not the case, as per the example given.
+
+Wait, let's look at the example given. Let's take the second test case:
+
+Input:
+3 2 3
+1 2 3
+
+The original sum of the segment [2,3] is 2 + 3 = 5. But the output is 3. How is that possible?
+
+In the note, they reversed the subsequence [a_1, a_3], which is [1,3]. So, after reversing, the array becomes [3, 2, 1]. The sum of the segment [2,3] is 2 + 1 = 3. So, the original sum was 5, and after the operation it's 3. So, how is that possible? Because the elements in the segment [2,3] are 2 and 3. But after reversing the subset [1,3], which are elements in positions 1 and 3. So, the elements in the segment [2,3] are 2 and 1. So, their sum is 3. So, the sum of the segment changed. So, how is that possible?
+
+Ah, because the elements in the segment are not the entire subset. The subset [1,3] includes elements outside the segment. So, the elements in the segment [2,3] are modified. So, the sum of the segment changes because the elements outside the segment are part of the subset. So, the key is that the reverse operation can affect elements outside the segment. But the elements in the segment are modified if they are part of the subset. So, the sum of the segment can change depending on which elements are in the subset.
+
+So, the problem is that the reverse operation can be applied to any subset of elements. So, the elements in the subset can be from anywhere in the array. But the elements in the segment [l, r] can be modified if they are part of the subset. So, the sum of the segment can be changed by the elements that are in the subset and are in the segment.
+
+So, the question is, how can we choose the subset of elements (any subset) such that when we reverse them, the sum of the segment [l, r] is minimized.
+
+But how to find this subset?
+
+Let me think: the sum of the segment [l, r] after the operation is equal to the original sum of the segment minus the sum of the elements in the segment that are part of the subset (but in the original positions) plus the sum of the elements in the subset that are in the segment but in the reversed order. Wait, but this seems complicated.
+
+Alternatively, think of the operation as follows: when you reverse a subset S of elements, the elements in S are reversed in their order. So, for each element in S, its position in the array is changed. However, the sum of the segment [l, r] depends on the elements that are in S and their positions in the segment.
+
+But since the operation is to reverse the subset S, the sum of the segment can be modified in two ways:
+
+1. If the subset S includes elements that are in the segment [l, r], then their values are swapped with elements from the subset. For example, if S has elements a and b in the segment, then after reversing, a becomes b and b becomes a. So, the sum of the segment would change by (b - a) + (a - b) = 0. So, the sum remains the same. Wait, but that's not the case. Because if the subset S includes elements from the segment and others, then the elements in the segment are swapped with elements from the subset.
+
+Wait, no. Let me think again. Suppose the subset S includes elements that are in the segment. For example, if the subset S is {i1, i2, ..., ik}, and some of them are in the segment. Then, when you reverse the subset S, the elements in the segment are swapped with elements from the subset that are in the segment. So, for example, if S is {i, j} where i and j are in the segment, then after reversal, the elements at positions i and j are swapped. So, the sum of the segment is the same as before. But if S is {i, j} where i is in the segment and j is not. Then, the element at position i is swapped with the element at position j. But since j is not in the segment, the sum of the segment [l, r] is modified by the element at position j (which is not in the segment) and the element at position i (which is in the segment). So, the sum of the segment would be (original sum) minus a_i (which is in the segment) plus a_j (which is not in the segment) and then the element at position i is now a_j. But since the element at position j is not in the segment, the sum of the segment is modified by (a_j - a_i) if j is not in the segment. Wait, no. Let me think again.
+
+Let me take an example. Suppose the original segment is [l, r] = [2,3], and the array is [1, 2, 3]. The subset S is {1, 3} (positions 1 and 3). So, after reversing, the elements at positions 1 and 3 are swapped. The original elements in the segment are 2 and 3. The elements outside the segment are 1. So, the elements in the segment after the operation are 3 (from position 3) and 2 (from position 2). Wait, no. Because the elements in the segment are positions 2 and 3. The element at position 1 is 1, which is not in the segment. So, when we reverse the subset {1,3}, the elements at positions 1 and 3 are swapped. So, the element at position 1 becomes 3, and the element at position 3 becomes 1. But the segment [2,3] is positions 2 and 3. The element at position 3 is now 1, so the sum of the segment is 2 (original) + 1 (new) = 3. So, the original sum was 2+3=5, and after the operation it's 3. So, the sum decreased by 2. How is this possible?
+
+Because the element in position 3 (which is part of the segment) was 3, and after reversal, it's 1. So, the sum of the segment is (original sum) - 3 (original value) + 1 (new value) = 5 -3 +1 = 3. So, the sum of the segment changes by (new value - old value) for the elements in the segment. But how to find this?
+
+So, the key is that when you reverse a subset S, the elements in the segment [l, r] are modified if they are in S. So, the sum of the segment can be modified by the sum of the elements in the segment that are in S, but in reverse order. So, the sum of the segment after the operation is equal to the original sum of the segment minus the sum of the elements in the segment that are in S (since they are replaced by their counterparts in the reversed subset) plus the sum of the elements in the reversed subset that are in the segment. But this is complicated.
+
+Alternatively, think of the sum of the segment after the operation as the original sum of the segment minus the sum of the elements in the segment that are in S, plus the sum of the elements in the subset S that are in the segment, but in reverse order. But since the subset S is reversed, the sum of the elements in the segment that are in S is the same as before, but their order is reversed. So, the sum of the elements in the segment that are in S is the same as before. So, the sum of the segment after the operation is original sum minus the sum of the elements in the segment that are in S (since they are replaced by their counterparts) plus the sum of the elements in the subset S that are in the segment (but in reversed order). But since the sum of the elements in the subset S that are in the segment is the same as before, the sum of the segment remains the same. Wait, that can't be. Because in the example, the sum changed.
+
+Wait, this seems confusing. Let me think again. Let's take the example where the subset S is {1,3}. The elements in the segment [2,3] are 2 and 3. The elements in S that are in the segment are 3 (position 3). So, the sum of the elements in the segment that are in S is 3. The sum of the elements in the subset S that are in the segment is 3. After reversing, the elements in the segment are 3 (from position 3) and 2 (from position 2). So, the sum is 3 + 2 = 5. But the original sum was 5. So, how did the sum change? Because the element in position 3 was 3, and after reversal, it's 1. So, the sum of the segment is 2 (original) + 1 (new) = 3. So, the sum of the segment is reduced by 2. How is that possible?
+
+Ah, because the subset S includes elements that are not in the segment. So, when you reverse the subset S, the elements in the segment are modified. For example, in this case, the element at position 1 (which is not in the segment) is swapped with the element at position 3 (which is in the segment). So, the element at position 3 (originally 3) is now 1. So, the sum of the segment is (original value of position 2) + (new value of position 3). So, the sum is 2 + 1 = 3. So, the sum of the segment is (original sum of segment) - (original value of position 3) + (new value of position 3). But the new value of position 3 is the original value of position 1. So, the change in the sum is (new value of position 3) - (original value of position 3) = (original value of position 1) - (original value of position 3). So, the sum of the segment changes by (original value of position 1 - original value of position 3).
+
+So, the key is that when you reverse a subset S that includes elements from the segment and elements outside, the sum of the segment can be modified by the difference between the elements in the subset that are in the segment and the elements in the subset that are not in the segment.
+
+But how can we model this?
+
+The problem is to find the minimal possible sum of the segment [l, r] after performing exactly one reverse operation. So, the minimal sum can be achieved by choosing a subset S such that the sum of the segment is minimized.
+
+But how?
+
+Let me think: the sum of the segment after the operation is equal to the original sum of the segment minus the sum of the elements in the segment that are in S (but in the original positions) plus the sum of the elements in S that are in the segment (but in the reversed order). However, since the elements in the segment that are in S are swapped with elements from the subset S, but the sum of the elements in the segment that are in S is the same as before. So, the sum of the segment would be the original sum minus the sum of the elements in the segment that are in S (since they are replaced by their counterparts) plus the sum of the elements in S that are in the segment (but in reversed order). But that's the same as the original sum. So, this suggests that the sum of the segment is unchanged. But this contradicts the example.
+
+Wait, in the example, the original sum is 2 + 3 = 5. After the operation, the sum is 2 + 1 = 3. So, the sum changed. So, why?
+
+Because the subset S includes elements outside the segment. So, when you reverse the subset S, the elements in the segment are modified. For example, in the subset S, the element at position 1 (not in the segment) is swapped with the element at position 3 (in the segment). So, the sum of the segment is modified by (new value of position 3) - (old value of position 3) = (original value of position 1) - (original value of position 3).
+
+So, the sum of the segment can be modified by this difference. So, the key is to find a subset S such that the sum of the segment is minimized. How can we find this?
+
+The minimal sum of the segment is the original sum minus the maximum possible value of (original value of position x - original value of position y), where x is in the segment and y is not in the segment, or vice versa. Wait, no. Because the sum of the segment is original_sum - (sum of elements in the segment that are in S) + (sum of elements in the subset S that are in the segment in reversed order). But this is complicated.
+
+Alternatively, think of the sum of the segment after the operation as follows:
+
+The sum is equal to the original sum minus the sum of the elements in the segment that are in S, plus the sum of the elements in the subset S that are in the segment in reversed order. But since the elements in the subset S that are in the segment are part of the original segment, their sum is the same as before. So, the sum of the segment is original_sum minus (sum of elements in S that are in the segment) + (sum of elements in S that are in the segment in reversed order). But since the sum of elements in S that are in the segment is the same as before, the sum of the segment remains the same. But this contradicts the example.
+
+So, where is the mistake here?
+
+Ah, no. The sum of the elements in the subset S that are in the segment is the same as before. But when you reverse the subset S, the elements in the segment are swapped with elements from the subset S. So, for example, if the subset S includes elements from the segment and elements outside, then the elements in the segment are modified. The sum of the segment is original_sum minus (original value of the elements in the segment that are in S) plus (the new value of the elements in the segment that are in S). But since the elements in the segment that are in S are swapped with elements from the subset S, which are not in the segment. So, for example, if the subset S contains elements from the segment and elements not in the segment, then the sum of the segment is modified by the difference between the new value of the elements in the segment and their original values.
+
+But how to model this?
+
+Let me think of the sum of the segment after the operation as:
+
+sum_segment = original_sum - (sum of elements in the segment that are in S) + (sum of elements in the subset S that are in the segment in reversed order).
+
+But since the elements in the subset S that are in the segment are swapped with elements from the subset S that are not in the segment. So, the sum of the elements in the segment that are in S is the same as the sum of the elements in the subset S that are in the segment. But when you reverse the subset S, the elements in the segment are swapped with elements from the subset S not in the segment. So, the sum of the segment after the operation is:
+
+original_sum - (sum of elements in the segment that are in S) + (sum of elements in the subset S that are in the segment in reversed order) - (sum of elements in the subset S that are in the segment in original order) + (sum of elements in the subset S that are not in the segment in original order) ?
+
+This is getting too complicated. Maybe there's a better way.
+
+Alternative approach: the sum of the segment can be modified by choosing a subset S such that the sum of the segment is minimized. The minimal sum is achieved when the sum of the segment is as small as possible. To achieve this, we need to find a way to swap elements in the segment with elements outside the segment, such that the sum of the segment is reduced.
+
+But how?
+
+Let me think: when you reverse a subset S, the elements in the segment can be modified if they are in S. So, the minimal sum is achieved by selecting a subset S that contains elements in the segment that are as large as possible, and elements outside the segment that are as small as possible. For example, if there is an element in the segment that is large, and an element outside the segment that is small, then swapping them would reduce the sum of the segment.
+
+But how to model this?
+
+Let me think: the sum of the segment after the operation is the original sum minus (sum of elements in the segment that are in S) plus (sum of elements in the subset S that are in the segment in reversed order). But since the subset S is reversed, the sum of the elements in the subset S that are in the segment is the same as before. So, the sum of the segment after the operation is original_sum minus (sum of elements in S that are in the segment) plus (sum of elements in S that are in the segment in reversed order). But since the sum of the elements in S that are in the segment is the same as before, the sum of the segment after the operation is original_sum minus (sum of elements in S that are in the segment) + (sum of elements in S that are in the segment in reversed order) = original_sum. So, this suggests that the sum remains the same. But this contradicts the example.
+
+So, there's a mistake in my reasoning. Let's re-express the sum of the segment after the operation.
+
+Suppose the subset S is {i1, i2, ..., ik}, and some of them are in the segment [l, r], and others are not. Let's say that the elements in the segment that are in S are x1, x2, ..., xk. The elements not in the segment are y1, y2, ..., ym.
+
+When we reverse the subset S, the elements in the segment that are in S are swapped with the elements not in the segment. For example, if S contains elements i and j, where i is in the segment and j is not, then after reversal, the element at i becomes the element at j, and vice versa.
+
+So, the sum of the segment after the operation is:
+
+original_sum - (x1 + x2 + ... + xk) + (y1 + y2 + ... + ym) - (elements in the segment that are not in S) ?
+
+No, this is not clear.
+
+Alternatively, think of the sum of the segment after the operation as:
+
+sum_segment = original_sum - (sum of elements in the segment that are in S) + (sum of elements in the subset S that are in the segment in the reversed order).
+
+But the sum of elements in the subset S that are in the segment in reversed order is the same as the sum of elements in the segment that are in S. So, the sum of the segment remains the same. But this contradicts the example.
+
+So, why in the example does the sum change? Because in the example, the subset S includes elements in the segment and elements outside the segment. For example, S is {1,3} in the example. The elements in the segment are 2 and 3. The element 3 is in S and is in the segment. The element 1 is not in the segment. After reversing, the element at position 1 (which is not in the segment) is swapped with the element at position 3 (which is in the segment). So, the element at position 3 becomes 1, and the element at position 1 remains 3. So, the sum of the segment is 2 (original) + 1 (new) = 3. The original sum was 5. The change is -2. So, how is this possible?
+
+The sum of the segment after the operation is original_sum - (original value of position 3) + (original value of position 1) = 5 - 3 + 1 = 3. So, the change is (original value of position 1 - original value of position 3). So, the sum of the segment is original_sum - (original value of position 3 - original value of position 1). But why?
+
+Because the element in position 3 (which is in the segment) is replaced by the original value of position 1, which is not in the segment. So, the change is (original value of position 1) - (original value of position 3). So, the sum of the segment is original_sum + (original value of position 1 - original value of position 3).
+
+So, the sum of the segment after the operation is original_sum + (original value of position 1 - original value of position 3). But how can we choose the subset S to minimize this?
+
+In this case, the change in the sum is (original value of position x - original value of position y), where x is an element outside the segment and y is an element in the segment. So, the sum of the segment can be minimized by selecting the maximum possible (original value of x - original value of y), where x is outside the segment and y is inside the segment. Wait, no. Because the sum of the segment is original_sum plus (x - y), where x is the element outside the segment and y is the element in the segment. So, to minimize the sum, we need to choose the x and y such that (x - y) is as small as possible. So, the minimal sum is original_sum minus the maximum possible (y - x), where y is in the segment and x is outside the segment.
+
+Wait, no. Because the change in the sum is (x - y) for the subset S that includes x and y. So, the sum after the operation is original_sum + (x - y). To minimize this, we need to choose the minimal (x - y). So, the minimal sum is original_sum + (x - y) where x is the smallest possible and y is the largest possible in the segment.
+
+Wait, no. Let's think: the change is (x - y), where x is the element outside the segment and y is the element in the segment. So, to minimize the sum, we want (x - y) to be as small as possible. So, the minimal possible (x - y) is when x is as small as possible and y is as large as possible. So, the minimal sum is original_sum + (x - y) where x is the smallest possible element outside the segment and y is the largest possible element in the segment.
+
+But how can we choose such x and y?
+
+But the problem allows us to choose any subset S. So, the subset S can be any subset. So, the minimal sum is original_sum plus (the minimal (x - y) where x is outside the segment and y is inside the segment). Wait, no. Because the change in the sum is (x - y), but the subset S can be chosen to include x and y, or other elements. So, for example, if there are multiple elements outside the segment and inside the segment, we can choose any of them.
+
+So, the minimal possible change in the sum is when we choose the pair (x, y) where x is the smallest possible outside the segment and y is the largest possible inside the segment. Because that would give the minimal (x - y) (since x is small and y is large, x - y is negative, which would decrease the sum).
+
+So, the minimal sum is original_sum + (x - y), where x is the smallest element outside the segment and y is the largest element in the segment. Or, if there are elements outside the segment, then we can choose the pair (x, y) that gives the smallest possible (x - y). So, the minimal possible change is (x - y) where x is the smallest element outside the segment and y is the largest element in the segment. Or if there are no elements outside the segment, then the change is zero.
+
+Wait, but how do we know that this is the best possible choice? Because the subset S can include other elements as well. For example, if there are multiple elements outside the segment, but we can choose to include them in the subset S to get a better change.
+
+But the minimal sum is achieved when the change (x - y) is as small as possible. So, the minimal possible change is when x is as small as possible and y is as large as possible.
+
+So, the approach is:
+
+- Find the maximum possible value of (y - x) where x is outside the segment and y is inside the segment. Then, the minimal sum is original_sum + (x - y) = original_sum - (y - x). So, the minimal sum is original_sum - (max (y - x)).
+
+But how to compute this?
+
+So, for the segment [l, r], we can find the maximum value of (y - x), where x is an element outside the segment, and y is an element inside the segment. Then, the minimal sum is original_sum - (max (y - x)).
+
+But wait, the change in the sum is (x - y), so the minimal sum is original_sum + (x - y). To minimize this, we need to choose the pair (x, y) such that (x - y) is as small as possible. Which is equivalent to choosing x as small as possible and y as large as possible. So, the minimal (x - y) is (min_x - max_y), where min_x is the minimum element outside the segment, and max_y is the maximum element inside the segment.
+
+But if there are no elements outside the segment, then the change is zero, and the sum remains the same.
+
+So, the minimal sum is original_sum - (max (y - x)) if there are elements outside the segment. Or original_sum if there are no elements outside the segment.
+
+Wait, no. Because the change is (x - y), and we want to minimize the sum. So, the sum after the operation is original_sum + (x - y). To minimize this, we need to find the minimal (x - y). Which is equivalent to finding the minimal x - y. So, if there are elements outside the segment, then the minimal x - y is (min_x - max_y), where min_x is the minimal element outside the segment, and max_y is the maximal element inside the segment.
+
+But if there are no elements outside the segment, then the change is zero, and the sum remains the same.
+
+So, the minimal sum is original_sum + (x - y), where x is the minimal element outside the segment and y is the maximal element inside the segment. Or if there are no elements outside, then the minimal sum is original_sum.
+
+But how to compute this?
+
+So, the steps for solving the problem are:
+
+1. Compute the original sum of the segment [l, r].
+
+2. Find the maximum value of (y - x) where x is an element outside the segment and y is an element inside the segment. Then, the minimal sum is original_sum + (x - y) = original_sum - (y - x). Wait, no. If the change is (x - y), then the minimal sum is original_sum + (x - y). To find the minimal possible, we need to find the minimal (x - y). Which is equivalent to finding the minimal x - y. So, if there are elements outside the segment, then the minimal (x - y) is (min_x - max_y), where min_x is the minimum of all elements outside the segment, and max_y is the maximum of all elements inside the segment.
+
+But how to find this?
+
+So, for the segment [l, r], we can collect all elements in the segment (call this segment_elements), and all elements outside the segment (call this outside_elements).
+
+Then, the minimal (x - y) is (min_outside - max_segment), if there are elements in outside and segment.
+
+But what if there are no elements in outside? Then, the minimal (x - y) is zero.
+
+So, the minimal sum is original_sum + (min_outside - max_segment) if there are elements in both outside and segment. Otherwise, it's original_sum.
+
+Wait, but if there are elements in both, then the minimal (x - y) is min_outside - max_segment. Because x is the smallest element outside and y is the largest element in the segment.
+
+So, the minimal sum is original_sum + (min_outside - max_segment). But how to compute this?
+
+But this would be the case when we choose to reverse a subset that includes x (the smallest element outside) and y (the largest element in the segment). Then, the change is x - y, which is added to the original sum.
+
+So, the minimal sum is original_sum + (x - y) = original_sum - (y - x). So, to minimize the sum, we need to find the minimal (x - y), which is (min_outside - max_segment) if possible.
+
+But what if there are multiple elements in the outside and segment?
+
+For example, if there are multiple elements in the outside and segment, then the minimal (x - y) would be the minimal possible x - y, which is the smallest x minus the largest y.
+
+So, the approach is:
+
+Compute the original_sum of the segment.
+
+Compute max_segment = maximum of the elements in the segment.
+
+Compute min_outside = minimum of the elements outside the segment.
+
+If there are elements in both the segment and outside, then the minimal possible change is (min_outside - max_segment), and the minimal sum is original_sum + (min_outside - max_segment).
+
+Otherwise, the minimal sum is original_sum.
+
+But wait, what if there are no elements outside the segment? Then, the change is zero, so the sum remains original_sum.
+
+But what if there are elements outside the segment, but the minimal (x - y) is negative? For example, if the segment has a large element and the outside has a small element. Then, the change is (x - y) which is (small - large), which is negative. So, the sum becomes original_sum + (small - large) = original_sum - (large - small). Which is a smaller sum.
+
+So, the minimal sum is original_sum + (min_outside - max_segment).
+
+But how to compute this?
+
+So, the steps for the code are:
+
+For each test case:
+
+- Read n, l, r.
+
+- Read the array a.
+
+- Compute the original_sum = sum of a[l-1 ... r-1] (assuming 0-based indices).
+
+- Collect the elements in the segment [l, r], which are a[l-1], a[l], ..., a[r-1].
+
+- Collect the elements outside the segment, which are all elements not in this range.
+
+- Compute max_segment = max of the segment elements.
+
+- Compute min_outside = min of the elements outside the segment.
+
+- If there are elements outside the segment (i.e., if the length of the array is more than r - l + 1), then the minimal possible change is (min_outside - max_segment). So, the minimal sum is original_sum + (min_outside - max_segment).
+
+- Else, the minimal sum is original_sum.
+
+But wait, what if there are multiple elements outside the segment, but some of them are not in the segment? For example, if the segment is [1, 3], and the array is [1, 2, 3, 4], then the outside elements are 4. So, min_outside is 4, and max_segment is 3. So, the change is 4 - 3 = 1. So, the sum becomes original_sum + 1. Which is 2+3+4 = 9, then +1 = 10? Or wait, original_sum is 2 +3 = 5, then adding (4 -3) gives 5 +1 = 6.
+
+But in this case, the original sum is 5, and the new sum is 6. But what is the actual scenario? The subset S is {1,4} (positions 1 and 4). Reversing them gives [4, 2, 3, 1]. The segment [1,3] is positions 1, 2, 3. The elements are 4, 2, 3. Sum is 4+2+3 =9. Which is higher than the original sum of 5. So, this suggests that the approach is wrong.
+
+Wait, this is a problem. What's wrong here?
+
+In this example, the original sum of the segment [1,3] is 2 + 3 = 5. The outside elements are 4. So, according to the previous approach, the minimal sum would be 5 + (min_outside - max_segment) = 5 + (4 - 3) = 6. But when we reverse the subset S {1,4}, the sum of the segment becomes 4 + 2 + 3 = 9, which is higher than 5. So, the approach is wrong.
+
+So, this indicates that the previous reasoning is incorrect.
+
+Hmm. So, why is there a discrepancy here?
+
+Because the change in the sum is not (x - y), but something else. Let me re-examine the example.
+
+Original segment is [1,3], which is elements 2, 3 (assuming the array is [1, 2, 3, 4]. The original sum is 2 + 3 = 5.
+
+The subset S is {1,4}, which are elements 1 and 4. Reversing them gives elements 4 and 1. So, the elements in the segment are 4, 2, 3. Sum is 4+2+3 = 9. So, the change is 9 - 5 = 4. Which is (4 - 2) + (3 - 3) + (2 - 3)? No, not sure.
+
+Wait, the original sum is 5. After the operation, the sum is 9. So, the change is +4. According to the previous approach, the minimal sum is 5 + (min_outside - max_segment) = 5 + (4 - 3) = 6. But the actual change is 4, which is larger than the previous value. So, the approach is incorrect.
+
+So, this indicates that the previous reasoning is wrong. Therefore, I need to rethink.
+
+What's the correct way to model the change in the sum?
+
+Let me think again. The sum of the segment after the operation depends on the elements in the segment that are swapped with elements outside the segment.
+
+When we reverse a subset S that includes elements x (outside the segment) and y (inside the segment), the sum of the segment is modified by:
+
+new_sum = original_sum - y + x.
+
+Because the element y (in the segment) is replaced by x (outside the segment), and the element x (outside the segment) is replaced by y (in the segment). But since the subset S includes x and y, the sum of the segment is original_sum - y + x.
+
+So, the change is (x - y).
+
+In this example, the change is 4 - 3 = 1. So, the new sum is 5 + 1 = 6. But in reality, after reversing, the sum is 9. So, why is there a discrepancy?
+
+Because in this example, the subset S includes elements outside the segment (x=1, which is in the segment? Or wait, the subset S is {1,4} in the array. The segment is [1,3]. So, the element at position 1 is in the segment. The element at position 4 is outside the segment. So, when we reverse the subset S, the elements at positions 1 and 4 are swapped. So, the element at position 1 (which is in the segment) becomes the element at position 4 (which is outside the segment), and the element at position 4 (outside the segment) becomes the element at position 1 (in the segment).
+
+So, the sum of the segment [1,3] is now:
+
+element at position 1 (originally 1) is now 4.
+
+element at position 2 (original 2) remains 2.
+
+element at position 3 (original 3) remains 3.
+
+So, the new sum is 4 + 2 + 3 = 9. Which is 5 + (4 - 1) = 5 + 3 = 8. Wait, but according to the previous calculation, the change is x - y = 4 - 1 = 3. So, the new sum is 5 + 3 = 8. But in reality, the new sum is 9. So, there's a contradiction here.
+
+Ah! I see the mistake. The change in the sum is (x - y) + (y - x) = 0? No. Let me think again.
+
+The original sum of the segment is 2 + 3 = 5.
+
+After reversing the subset S {1,4}, the elements in the segment are:
+
+position 1: original value 1 (now becomes 4).
+
+position 2: original value 2 (no change).
+
+position 3: original value 3 (no change).
+
+So, the new sum is 4 + 2 + 3 = 9. The change is 9 - 5 = 4.
+
+But according to the formula, the change should be x - y, where x is the element outside the segment (4) and y is the element in the segment (1). So, x - y is 4 - 1 = 3. So, the new sum is 5 + 3 = 8. But this is not the case. So, why is there a discrepancy?
+
+Because the element in the segment that is swapped is the element at position 1 (original value 1), which is in the segment. The element outside the segment is 4. So, after swapping, the element at position 1 becomes 4 (x), and the element at position 4 becomes 1 (y). So, the sum of the segment is:
+
+original_sum - y (1) + x (4) = 5 -1 +4 = 8. But the actual sum is 9. So, where is the mistake?
+
+Ah, because the element at position 1 is part of the segment. The element at position 4 is outside the segment. So, when you reverse the subset S {1,4}, the element at position 1 (in the segment) is swapped with the element at position 4 (outside the segment). So, the sum of the segment is original_sum - original_value_of_position_1 + original_value_of_position_4. So, 5 - 1 +4 = 8. But in reality, the sum is 4 + 2 + 3 = 9. So, why is this not matching?
+
+Ah, because the element at position 4 is outside the segment, but the element at position 1 is in the segment. So, after swapping, the element at position 1 is 4 (from the outside), and the element at position 4 is 1 (from the segment). So, the sum of the segment is 4 (from position 1) + 2 (position 2) + 3 (position 3) = 9. Which is 5 + (4 - 1) = 8? No, 5 + (4 - 1) = 8, but the actual sum is 9. So, why?
+
+Because the sum of the segment is original_sum - original_value_of_position_1 + original_value_of_position_4. But the original_sum is 2 + 3 = 5. So, 5 - 1 + 4 = 8. But the actual sum is 9. So, where is the error?
+
+Ah! I think I made a mistake in the original sum. The original segment is [1,3], which in the array [1, 2, 3, 4] is positions 1, 2, 3. So, the original values are 1, 2, 3. The original sum is 1 + 2 + 3 = 6. Oh! I think I made a mistake in the previous calculation. So, the original sum is 6, not 5. So, the change is 9 - 6 = 3. Which is (4 - 1) = 3. So, the new sum is 6 + 3 = 9. Which matches the actual sum.
+
+So, the previous mistake was in calculating the original sum. So, the formula is correct.
+
+So, the change in the sum is (x - y), where x is the element outside the segment and y is the element inside the segment. So, the new sum is original_sum + (x - y).
+
+So, the previous example's new sum is 6 + (4 - 1) = 9, which is correct.
+
+So, the formula is correct.
+
+So, the approach is:
+
+For the segment [l, r], compute the original_sum.
+
+Then, find the maximum (y - x) where x is an element outside the segment, and y is an element inside the segment. Wait, no. Because the change is (x - y), and we want to minimize the sum, which is original_sum + (x - y). So, to minimize this, we want (x - y) to be as small as possible.
+
+So, the minimal possible (x - y) is the smallest possible value of (x - y), which is (min_outside - max_segment), where min_outside is the smallest element outside the segment, and max_segment is the largest element in the segment.
+
+So, the minimal sum is original_sum + (min_outside - max_segment), if there are elements outside the segment. Otherwise, it's original_sum.
+
+But in the previous example, the original_sum is 6, min_outside is 4, max_segment is 3. So, the change is 4 - 3 = 1. So, the new sum is 6 + 1 = 7. But in reality, the new sum is 9. Wait, what's wrong here?
+
+Wait, no. In this example, the original_sum is 1 + 2 + 3 = 6. The min_outside is 4 (the element outside the segment). The max_segment is 3 (the largest in the segment). So, the change is 4 - 3 = 1. So, the new sum is 6 + 1 = 7. But in reality, the new sum is 9. So, this indicates a problem.
+
+Wait, no. What is the x and y in this case?
+
+The x is the element outside the segment (4), and y is the element inside the segment (3). So, the change is x - y = 4 - 3 = 1. So, the new sum is 6 + 1 = 7. But in reality, the new sum is 9. So, why is this discrepancy?
+
+Because the element in the segment is 3, and it is swapped with the element outside the segment (4). So, the new value of the element in the segment is 4, and the new sum of the segment is (original_sum - 3 + 4) = 6 -3 +4 = 7. But in reality, the segment is [1, 2, 3] after swapping the element at position 1 (1) with position 4 (4). Wait, no. Wait, the subset S is {1,4}. The element at position 1 is 1 (in the segment), and the element at position 4 is 4 (outside). When we reverse the subset S, the elements at positions 1 and 4 are swapped. So, the element at position 1 becomes 4, and the element at position 4 becomes 1. So, the segment [1, 2, 3] has elements 4 (position 1), 2 (position 2), 3 (position 3). So, the sum is 4 + 2 + 3 = 9. But according to the formula, it should be 6 + (4 - 3) = 7. So, there's a discrepancy.
+
+Ah, I see now. The error is in the formula. Because the change is not (x - y), but (x - y) + (y - z), where z is another element in the segment? No, this is not the case.
+
+Wait, in this example, the change in the sum is 9 - 6 = 3. So, the formula is not correct.
+
+So, what is the correct way to model the change in the sum?
+
+Let me think again. The sum of the segment after the operation is:
+
+original_sum - (y) + (x), where y is the element in the segment that is swapped with x (the element outside the segment). But in this example, the element in the segment that is swapped is 1 (position 1), and the element outside is 4 (position 4). So, the change is -1 +4 = 3. So, the new sum is 6 + 3 = 9, which is correct.
+
+So, the formula is: change = x - y, where x is the element outside the segment, and y is the element in the segment that is swapped with x.
+
+But in this case, the y is the element in the segment that is part of the subset S. So, the formula is change = x - y, where x is the element outside the segment, and y is the element in the segment that is part of the subset S.
+
+But how do we choose y and x?
+
+The problem is that the subset S can contain any number of elements. So, for example, if the subset S contains multiple elements, then the sum of the segment may change by multiple (x - y) terms, depending on which elements are swapped.
+
+But to minimize the sum, we need to choose the subset S that includes the element y (in the segment) and x (outside the segment), such that x - y is as small as possible.
+
+So, the minimal possible change is the minimal (x - y), where x is an element outside the segment, and y is an element inside the segment.
+
+But in this example, the x is 4, y is 1. So, the change is 4 - 1 = 3, which is correct.
+
+But earlier, I thought that the change is x - y, where x is the element outside and y is the element inside. So, the formula is correct.
+
+So, the problem is to find the minimal (x - y), where x is an element outside the segment, and y is an element inside the segment. Then, the minimal sum is original_sum + (x - y).
+
+So, in the example, the minimal (x - y) is 4 - 1 = 3. So, the new sum is 6 + 3 = 9, which is correct.
+
+So, how to find the minimal (x - y) where x is outside the segment and y is inside the segment?
+
+This is equivalent to finding the minimal possible x - y, where x is the smallest element outside the segment, and y is the largest element inside the segment. Or, alternatively, the minimal x - y is the smallest x (outside) minus the largest y (inside).
+
+So, the minimal (x - y) is (min_outside - max_segment), where min_outside is the minimum of all elements outside the segment, and max_segment is the maximum of all elements inside the segment.
+
+So, the approach is:
+
+For each test case:
+
+- Compute the original sum of the segment.
+
+- Find the maximum element in the segment (max_segment).
+
+- Find the minimum element outside the segment (min_outside).
+
+- If there are elements outside the segment, then the minimal possible change is (min_outside - max_segment). So, the minimal sum is original_sum + (min_outside - max_segment).
+
+- Else, the minimal sum is original_sum.
+
+So, the code needs to compute this.
+
+But how to handle cases where there are multiple elements outside and inside?
+
+For example, if there are multiple elements outside and inside, but the minimal (x - y) is achieved by a different pair.
+
+But the code can find the minimal (x - y) by taking the minimum of all x (outside) and the maximum of all y (inside).
+
+So, the code steps are:
+
+For each test case:
+
+- Read n, l, r.
+
+- Read the array.
+
+- Compute the original_sum as the sum of a[l-1 ... r-1].
+
+- Collect the segment elements: segment = a[l-1:r]
+
+- Collect the outside elements: outside = [all elements not in the segment]
+
+- If there are elements in outside (i.e., len(outside) > 0), then:
+
+   - max_segment = max(segment)
+
+   - min_outside = min(outside)
+
+   - change = min_outside - max_segment
+
+   - minimal_sum = original_sum + change
+
+- Else:
+
+   - minimal_sum = original_sum
+
+- Output minimal_sum
+
+But wait, what if there are multiple elements in the segment and outside, but the minimal (x - y) is achieved by a different pair?
+
+For example, suppose the segment has elements [5, 3], and outside has elements [4, 2]. Then, min_outside is 2, max_segment is 5. So, change is 2 -5 = -3. So, the sum becomes original_sum -3. Which is better.
+
+But what if there are other pairs, like x=4 and y=3 (from the segment), then change is 4-3=1, which is larger than -3. So, the minimal is -3.
+
+So, the code should compute min_outside - max_segment.
+
+So, the code should compute this.
+
+But how to find min_outside and max_segment?
+
+For the segment, max_segment is the maximum of the segment elements.
+
+For the outside elements, min_outside is the minimum of the elements not in the segment.
+
+So, the code can proceed as follows:
+
+In Python:
+
+For each test case:
+
+n, l, r = map(int, input().split())
+
+a = list(map(int, input().split()))
+
+original_sum = sum(a[l-1:r])
+
+segment = a[l-1:r]
+
+max_segment = max(segment)
+
+# find min_outside
+
+outside = []
+
+for i in range(n):
+
+    if i < l-1 or i >= r:
+
+        outside.append(a[i])
+
+min_outside = min(outside) if outside else float('inf')
+
+if len(outside) > 0:
+
+    change = min_outside - max_segment
+
+    minimal_sum = original_sum + change
+
+else:
+
+    minimal_sum = original_sum
+
+print(minimal_sum)
+
+Wait, but in the example where the segment is [1, 3], and the array is [1, 2, 3, 4], the outside elements are [4], so min_outside is 4, max_segment is 3. So, change is 4 - 3 = 1. original_sum is 1+2+3 = 6. So, minimal_sum is 6 + 1 = 7. But in reality, the correct minimal sum is 9. So, what's wrong?
+
+Wait, no. In this example, the code would compute change as 4 - 3 = 1, so the new sum is 6 + 1 = 7. But according to the actual scenario, the sum is 9. So, why is there a discrepancy?
+
+Ah! Because in this example, the code assumes that the minimal change is (min_outside - max_segment), but in reality, the change is (x - y), where x is the element outside the segment and y is the element in the segment that is part of the subset S. But in this case, the subset S includes the element y (the element in the segment), and x (the element outside the segment). So, the change is x - y. But in this example, the code assumes that the change is (min_outside - max_segment), which is 4-3=1. So, the new sum is 6 + 1 = 7. But the actual change is 4 - 1 = 3, which is not the same as 1.
+
+Wait, why is this? Because in this example, the element in the segment is 1 (original value), and the element outside is 4. So, the change is x - y = 4 - 1 = 3. But according to the code, the change is min_outside - max_segment = 4 - 3 = 1. So, the code is incorrect.
+
+Ah! Here's the mistake. The code is computing min_outside - max_segment, but the correct x is the element outside the segment, and y is the element in the segment. But the code is assuming that the element y is the maximum in the segment, and x is the minimum outside. But in this case, the element in the segment that is swapped is 1, which is not the maximum in the segment. So, the code is not considering all possible pairs.
+
+Ah, this is the key mistake. The code assumes that the minimal (x - y) is achieved by taking the smallest x and largest y. But this is not necessarily the case. Because the subset S can include any elements, and the y can be any element in the segment, not just the maximum.
+
+So, the code is incorrect. The correct approach is to find the minimal possible (x - y), where x is an element outside the segment, and y is an element in the segment. So, the minimal (x - y) is the minimal x - y, which is the same as the minimal x minus the maximum y. Or, the minimal x minus the maximum y.
+
+Wait, no. For example, if x is 4 (min_outside) and y is 1 (the minimum in the segment), then x - y = 3. If x is 4 and y is 3 (max_segment), x - y = 1. So, the minimal (x - y) is 1, which is the case when x is 4 and y is 3. So, the code's approach is correct in this case. But why in the example above, the code's calculation gives 1, but the actual change is 3?
+
+Because in the example, the code's calculation is based on the assumption that the minimal (x - y) is min_outside - max_segment. So, in this example, the code computes 4 - 3 = 1, which is the correct minimal (x - y), but how?
+
+Wait, in this example, the segment is [1, 2, 3], and the outside is [4]. So, the possible pairs are x=4 and y=1, 2, or 3.
+
+The possible (x - y) values are:
+
+4-1=3, 4-2=2, 4-3=1.
+
+So, the minimal (x - y) is 1. So, the code's calculation is correct. So, the new sum is 6 + 1 = 7. But in reality, when we reverse the subset S {3,4}, which includes the element 3 (in the segment) and 4 (outside). So, after reversing, the elements in the segment are:
+
+position 3 (original 3) becomes 4, and position 4 (original 4) becomes 3. So, the segment sum is 1 (position 1) + 2 (position 2) + 4 (position 3) = 7. Which is correct. So, the code's calculation is correct.
+
+So, why did I think earlier that the actual sum was 9? Because I was considering a different subset S. For example, if the subset S is {1,4}, then the change is 4-1=3, and the new sum is 6 + 3 = 9. But the code's calculation is 6 + 1 = 7, which is better. So, the code is correct, and the example I thought of earlier was incorrect.
+
+So, the code is correct. The minimal sum is original_sum + (min_outside - max_segment).
+
+So, the code should work.
+
+Now, let's test the example from the problem.
+
+Let's look at the second test case:
+
+Input:
+
+3 2 3
+
+1 2 3
+
+Original sum of [2,3] is 2 + 3 = 5.
+
+segment is [2,3], which is [2,3]. max_segment is 3.
+
+outside elements are [1], min_outside is 1.
+
+change is 1 - 3 = -2. So, minimal_sum is 5 + (-2) = 3, which matches the sample output.
+
+Yes, this is correct.
+
+Another example:
+
+Test case 3:
+
+Input:
+
+4 2 3
+
+1 2 2 2
+
+Original sum of [2,3] is 2 + 2 = 4.
+
+segment is [2,2]. max_segment is 2.
+
+outside elements are [1, 2]. min_outside is 1.
+
+change is 1 - 2 = -1. So, minimal_sum is 4 + (-1) = 3.
+
+Which matches the sample output.
+
+Another example:
+
+Test case 6:
+
+Input:
+
+6 1 3
+
+3 6 6 4 3 2
+
+Original segment is positions 1, 2, 3: [3,6,6]. sum is 3+6+6=15.
+
+max_segment is 6.
+
+outside elements are positions 4,5,6: [4,3,2]. min_outside is 2.
+
+change is 2 - 6 = -4. So, minimal_sum is 15 + (-4) = 11. Which matches the sample output.
+
+Yes.
+
+So, the code seems to be correct.
+
+Now, let's implement this in Python.
+
+But we need to handle the case when the segment is [l, r], and the outside elements are empty. For example, if the segment is the entire array. Then, the outside elements are empty, so the minimal sum is original_sum.
+
+So, the code:
+
+Read t test cases.
+
+For each test case:
+
+Read n, l, r.
+
+Read the array a.
+
+Compute the original_sum = sum of a[l-1:r].
+
+segment = a[l-1:r]
+
+max_segment = max(segment)
+
+outside = [x for x in a if x not in a[l-1:r]]
+
+Wait, no. Wait, the outside elements are those not in the segment. So, for example, in Python, the segment is a[l-1:r], which is a slice from index l-1 to r-1 (since in Python, a[start:end] is up to but not including end). So, the elements outside the segment are those in the array that are not in the slice.
+
+So, the code can be:
+
+outside = []
+
+for i in range(n):
+
+    if i < l-1 or i >= r:
+
+        outside.append(a[i])
+
+But this is O(n) per test case.
+
+But for n up to 1e5 and t up to 1e4, this is acceptable.
+
+So, the code:
+
+In Python:
+
+import sys
+
+t = int(sys.stdin.readline())
+
+for _ in range(t):
+
+    n, l, r = map(int, sys.stdin.readline().split())
+
+    a = list(map(int, sys.stdin.readline().split()))
+
+    original_sum = sum(a[l-1:r])
+
+    segment = a[l-1:r]
+
+    max_segment = max(segment)
+
+    outside = []
+
+    for i in range(n):
+
+        if i < l-1 or i >= r:
+
+            outside.append(a[i])
+
+    if len(outside) > 0:
+
+        min_outside = min(outside)
+
+        change = min_outside - max_segment
+
+        minimal_sum = original_sum + change
+
+    else:
+
+        minimal_sum = original_sum
+
+    print(minimal_sum)
+
+But wait, in the case where the segment is [l, r], and the outside elements are empty, then the minimal sum is original_sum. Which is correct.
+
+But what if the segment is [l, r] and there are no elements outside, like when the segment is the entire array. Then, the code returns original_sum, which is correct.
+
+Let's test the first example:
+
+Input:
+
+6
+
+2 1 1
+
+2 1
+
+The segment is [2], sum is 2.
+
+outside is [1], since l=1, r=1. So, i ranges from 0 to 1 (n=2). i < l-1 (0 < 0? No) and i >= r (i >= 1). So, i=0 is not in the segment, i=1 is >= r (1 >= 1). So, outside is [a[0]] = [2]. Wait, no. Wait, the segment is [1,1], which is a[0]. The outside elements are those not in the segment. So, for i=0, it is in the segment. For i=1, it is outside. So, outside is [a[1]] = [1]. So, min_outside is 1. change is 1 - 2 = -1. So, minimal_sum is 2 + (-1) = 1. Which matches the sample output.
+
+Yes.
+
+Another example from the problem:
+
+Test case 5:
+
+Input:
+
+5 2 5
+
+3 3 2 3 5
+
+Original segment is positions 2-5: [3, 2, 3, 5]. sum is 3+2+3+5=13.
+
+max_segment is 5.
+
+outside elements are those not in the segment. The array is [3, 3, 2, 3, 5]. The segment is indices 1 to 4 (0-based 1 to 4). So, outside is index 0 (3), which is not in the segment. So, outside is [3]. min_outside is 3. change is 3 - 5 = -2. So, minimal_sum is 13 + (-2) = 11. Which matches the sample output.
+
+Yes.
+
+So, the code seems to be correct.
+
+Now, let's check the third test case:
+
+Sample input:
+
+3 1 3
+
+3 6 6 4 3 2
+
+Wait, no. Let me check the sample input:
+
+The sixth test case is:
+
+6 1 3
+
+3 6 6 4 3 2
+
+The original segment is positions 1-3: [3, 6, 6]. sum is 3+6+6=15.
+
+max_segment is 6.
+
+outside elements are positions 4,5,6 (indices 3,4,5 in 0-based). a[3] is 4, a[4] is 3, a[5] is 2. So, outside is [4,3,2]. min_outside is 2. change is 2 - 6 = -4. So, 15-4=11. Which matches the sample output.
+
+Yes.
+
+So, the code is correct.
+
+Now, the code needs to handle cases where the segment is the entire array. For example, if l=1 and r=n, then the outside elements are empty. So, the code returns the original sum.
+
+Thus, the code should be correct.
+</think>
+
+```python
+import sys
+
+def main():
+    t = int(sys.stdin.readline())
+    for _ in range(t):
+        n, l, r = map(int, sys.stdin.readline().split())
+        a = list(map(int, sys.stdin.readline().split()))
+        original_sum = sum(a[l-1:r])
+        segment = a[l-1:r]
+        max_segment = max(segment)
+        outside = []
+        for i in range(n):
+            if i < l-1 or i >= r:
+                outside.append(a[i])
+        if len(outside) > 0:
+            min_outside = min(outside)
+            change = min_outside - max_segment
+            minimal_sum = original_sum + change
+        else:
+            minimal_sum = original_sum
+        print(minimal_sum)
+
+if __name__ == "__main__":
+    main()
+```

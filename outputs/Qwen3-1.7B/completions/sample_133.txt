@@ -1,0 +1,899 @@
+<think>
+Okay, let's see. I need to solve this problem where Robin Hood is taking gold from the rich and giving to the poor. The task is to find out how many people Robin gives gold to. Let's think through the problem step by step.
+
+So, the problem says that for each test case, there are n people. Each has a_i gold. Robin starts with 0. For each person, if a_i is >=k, he takes all of it. If a_i is 0, he gives 1 gold if he has any. But since he starts with 0, he can only give 1 gold to someone if he has any. Wait, but when he takes from the rich, he might have some gold left. So the process is:
+
+For each person in order (from 1 to n):
+
+- If the person's a_i is >=k, Robin takes all of it. So he adds a_i to his own gold. But since he starts with 0, he can only give 1 if he has any. But in this case, he's taking from the rich, so he's adding to his own gold. But when he gives to someone, he has to check if he has any gold left.
+
+Wait, the problem says: Robin will take all a_i if a_i >=k. If a_i is 0, he gives 1 gold if he has any. So the process is:
+
+For each person:
+
+If a_i >=k:
+
+- Robin takes all of it. So he adds a_i to his own gold. But when he gives to someone, he can only give 1 if he has any. But in this case, he's taking from the rich, so he has some gold. But when he gives to someone, he has to check if he has any gold left.
+
+Wait, the problem says that Robin starts with 0. So for each person, the steps are:
+
+If the person's a_i is >=k:
+
+- Robin takes all of it. So he adds a_i to his own gold. But this doesn't affect the current person. So the current person is taken from, and Robin's gold increases. But when he gives to someone else, he has to check if he has any gold left.
+
+But the problem is to count how many people Robin gives gold to. So for each person, if Robin gives gold to them, that's counted.
+
+So the process is:
+
+For each person, if a_i >=k, then Robin takes all of it. But he doesn't give anything to this person. So this person is not counted. But if a_i is 0, then Robin gives 1 gold if he has any. So if he has any gold, he gives 1. But how does that work?
+
+Wait, the problem says that Robin starts with 0. So for each person:
+
+If a_i is 0, then Robin gives 1 gold if he has any. But if he has any, he gives 1. So when he gives to a person with a_i=0, he must have some gold left. But how does that work?
+
+Let me think of the example:
+
+In the first example:
+
+Test case 1:
+
+n=2, k=2
+
+a = [2, 0]
+
+So for the first person, a_i is 2 >=k (2). So Robin takes all 2. So he adds 2 to his own gold. But this doesn't affect the current person. So the first person is not given any gold. Then the second person has a_i=0. Robin has 2 gold. So he gives 1 gold to this person. So the count is 1.
+
+So the answer is 1.
+
+Another example: second test case:
+
+n=3, k=2
+
+a is [3,0,0]
+
+So for the first person, a_i=3 >=2. Robin takes all 3. So he has 3. Then the second person has a_i=0. He gives 1 gold (since he has 3). So that's one. Then the third person has a_i=0. He gives 1 gold (since he has 2 left). So total 2. So the output is 2.
+
+So the key is, for each person, if a_i is 0, Robin gives 1 gold if he has any. But how does he have any? Because he takes from the rich, so he has some gold. But when he gives to someone, he must have some gold left.
+
+Wait, but the process is that when Robin takes from the rich, he adds their gold to his own. So when he gives to someone, he must have some gold left. So for example, if he takes from a person with a_i >=k, then he adds that to his own. So for the person with a_i=0, he gives 1 gold if he has any. So the question is, when he gives to a person with a_i=0, he must have some gold left.
+
+But how does that work? Let's think of the steps:
+
+For each person in order:
+
+If a_i >=k:
+
+- Robin takes all of it. So he adds a_i to his own. But this doesn't affect the current person. So the current person is not given any gold.
+
+If a_i is 0:
+
+- Robin gives 1 gold if he has any. So if he has any, he gives 1. So if he has 1, he gives 1. Then he has 0. So this person is given 1.
+
+But how do we track how much Robin has? Because if he gives 1 to a person, then he has 0. But if he gives 1 to another person, he has 0 again. So the problem is that for each person, when a_i is 0, he gives 1 if he has any. So the steps are:
+
+We need to track Robin's current gold. Let's say, for each test case, we can track the current gold.
+
+So for each test case:
+
+Initialize current_gold = 0.
+
+count = 0
+
+for each a_i in the list:
+
+    if a_i >=k:
+
+        current_gold += a_i
+
+    else:
+
+        if current_gold > 0:
+
+            current_gold -= 1
+
+            count +=1
+
+        else:
+
+            # he can't give anything. So no count.
+
+So that's the logic. Because for a_i=0, Robin gives 1 if he has any. So if he has any, he gives 1, and then his current_gold decreases by 1. So for example, if he has 3, he gives 1, and current_gold is 2. Then, if the next a_i is 0, he gives 1 again, and current_gold is 1.
+
+But wait, in the first example, the first person is a_i=2, which is >=k. So Robin takes it. So current_gold becomes 2. Then the second person is a_i=0. So he has current_gold=2, so he gives 1. So count becomes 1. So the answer is 1.
+
+Another example: third test case:
+
+n=6, k=2, a = [0,3,0,0,0,0]
+
+So the first person is a_i=0. current_gold is 0. So he can't give anything. So no count. Then the second person is 3 >=2. So current_gold becomes 3. Then third person is 0. current_gold is 3, so he gives 1. count is 1. Then fourth person is 0. current_gold is 2, gives 1. count 2. fifth is 0: current_gold 1, gives 1. count 3. sixth is 0: current_gold 0. So no. So total count is 3. Which matches the example.
+
+So the logic is:
+
+For each a_i in the list:
+
+if a_i >=k: add to current_gold.
+
+else: if current_gold >0, subtract 1 and count +=1.
+
+So the code needs to process each test case, and for each a_i, check if it's >=k, and then process accordingly.
+
+So the steps for the code:
+
+Read t test cases.
+
+For each test case:
+
+read n and k.
+
+read the list of a_i.
+
+initialize current_gold = 0
+
+count = 0
+
+for each a in the list:
+
+    if a >=k:
+
+        current_gold +=a
+
+    else:
+
+        if current_gold >0:
+
+            current_gold -=1
+
+            count +=1
+
+        else:
+
+            pass
+
+So after processing all elements, output count.
+
+But wait, what about when a_i is 0 and current_gold is 0? Then no count. So that's handled.
+
+So this logic should work.
+
+Now let's test the sample input.
+
+Sample input 1:
+
+4
+
+Test case 1:
+
+n=2, k=2
+
+a = [2,0]
+
+Processing:
+
+current_gold starts at 0.
+
+First a is 2 >=2: current_gold becomes 2.
+
+Second a is 0. current_gold is 2>0. subtract 1, count becomes 1. So output 1.
+
+Test case 2:
+
+n=3, k=2
+
+a = [3,0,0]
+
+current_gold starts at 0.
+
+First a is 3 >=2: current_gold becomes 3.
+
+Second a is 0: current_gold is 3>0. subtract 1, count 1. current_gold is 2.
+
+Third a is 0: current_gold is 2>0. subtract 1, count 2. current_gold is 1. So output 2.
+
+Third test case:
+
+n=6, k=2, a = [0,3,0,0,0,0]
+
+current_gold starts 0.
+
+First a is 0: current_gold is 0. no action.
+
+Second a is 3 >=2: current_gold becomes 3.
+
+Third a is 0: current_gold is 3>0. subtract 1, count 1. current_gold 2.
+
+Fourth a is 0: subtract 1, count 2. current_gold 1.
+
+Fifth a is 0: subtract 1, count 3. current_gold 0.
+
+Sixth a is 0: current_gold is 0. no action.
+
+So output 3.
+
+Fourth test case:
+
+n=2, k=5.
+
+a = [5,4]
+
+First a is 5 >=5: current_gold becomes 5.
+
+Second a is 4 <5. current_gold is 5>0. subtract 1, count becomes 1. So output 1?
+
+Wait the sample output for the fourth test case is 0. Wait, let me check the sample input again.
+
+Wait the fourth test case is:
+
+Input:
+
+2 5
+
+5 4
+
+So the output is 0.
+
+Wait, according to the sample input, the fourth test case's output is 0.
+
+But according to our code logic, let's see:
+
+current_gold starts at 0.
+
+First a is 5 >=5: current_gold becomes 5.
+
+Second a is 4 <5. current_gold is 5>0. subtract 1, count becomes 1. So the output would be 1. But the sample output is 0.
+
+Wait that's a problem. What's wrong here?
+
+Wait the sample input says:
+
+Fourth test case:
+
+2 5
+
+5 4
+
+Output is 0.
+
+But according to our logic, the code would output 1. So there's a mistake here.
+
+Wait why?
+
+Let me re-examine the problem statement.
+
+The problem says: Robin will take all a_i if a_i >=k. If a_i is 0, Robin gives 1 if he has any.
+
+But in the fourth test case, the first person has a_i=5 >=k=5. So Robin takes all 5. So he has 5. Then the second person has a_i=4. So Robin gives 1 gold if he has any. He has 5, so he gives 1. So count is 1. But the sample output is 0. So why?
+
+Wait this contradicts the sample input. Let me check the sample input again.
+
+Sample input:
+
+The fourth test case is:
+
+2 5
+
+5 4
+
+Sample output is 0.
+
+Wait according to the problem statement's note, in the fourth test case, the output is 0. So why?
+
+Wait maybe I misunderstood the problem.
+
+Let me re-read the problem statement.
+
+The problem says:
+
+Robin starts with 0 gold.
+
+For each person:
+
+If a_i >=k, Robin takes all a_i. So he takes from the person, and gives nothing to them. So the person is not counted as giving gold. But when he takes from them, he adds to his own gold.
+
+If a_i is 0, Robin gives 1 gold if he has any.
+
+So the question is: how many people does Robin give gold to?
+
+So in the fourth test case:
+
+The first person has a_i=5 >=k=5. So Robin takes all 5. So he adds 5 to his own. But the person is not counted as giving anything. So the first person is not counted.
+
+The second person has a_i=4. Robin gives 1 gold if he has any. But he has 5, so he gives 1. So the second person is counted. So the total is 1. But the sample output is 0. So this suggests that there's a misunderstanding.
+
+Wait the sample output for the fourth test case is 0. But according to the logic, it should be 1. So what's wrong here?
+
+Wait looking back at the sample input and output:
+
+The fourth test case's input is:
+
+2 5
+
+5 4
+
+The output is 0.
+
+But according to the problem's note, in the fourth test case, the output is 0. Let me re-examine the problem's note.
+
+Wait the problem's note says:
+
+In the first test case, Robin takes 2 and gives 1 to the second.
+
+In the second test case, takes 3 and gives 1 to each of the next 2.
+
+In the third test case, takes 3 and gives to 3 others.
+
+In the fourth test case, the input is 2 5 and a_i is 5 and 4.
+
+So according to the problem's note, the output is 0. So why?
+
+Wait perhaps the problem says that Robin gives 1 gold to a person only if he has any. But when he takes from the rich, he adds to his own gold. So when he gives to a person, he must have some gold. But in the fourth test case, after taking 5, he has 5. So when he gives to the second person, he gives 1. So the count is 1. But sample output is 0. So why?
+
+Wait perhaps I have misunderstood the problem. Let me re-read the problem statement.
+
+The problem says:
+
+Robin starts with 0 gold.
+
+For each person:
+
+If a_i >=k, Robin will take all a_i gold, and if a_i=0, Robin will give 1 gold if he has any.
+
+So the process is:
+
+For each person, if a_i >=k: Robin takes all of it. So he takes from the person, but he doesn't give anything to them. So the person is not counted as giving gold. But when he takes from the person, he adds to his own gold.
+
+If a_i is 0, Robin gives 1 gold if he has any. So in this case, the person is given 1 gold.
+
+So in the fourth test case, the first person has a_i=5 >=k=5. So Robin takes all 5. So he has 5. But the person is not counted. Then the second person has a_i=4. Robin gives 1 if he has any. He has 5, so he gives 1. So the count is 1. But the sample output is 0. So this suggests that there's a mistake in my logic.
+
+But according to the sample input, the output is 0. So why?
+
+Wait looking back at the sample input and output:
+
+The fourth test case's output is 0. So what's the correct logic here?
+
+Let me re-examine the problem statement.
+
+Wait the problem says:
+
+"Robin starts with 0 gold."
+
+So when he takes from the rich, he adds to his own gold. But when he gives to someone, he must have any gold.
+
+But in the fourth test case, after taking the first person's 5, he has 5. So when he gives to the second person, he gives 1. So the count is 1. But the sample output is 0. So this suggests that there's a misunderstanding.
+
+Wait perhaps the problem is that when Robin takes from the rich, he gives to the poor. But the problem says that the people are processed in order, and for each person, if a_i >=k, he takes all, and if a_i is 0, he gives 1. But the count is the number of people that are given gold.
+
+But in the fourth test case, the first person is taken, but the second is given. So why the sample output is 0?
+
+Ah! Wait the problem says that Robin gives 1 gold to a person if he has any. So when he has any gold, he gives 1. But in the fourth test case, after taking the first person's 5, he has 5. So when he gives to the second person, he gives 1. So the count is 1. But the sample output is 0. So this suggests that the problem's sample is wrong, which is not possible. Therefore, there must be a misunderstanding.
+
+Alternatively, perhaps the problem is that when Robin gives to a person, he can only do so if he has any gold. But when he takes from a person, he gives to the next person. So perhaps the order is that Robin gives to the person only if he has any gold. But when he takes from a person, he adds to his own gold, but that's not part of the giving.
+
+Wait, perhaps the problem is that when Robin takes from a person, he gives to the next person. No, that's not the case.
+
+Alternatively, maybe the problem is that when Robin takes from a person, he can't give to others. So the giving is only when he has any gold. But the problem says that he gives 1 gold to the person if he has any.
+
+Wait, the problem says: "Robin will take all a_i gold, and if a_i=0, Robin will give 1 gold if he has any."
+
+So for each person, if a_i is >=k, Robin takes all of it. So he doesn't give anything to them. But if a_i is 0, he gives 1 if he has any.
+
+So the count is the number of people for whom a_i is 0, and Robin has any gold. But when he takes from the rich, he adds to his own gold. So the question is: for each person, if a_i is 0, and Robin has any gold, then he gives 1. So the count is incremented by 1.
+
+But in the fourth test case, the first person's a_i is 5 >=k=5. So Robin takes all. So he has 5. The second person's a_i is 4. So he gives 1 if he has any. He has 5, so he gives 1. So the count is 1. But the sample output is 0.
+
+So why is the sample output 0?
+
+Wait the sample input for the fourth test case is:
+
+2 5
+
+5 4
+
+The output is 0.
+
+But according to the logic, it should be 1. So there's a contradiction here. What's wrong here?
+
+Let me check the problem statement again.
+
+Wait the problem says: "Robin gives 1 gold if he has any."
+
+But what if he has any gold? So for the second person, he gives 1, but in the fourth test case, after taking the first person's 5, he has 5. So he gives 1 to the second person. So the count is 1. But the sample output is 0.
+
+This suggests that there's a misunderstanding of the problem. Let me read the note again.
+
+In the fourth test case, the output is 0. According to the note, the fourth test case's output is 0. So why?
+
+Wait maybe the problem is that when Robin takes from the rich, he gives to the poor. But the problem says that Robin gives to the poor, but the people are processed in order. So for each person, if a_i >=k, he takes all, and if a_i is 0, he gives 1.
+
+But the count is the number of people that are given gold. So for the fourth test case, the second person is given 1, so the count should be 1. But the sample says 0. So what's wrong?
+
+Alternatively, perhaps the problem is that Robin gives 1 gold to the person only if he has any gold after taking from the rich. So when he takes from the rich, he adds to his own gold. But when he gives to a person, he must have any gold after giving. But that's not the case here.
+
+Alternatively, maybe the problem is that when a_i is 0, Robin gives 1 gold if he has any, but only if he has any after taking from the rich. But in the fourth test case, after taking the first person, he has 5, so he can give 1 to the second person. So the count is 1. But the sample output is 0.
+
+This is very confusing. Let me look at the sample input and output again.
+
+Sample input:
+
+4
+
+2 2
+
+2 0
+
+3 2
+
+3 0 0
+
+6 2
+
+0 3 0 0 0 0
+
+2 5
+
+5 4
+
+Sample output:
+
+1
+
+2
+
+3
+
+0
+
+So the fourth test case's output is 0.
+
+So according to the sample, the fourth test case's output is 0. So what's happening here?
+
+Let me think again. Maybe the problem is that when a_i >=k, Robin takes all of it, but this is done in such a way that he can't give anything to others. But the giving is only for the people with a_i=0.
+
+Wait, perhaps the problem is that Robin gives 1 gold to a person if he has any gold, but only if the person is not a rich person (i.e., a_i >=k). But that's not what the problem says.
+
+Alternatively, maybe the problem is that Robin gives 1 gold to a person if he has any, but the giving is done only if the person is not a rich person. But that's not what the problem says.
+
+Alternatively, perhaps the problem is that when Robin takes from a rich person, he can't give any gold to others. So the giving is only for people with a_i=0, but only if he has any gold. But in the fourth test case, after taking the first person's 5, he has 5, and gives 1 to the second person. So the count is 1. But sample output is 0.
+
+This suggests that there's a misunderstanding of the problem statement.
+
+Wait let me re-read the problem statement.
+
+The problem says:
+
+Robin starts with 0 gold.
+
+For each person:
+
+If a_i >=k, Robin will take all a_i gold, and if a_i=0, Robin will give 1 gold if he has any.
+
+So the process is:
+
+For each person, if a_i >=k, Robin takes all of it. So he adds a_i to his own gold. But this doesn't affect the current person. So the current person is not counted as giving anything.
+
+If a_i=0, Robin gives 1 gold if he has any. So this person is counted as giving.
+
+So in the fourth test case, the first person is a_i=5 >=k=5. So Robin takes all. So he has 5. The second person is a_i=4. So he gives 1 if he has any. He has 5, so he gives 1. So count is 1. But sample output is 0.
+
+This is a contradiction. So why is the sample output 0?
+
+Wait maybe I have the problem statement wrong. Let me check the problem statement again.
+
+Wait the problem says: "Robin gives 1 gold if he has any."
+
+But what if he has any gold, but he has to give it to someone. But when he gives to someone, he has to give 1. So in the fourth test case, he has 5, so he gives 1 to the second person. So the count is 1. But the sample says 0. So why?
+
+Alternatively, maybe the problem is that when a_i is 0, Robin gives 1 gold if he has any. But the giving is done only if he has any gold after taking from the rich. But in the fourth test case, after taking the first person's 5, he has 5. So he gives 1. So count is 1.
+
+But the sample output is 0. So this is a contradiction. What's wrong here?
+
+Alternatively, maybe the problem is that Robin gives 1 gold to a person only if he has any gold after giving. But that's not the case here.
+
+Alternatively, perhaps the problem is that when Robin takes from a person, he can't give anything to others. So the giving is only for the people with a_i=0, and the giving happens after taking from the rich. But in the fourth test case, the giving is done after taking from the first person, and the second person is given 1. So the count should be 1.
+
+But the sample says 0. So why?
+
+Wait maybe the problem is that the giving is done only if the person is not a rich person. So for example, if a_i >=k, then Robin takes all, but doesn't give anything. But if a_i is 0, then Robin gives 1 only if he has any gold. But in the fourth test case, the first person is a_i=5 >=k, so Robin takes all. He has 5. The second person is a_i=4. So he gives 1 if he has any. He has 5, so he gives 1. So count is 1. But sample says 0.
+
+This is very confusing. Maybe there's a mistake in the sample input?
+
+Alternatively, perhaps I have misread the sample input. Let me check the fourth test case again.
+
+The fourth test case's input is:
+
+2 5
+
+5 4
+
+So n=2, k=5.
+
+The a_i list is [5,4].
+
+So the first person's a_i is 5 >=k=5. So Robin takes all. So he has 5. The second person's a_i is 4. So Robin gives 1 if he has any. He has 5, so gives 1. So count is 1. But sample output is 0.
+
+So why is the sample output 0?
+
+This suggests that there's a mistake in the problem statement, or perhaps I'm misunderstanding the problem.
+
+Wait maybe the problem says that Robin gives 1 gold to the person only if he has any gold after giving. So for example, if he has 5, and gives 1, he has 4. But in the fourth test case, the second person is given 1, so the count is 1. But the sample says 0.
+
+Alternatively, perhaps the problem is that when a_i is 0, Robin gives 1 gold if he has any, but only if he has any after taking from the rich. But in this case, he has 5, so gives 1. So count is 1.
+
+But the sample output is 0. So there's a contradiction here.
+
+Alternatively, perhaps the problem is that Robin gives 1 gold to a person only if he has any gold, but the giving is done before taking from the rich. But that's not the case.
+
+Alternatively, maybe the problem is that when a_i is 0, Robin gives 1 gold if he has any, but this is done after taking from the rich. So in the fourth test case, after taking from the first person, he has 5. So he gives 1 to the second person. So count is 1.
+
+But the sample says 0. So what's the correct answer?
+
+Alternatively, maybe the problem is that when a_i >=k, Robin takes all, but this is done in such a way that he cannot give anything to others. So for the fourth test case, the first person is taken, and the second person is not given any. But why?
+
+This is very confusing. Perhaps there's a mistake in the problem statement, but given that the sample input says the fourth test case's output is 0, I need to find out why.
+
+Let me think of the fourth test case's explanation.
+
+In the fourth test case, the input is 2 5 and the a_i is 5 and 4. So the output is 0.
+
+So what's the logic here?
+
+Maybe the problem is that Robin gives 1 gold to a person only if he has any gold, but after giving, he has no gold left. But that's not the case here.
+
+Alternatively, perhaps the problem is that Robin gives 1 gold to a person only if he has any gold, and this is done before taking from the rich. But that's not the case.
+
+Alternatively, perhaps the problem is that when a_i is 0, Robin gives 1 gold if he has any, but only if he has any after giving. So for example, if he has 5, and gives 1, then he has 4. But in the fourth test case, after taking the first person, he has 5. So he gives 1 to the second person, and then has 4. So the count is 1. But the sample says 0.
+
+This is very confusing. Maybe I should look for other test cases.
+
+Let me look at the third test case:
+
+Sample input:
+
+6 2
+
+0 3 0 0 0 0
+
+Output is 3.
+
+Let's see:
+
+current_gold starts at 0.
+
+First a is 0: no action.
+
+Second a is 3 >=2: current_gold becomes 3.
+
+Third a is 0: current_gold is 3>0, subtract 1, count 1.
+
+Fourth a is 0: current_gold is 2>0, subtract 1, count 2.
+
+Fifth a is 0: current_gold is 1>0, subtract 1, count 3.
+
+Sixth a is 0: current_gold is 0. No action.
+
+So output is 3. Which matches the sample.
+
+So in this case, the logic works.
+
+But in the fourth test case, the logic gives 1, but sample output is 0. So why?
+
+Maybe the problem statement has a different condition. Let me re-read the problem statement.
+
+The problem says:
+
+Robin will take all a_i gold, and if a_i=0, Robin will give 1 gold if he has any.
+
+So for each person:
+
+If a_i >=k: take all. So Robin adds a_i to his own gold. This doesn't affect the current person.
+
+If a_i=0: give 1 if he has any.
+
+So the count is the number of people where a_i=0 and Robin has any gold.
+
+But in the fourth test case, the second person has a_i=4, which is not 0. So the count is zero? Wait no! Because the second person has a_i=4, which is not 0. So the count is zero. So why?
+
+Wait the problem says that Robin gives 1 gold to a person if a_i=0. So only when a_i is 0. So in the fourth test case, the second person has a_i=4, so he is not counted. So the count is zero.
+
+Oh! Oh my god! I think I made a mistake here. The problem says that Robin gives 1 gold to a person if a_i=0. So the count is incremented only when a_i is 0. So the fourth test case's second person has a_i=4, so no count. So the count is zero.
+
+Ah! This is the mistake. I thought that the giving is for a_i=0, but the problem says that Robin gives 1 gold to a person if a_i=0. So the count is incremented only when a_i is 0. So in the fourth test case, the first person has a_i=5 >=k=5, so Robin takes all. The second person has a_i=4, which is not 0. So no count. So the output is 0. Which matches the sample.
+
+Oh! I see! So the problem says that Robin gives 1 gold to a person only if a_i=0. So the count is incremented only when a_i=0. So the code should be:
+
+For each person:
+
+if a_i >=k: add to current_gold.
+
+else:
+
+   if current_gold >0: give 1, count +=1.
+
+But in the fourth test case, the second person has a_i=4, which is not 0. So no count.
+
+So the code is correct. So the mistake was in my previous logic where I thought that the giving is done for a_i=0, but the problem says that the giving is done only for a_i=0. So the count is incremented only when a_i is 0, and the current_gold is >0.
+
+So the code logic is:
+
+For each a_i in the list:
+
+if a_i >=k:
+
+   current_gold +=a_i
+
+else:
+
+   if current_gold >0:
+
+       current_gold -=1
+
+       count +=1
+
+So the count is incremented only when a_i is 0, and the current_gold is >0. So in the fourth test case, the second person has a_i=4, so no count. So the code works.
+
+So the previous logic was wrong. The code should count only when a_i is 0, and the current_gold is >0.
+
+Wait no! Wait the problem says that Robin gives 1 gold if he has any. So the giving is done for a_i=0, but the a_i=0 is the person's gold. So the code should check if the person's a_i is 0, and if so, give 1 if Robin has any.
+
+But in the code logic, the code is checking if a_i is 0, and then giving 1 if current_gold >0. But this is not correct. Because the code is checking if a_i is 0, but the code is not checking that. So the code is not counting the a_i=0 people, but instead, it's counting the a_i=0 people only if the current_gold is >0.
+
+Wait no. The code is:
+
+for each a_i in the list:
+
+   if a_i >=k:
+
+       current_gold +=a_i
+
+   else:
+
+       if current_gold >0:
+
+           current_gold -=1
+
+           count +=1
+
+So this code is counting the number of times Robin gives 1 gold to a person. But the giving is done only when the a_i is 0. So the code is not checking if a_i is 0. It's checking if a_i is <k. So for a_i=0, the code enters the else clause, and gives 1 if current_gold >0.
+
+But in this case, the code is counting the number of times Robin gives 1 gold to a person, regardless of whether the person's a_i is 0 or not. But the problem says that Robin gives 1 gold to a person if a_i=0.
+
+So this is the mistake. The code is counting the number of times Robin gives 1 gold to a person, but the giving is only done when a_i=0. So the code is wrong.
+
+So the correct logic is:
+
+For each person, if a_i is 0, then Robin gives 1 if he has any. Otherwise, if a_i >=k, he takes all, and doesn't give anything. So the code should check if a_i is 0, and then give 1 if current_gold is >0.
+
+But the code is currently checking for a_i <k, and giving 1 if current_gold is >0. So this is incorrect.
+
+So the correct logic is:
+
+For each person:
+
+if a_i >=k:
+
+   current_gold +=a_i
+
+else:
+
+   if a_i ==0:
+
+       if current_gold >0:
+
+           current_gold -=1
+
+           count +=1
+
+   else:
+
+       pass
+
+But this is not the case. Because the code is currently checking if a_i <k, and giving 1 if current_gold is >0. But in the case where a_i is 0, it's not handled. So the code is wrong.
+
+So the correct logic is:
+
+For each person:
+
+if a_i >=k:
+
+   current_gold +=a_i
+
+else:
+
+   if a_i ==0:
+
+       if current_gold >0:
+
+           current_gold -=1
+
+           count +=1
+
+   else:
+
+       pass
+
+So the code should check if a_i is 0, and then give 1 if current_gold >0.
+
+So in the fourth test case, the first person's a_i is 5 >=k=5, so current_gold becomes 5. The second person's a_i is 4, which is not 0. So no count. So output is 0, which matches the sample.
+
+So the previous code logic was wrong. The code should check if a_i is 0, and give 1 if current_gold >0.
+
+So the correct code is:
+
+for each test case:
+
+n, k = ...
+
+a = list of numbers.
+
+current_gold = 0
+
+count = 0
+
+for each num in a:
+
+    if num >=k:
+
+        current_gold += num
+
+    else:
+
+        if num ==0:
+
+            if current_gold >0:
+
+                current_gold -=1
+
+                count +=1
+
+So this is the correct logic.
+
+So in the fourth test case, the second person has a_i=4, which is not 0. So no count.
+
+So the code is now correct.
+
+Let me re-examine the sample test cases with this logic.
+
+First test case:
+
+n=2, k=2, a=[2,0]
+
+First person: 2 >=2, current_gold becomes 2.
+
+Second person: a_i=0. So check if current_gold >0 (yes). current_gold becomes 1, count=1. Output 1.
+
+Second test case: n=3, k=2, a=[3,0,0].
+
+First person: 3 >=2: current_gold 3.
+
+Second person: a_i=0: current_gold is 3>0. subtract 1, count=1. current_gold 2.
+
+Third person: a_i=0: current_gold 2>0. subtract 1, count=2. output 2.
+
+Third test case: n=6, k=2, a=[0,3,0,0,0,0].
+
+First person: a_i=0: current_gold is 0. no action.
+
+Second person: a_i=3 >=2: current_gold 3.
+
+Third person: a_i=0: current_gold 3>0. subtract 1, count=1. current_gold 2.
+
+Fourth person: a_i=0: subtract 1, count=2. current_gold 1.
+
+Fifth person: a_i=0: subtract 1, count=3. current_gold 0.
+
+Sixth person: a_i=0: current_gold is 0. no action.
+
+Output 3.
+
+Fourth test case: n=2, k=5, a=[5,4].
+
+First person: 5 >=5: current_gold 5.
+
+Second person: a_i=4 !=0. no action. count remains 0. output 0.
+
+Which matches the sample.
+
+So this is the correct logic.
+
+So the code needs to be adjusted to check if the current a_i is 0, and give 1 if current_gold is >0.
+
+So the code should be:
+
+Read t test cases.
+
+For each test case:
+
+read n, k.
+
+read list a.
+
+current_gold = 0
+
+count = 0
+
+for num in a:
+
+    if num >=k:
+
+        current_gold += num
+
+    else:
+
+        if num ==0:
+
+            if current_gold >0:
+
+                current_gold -=1
+
+                count +=1
+
+So this is the correct code.
+
+Now, the code must be written in Python.
+
+Now, the code must read from standard input, process each test case, and output the count.
+
+So the code in Python:
+
+Read t.
+
+for _ in range(t):
+
+    n, k = map(int, input().split())
+
+    a = list(map(int, input().split()))
+
+    current_gold = 0
+
+    count = 0
+
+    for num in a:
+
+        if num >=k:
+
+            current_gold += num
+
+        else:
+
+            if num ==0:
+
+                if current_gold >0:
+
+                    current_gold -=1
+
+                    count +=1
+
+    print(count)
+
+This should work.
+
+Let me test the fourth test case again.
+
+Yes, the code would output 0.
+
+So this is the correct solution.
+</think>
+
+```python
+import sys
+
+def main():
+    t = int(sys.stdin.readline())
+    for _ in range(t):
+        n, k = map(int, sys.stdin.readline().split())
+        a = list(map(int, sys.stdin.readline().split()))
+        current_gold = 0
+        count = 0
+        for num in a:
+            if num >= k:
+                current_gold += num
+            else:
+                if num == 0:
+                    if current_gold > 0:
+                        current_gold -= 1
+                        count += 1
+        print(count)
+
+if __name__ == "__main__":
+    main()
+```

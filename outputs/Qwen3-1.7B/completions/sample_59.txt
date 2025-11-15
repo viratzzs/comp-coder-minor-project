@@ -1,0 +1,2453 @@
+<think>
+Okay, I need to solve this programming problem. Let's read the problem statement carefully.
+
+So, the problem is about Monocarp playing a game where he chooses parties each turn. The goal is to choose which party to support each turn so that he doesn't lose the game, and his score is maximized. The output is the list of choices for each turn. If there's no possible way to choose, output -1.
+
+Let me break down the problem.
+
+The empire has n parties. Initially, no party is ruling. For each turn j (from 1 to m), the steps are:
+
+1. Choose a party to support (not the current ruling party). When you choose, that party's power increases by 1. Also, Monocarp's score increases by a_i,j (the value for that party during that turn).
+2. Then, the elections happen: the party with the maximum political power becomes the ruling party. If there's a tie, the one with the lowest index is chosen. The previous ruling party is replaced unless it's chosen again.
+3. Finally, the party p_j must be the ruling party. Otherwise, he loses. So, after all steps, the ruling party must be p_j for that turn.
+
+So, for each turn j, we need to choose a party to support (not the current ruling party) such that after all steps, the ruling party is p_j. And we need to maximize the score.
+
+The challenge is to find for each turn the best choice of party to support, considering the state of the parties and the previous choices.
+
+Constraints: n and m are up to 50. So, for each turn, we need to track the current state of the parties (their power levels and the current ruling party). Since m is up to 50, and n is up to 50, the total number of possible states is manageable, perhaps.
+
+But how do we model the state transitions?
+
+Let me think about the approach.
+
+For each turn j, the state depends on the previous ruling party and the current power levels of all parties.
+
+But since the ruling party changes based on the maximum power, and the current state of the parties, we need to track for each turn the current ruling party and the power of each party.
+
+But since the problem requires that after each turn, the ruling party is p_j, we need to make sure that for each turn j, after the steps, the ruling party is p_j.
+
+So, for each turn j, the process is:
+
+- Choose a party to support (not the current ruling party). Let's call this party c_j.
+- Then, after this choice, the power of the chosen party increases by 1. The other parties' power remains the same (unless they were the ruling party, but that's not the case here).
+- Then, the ruling party is determined by the maximum power. The previous ruling party is replaced if it's not the current maximum.
+
+But the key is that after all these steps, the ruling party must be p_j. So, for each turn j, we need to choose a c_j such that after the steps, the ruling party is p_j.
+
+But how do we model this?
+
+Let me think of the process for each turn j.
+
+At the beginning of turn j, there is a current ruling party (let's say r_prev). The current power of each party is some value. Let's say that for the previous steps, the parties have certain power levels.
+
+But for each turn, the choice of c_j affects the power levels of the parties. Then, the ruling party is determined. So, the problem is to find, for each turn j, a choice of c_j (not the current ruling party) such that after the steps, the ruling party is p_j.
+
+But how do we track the state of the parties?
+
+Let me think about the possible approach:
+
+We can model the state as (current_ruling_party, power_levels). For each turn, we can track the current state.
+
+But since the number of possible states is n * (some maximum power), and for each turn, the power levels can be up to m (since each turn adds 1 to a party's power). So, for each turn, the maximum power is m (since each turn adds 1 to a party's power). But since m is up to 50, the power_levels can be up to 50.
+
+So, for each turn j, the state is (current_ruling_party, power_levels). But since the power_levels can be up to m, and n is up to 50, the total number of possible states is n * (n * m) ? Wait, no. For each party, the power is up to m. So, for each party, the power is between 0 and m. But since there are n parties, the total number of possible power level combinations is n^(m) ? No, but that's not correct. Wait, each party's power is the number of times they've been chosen in previous steps. But the problem is that for each turn, the choice of c_j affects the power of that party.
+
+But for each turn, the state is the current ruling party and the power of each party. However, the power of each party is the sum of the number of times they were chosen in previous steps. But since each turn's choice affects the power of the chosen party, and the ruling party is determined based on the maximum power.
+
+But how can we track this?
+
+Let me think of the steps for each turn j:
+
+Initially, for turn 1, the current ruling party is None. So, the first step is to choose a party to support (not the current ruling party, which is None). So, for the first turn, the ruling party is not present. So, the first step is to choose any party (since there's no ruling party). Then, after that, the elections happen. The party with the maximum power is the ruling party. Since the first choice is a party, its power is 1, and others are 0. So, the ruling party is that party.
+
+But for the first turn, the p_j is the required ruling party. So, after the first turn, the ruling party must be p_1.
+
+So, the problem is that for each turn j, after all the steps (including the choice of c_j, the election, and the final check), the ruling party must be p_j.
+
+So, for each turn j, the process is:
+
+- The current state is (current_ruling, power_levels). But for the first turn, current_ruling is None.
+
+But how to model this?
+
+Let me think of the possible approach:
+
+We can model the state as (current_ruling, power_levels). For each turn, we need to track the state of the current ruling party and the power levels of each party.
+
+For each turn j, we need to choose a party to support (not the current ruling party), then update the power levels, then determine the new ruling party, and check if it's p_j.
+
+But the problem is that for each turn j, the choice of c_j affects the state of the next turns. So, we need to find for each turn j, the best choice of c_j that leads to the required p_j for that turn.
+
+But how to model this? Since the choices for each turn are interdependent, we need to find for each turn j, the possible choices of c_j that lead to the required p_j.
+
+But with m up to 50, and n up to 50, perhaps we can model this with dynamic programming or some state tracking.
+
+But considering that for each turn j, the state depends on the previous steps, perhaps we can track for each turn j and possible state, the best possible choice of c_j.
+
+But given that m is small (50), and n is small (50), perhaps for each turn, we can track the current state (current_ruling, power_levels) and for each possible state, track the best possible choice of c_j.
+
+But the power_levels can be represented as a list of integers, where each element is the current power of the party. However, since the power_levels can be up to m (since each turn adds 1 to a party's power), and n is 50, the number of possible power_levels per party is (m+1) for each party. So, for n parties, the total number of possible power_levels combinations is (m+1)^n. For m=50, that's (51)^50, which is way too big. That's impossible to track.
+
+So this approach is not feasible. Therefore, we need a smarter way.
+
+Alternative approach: For each turn j, the choice of c_j must be such that after the steps, the ruling party is p_j. So, for each turn j, we need to find a way to choose c_j, and the previous steps (the choices up to j-1) must lead to a state where, after choosing c_j, the new ruling party is p_j.
+
+But how to model this?
+
+Let me think of the process for each turn j:
+
+At the start of turn j, there's a current ruling party (say, r_prev). The power levels of the parties are some values. The current ruling party is r_prev. For the j-th turn, we need to choose a party c_j (not r_prev) to support. Then, after this choice, the power of c_j increases by 1. Then, the new ruling party is determined by the maximum power among all parties. Let's call this new_ruling.
+
+The new_ruling must be p_j. Otherwise, Monocarp loses.
+
+So, for each turn j, the problem is to choose c_j such that after the steps, new_ruling is p_j.
+
+But how can we find this c_j?
+
+Let me think of the possible steps for each turn j:
+
+At the start of turn j, the current ruling party is r_prev. The power levels are known (for all parties, their power is some value). For each possible choice of c_j (not r_prev), we can compute the new power levels, then compute new_ruling, and check if it is p_j.
+
+But the problem is that for each turn, the state (current_ruling and power_levels) is dynamic and depends on previous choices.
+
+But since m is small (up to 50), and n is small (up to 50), perhaps we can model the state as (current_ruling, power_levels) and track for each possible state, the best possible choice of c_j.
+
+But again, the number of possible states is too large. For example, if the current_ruling is r_prev, and the power_levels for each party is up to m, then for each turn, the number of possible states is O(n * (m+1)^n), which is way too big for m=50.
+
+So this approach is not feasible. We need to find a smarter way.
+
+Alternative idea: For each turn j, the required p_j must be the ruling party after the steps. So, the choice of c_j must be such that, after the steps, the ruling party is p_j. Let's think about what that implies.
+
+Let me think about the process for turn j:
+
+After choosing c_j, the power of c_j increases by 1. Then, the new ruling party is determined by the maximum power of all parties.
+
+So, the new_ruling is the party with the maximum power. If there are multiple, the one with the smallest index.
+
+But the new_ruling must be p_j.
+
+So, for each turn j, the choice of c_j must be such that:
+
+After adding 1 to the power of c_j, the new_ruling is p_j.
+
+But how to find this c_j?
+
+Let me think of the possible scenarios.
+
+Let's denote that for turn j, the previous ruling party is r_prev. The power levels of the parties are known (before choosing c_j). Let's call the power levels as a list power = [p1, p2, ..., pn], where pi is the power of party i.
+
+When we choose c_j, the power of c_j increases by 1. So, the new power levels are [p1, p2, ..., p_{c_j} + 1, ... ].
+
+Then, the new ruling party is the party with the maximum power. Let's call this new_ruling.
+
+We need new_ruling to be p_j.
+
+So, for the current turn j, the choice of c_j must be such that:
+
+After increasing the power of c_j by 1, the maximum power is in p_j.
+
+But how to find this c_j?
+
+But the problem is that the power levels before the choice of c_j depend on the previous choices. So, the state of the power levels is not known unless we track it.
+
+Alternative idea: For each turn j, the choice of c_j must be such that, after the steps, the new_ruling is p_j. So, the choice of c_j must be such that, when we add 1 to its power, the maximum power is p_j.
+
+But how can we model this?
+
+Let me think for each turn j, what is the possible c_j that can lead to new_ruling being p_j.
+
+Let me think of the possible cases:
+
+Case 1: The previous ruling party is not p_j. Then, when we choose c_j, the new_ruling is p_j. So, the new_ruling must be p_j. Which implies that after adding 1 to the power of c_j, p_j is the maximum among all parties.
+
+Case 2: The previous ruling party is p_j. Then, the new_ruling is p_j again (since the previous ruling party is p_j, and if the power of p_j is not changed, then the new_ruling is p_j. But in this case, the previous ruling party is p_j, and the new_ruling is p_j. So, for the current turn, the new_ruling is p_j. So, the choice of c_j must not affect the maximum power. But this is possible only if the power of p_j is already the maximum, and adding 1 to c_j's power does not make it higher than the previous maximum.
+
+But this is getting complicated.
+
+Alternative approach: For each turn j, the required p_j must be the new_ruling. So, the choice of c_j must be such that:
+
+After the choice, the new_ruling is p_j.
+
+So, for each turn j, we can think of the possible choices of c_j as follows:
+
+We need to choose c_j such that:
+
+After increasing its power by 1, the maximum power is in p_j.
+
+But how to find this c_j?
+
+But the problem is that the previous power levels are not known. So, this seems difficult.
+
+But maybe we can model the process in a way that for each turn j, the current state is the previous ruling party and the power levels of all parties. But again, the problem is the number of possible states.
+
+Wait, but for each turn j, the previous ruling party is determined by the previous steps. So, for each turn j, the state is determined by the previous ruling party and the power levels of the parties. However, since the number of turns is small (50), and for each turn, the power levels can be up to m, perhaps we can track the state for each turn j.
+
+Let me think of the following approach:
+
+We can model the state as (current_ruling, power_levels). For each turn, we track the current state. For each state, we can compute the best possible choice of c_j that leads to the required p_j.
+
+But how to represent the power_levels? For each turn j, the power_levels can be represented as a tuple of integers. But with m up to 50 and n up to 50, this is not feasible for all possible states.
+
+But maybe, given that m is small (up to 50), and for each turn, the power_levels can be represented as a list of integers, and for each turn, we can track the possible states.
+
+But even with that, for m=50 and n=50, the number of possible states is way too large.
+
+Alternative Idea:
+
+Let me think of the problem for each turn j. For the j-th turn, the required p_j must be the ruling party. So, for the j-th turn, the new_ruling must be p_j. Let's think about what the previous state must be.
+
+At the start of the j-th turn, there is a current_ruling (say, r_prev), and the power_levels of the parties. When we choose c_j, the power of c_j increases by 1. Then, the new_ruling is determined by the maximum power.
+
+So, the new_ruling must be p_j. So, after the choice of c_j, the maximum power among all parties is p_j's power.
+
+But how to find this?
+
+Let me think of the possible scenarios:
+
+At the start of turn j, the current_ruling is r_prev. The power_levels are some values. Let's call them power_prev.
+
+When we choose c_j, the power_prev for c_j increases by 1. Then, the new power_levels is power_prev with the c_j's power increased by 1.
+
+The new_ruling is determined by the maximum power among all parties.
+
+So, the new_ruling must be p_j.
+
+So, for the current turn j, the choice of c_j must be such that, after adding 1 to its power, the maximum power is in p_j.
+
+But how to find this?
+
+Let me think of the following: For each turn j, the current_ruling is r_prev. We need to find a c_j (not r_prev) such that:
+
+After increasing the power of c_j by 1, the maximum power is p_j's power.
+
+But how to find this?
+
+But the problem is that the power_prev for the parties is not known. However, perhaps for each turn j, we can track the possible power_levels and current_ruling.
+
+But again, with m=50, this seems challenging.
+
+Alternative Idea:
+
+Let's think of the problem as a state transition. For each turn j, the state is (current_ruling, power_levels). For each state, we can compute the possible choices of c_j, and then transition to the next state.
+
+But how to manage the states?
+
+Let me think of the following steps:
+
+We can model the state as (current_ruling, power_levels). For each turn j, we can track the possible states and for each state, track the best possible choice of c_j that leads to the required p_j.
+
+But since the number of states is too large, perhaps we can find a way to represent the power_levels in a way that is manageable.
+
+Wait, but for each turn, the power_levels are determined by the previous choices. For example, after the first turn, the power_levels for each party is 1 (if they were chosen) or 0. But since the current_ruling is determined by the previous steps, perhaps for each turn j, the power_levels can be represented as a list of integers, where each integer is the current power of the party.
+
+But even with that, for m=50, the number of possible power_levels is (m+1)^n, which is way too big.
+
+Alternative Idea: Since the maximum number of turns is 50, and for each turn, the choice of c_j can be made in such a way that the new_ruling is p_j, perhaps we can find for each turn j, the required c_j based on the current state.
+
+But how?
+
+Let me think for each turn j, what is the required condition for the new_ruling to be p_j.
+
+Suppose that during turn j, the current_ruling is r_prev. Then, when we choose c_j, the power of c_j increases by 1.
+
+Let me denote the power of party i as power_i.
+
+After choosing c_j, the new power_i for c_j is power_i + 1.
+
+The new_ruling is the party with the maximum power. Let's call this new_ruling.
+
+We need new_ruling to be p_j.
+
+So, the maximum power after the choice must be the power of p_j.
+
+But how to find this?
+
+Let me think of the following: For the new_ruling to be p_j, the power of p_j must be at least as high as the power of all other parties, except possibly for some others.
+
+But how to model this?
+
+Let me think that, in the current state, the power of p_j is x, and the power of other parties is y. After adding 1 to c_j's power, the new power of c_j is x_c = y + 1. So, the new maximum is the maximum between x and x_c (if c_j is p_j) or some other value.
+
+But this seems too vague.
+
+Alternative Idea: For each turn j, the required p_j must be the new_ruling. So, the new_ruling is p_j, which implies that after adding 1 to the power of c_j, the maximum power is p_j's power.
+
+So, the new_ruling is p_j if and only if:
+
+Either:
+
+1. The previous power of p_j is less than or equal to the new power of c_j, and the new power of p_j is not higher than the new power of c_j.
+
+OR
+
+2. The previous power of p_j is equal to the new power of c_j, but the previous power of p_j is not the same as the new power of c_j (but that's not possible since we are adding 1 to c_j's power).
+
+Wait, no. Let's think again.
+
+After choosing c_j, the power of c_j is increased by 1. The new_ruling is the party with the highest power. So, if p_j is the party with the highest power after the increase, then it's okay.
+
+So, the condition is that after increasing the power of c_j by 1, the maximum power is in p_j.
+
+So, the maximum power after the increase is equal to the maximum of the previous power of all parties, except for c_j's power, which is increased by 1.
+
+So, for example, if the previous power of p_j was x, and the previous power of c_j was y. Then, after increasing c_j's power by 1, the new power of c_j is y+1.
+
+So, the new maximum is the maximum between x (the previous power of p_j, if it's not c_j), and y+1 (the new power of c_j), and the other parties' previous power.
+
+But this seems complicated.
+
+But perhaps, for the new_ruling to be p_j, the following must be true:
+
+After the choice of c_j, the power of p_j is >= the power of all other parties, except possibly for some other party that has a higher power.
+
+But how to model this?
+
+Alternative Idea: For each turn j, the required p_j must be the new_ruling. So, the new_ruling is p_j. So, after the choice of c_j, the power of p_j must be the maximum. So, the new power of p_j must be greater than or equal to the power of all other parties.
+
+But how?
+
+Let me think that in the current state, the power of p_j is s. The power of other parties is t. When we choose c_j, the power of c_j increases by 1. So, the new power of c_j is t_c + 1, where t_c is the previous power of c_j.
+
+So, the new maximum is the maximum between s, t_c + 1, and the other parties' previous power.
+
+But for this maximum to be s (the power of p_j), it must be that:
+
+s >= (t_c + 1) and s >= all other parties' previous power.
+
+OR, if the previous power of p_j was s, and after adding 1 to c_j's power, the new power of c_j is t_c + 1, then s >= t_c + 1, and the other parties' previous power is <= s.
+
+But this is getting complicated.
+
+But perhaps, for the new_ruling to be p_j, the following must hold:
+
+After the choice of c_j, the power of p_j is greater than or equal to the power of all other parties.
+
+But how to ensure that?
+
+Alternatively, the new_ruling is p_j if and only if:
+
+After the choice of c_j, the power of p_j is the maximum.
+
+But how to ensure this?
+
+Let me think of the following: For the new_ruling to be p_j, the power of p_j must be >= the power of all other parties after the choice of c_j.
+
+But the power of other parties is their previous power (before the choice of c_j), except for c_j's power, which is increased by 1.
+
+So, the new power of other parties is their previous power (unless they are c_j, in which case it's their previous power + 1).
+
+So, for the new_ruling to be p_j, the following must be true:
+
+Either:
+
+- The previous power of p_j is equal to the new power of c_j (so that after adding 1 to c_j's power, it becomes higher than the previous power of p_j, but that's not possible if the previous power of p_j was equal to the new power of c_j. Wait, no. Let me think.
+
+Wait, if the previous power of p_j is s, and the previous power of c_j is t. After adding 1 to c_j's power, the new power of c_j is t + 1.
+
+So, the new power of p_j is s.
+
+So, for the new_ruling to be p_j, we need that s >= t + 1, and also that s >= all other parties' previous power.
+
+OR, if the previous power of p_j is s, and the new power of c_j is t + 1, and s is the maximum of all the new power levels.
+
+But this seems complicated.
+
+But perhaps, for the new_ruling to be p_j, the following must be true:
+
+After the choice of c_j, the power of p_j is the maximum.
+
+So, the new power of p_j is >= the new power of all other parties.
+
+But how to ensure that?
+
+Let me think of the following:
+
+For the new_ruling to be p_j, after the choice of c_j, the maximum power among all parties is the power of p_j.
+
+So, the power of p_j must be >= the new power of all other parties.
+
+But the new power of other parties is their previous power (unless they are c_j, in which case it's previous power + 1).
+
+So, the new power of other parties is:
+
+For all parties except c_j: their previous power.
+
+For c_j: previous power + 1.
+
+So, the new maximum is the maximum of:
+
+previous power of p_j, previous power of other parties (except c_j), and previous power of c_j + 1.
+
+So, to have the new maximum be the power of p_j, we need that:
+
+previous power of p_j >= (previous power of c_j + 1) and previous power of p_j >= all other parties' previous power.
+
+OR, if previous power of p_j is equal to the new power of c_j (previous power of c_j + 1), and the other parties' previous power are <= previous power of p_j.
+
+But this is getting too abstract.
+
+Alternative Idea: For each turn j, the choice of c_j must be such that, after the increase, the maximum power is p_j's power.
+
+So, the choice of c_j must be such that:
+
+max( (previous power of c_j + 1), previous power of p_j, other parties' previous power ) == previous power of p_j.
+
+But how to find this?
+
+Let me think of the following: For the new_ruling to be p_j, the power of p_j must be the maximum after the choice of c_j. So, the power of p_j must be >= the power of all other parties after the choice of c_j.
+
+But the power of other parties after the choice of c_j is:
+
+For each party i != c_j: previous power of i.
+
+For party c_j: previous power of c_j + 1.
+
+So, the new maximum is the maximum between previous power of p_j, and previous power of c_j + 1, and the other parties' previous power.
+
+So, to ensure that the new maximum is previous power of p_j, we must have:
+
+previous power of p_j >= (previous power of c_j + 1) and previous power of p_j >= all other parties' previous power.
+
+Wait, no. Because the previous power of p_j could be higher than the previous power of c_j + 1, but other parties may have higher previous power. So, the new maximum would be the maximum of all parties' new power.
+
+So, for the new maximum to be p_j's power, we need that p_j's new power is greater than or equal to all other parties' new power.
+
+So, the new power of p_j is s_new = previous power of p_j.
+
+The new power of other parties is:
+
+for i != c_j: previous power of i.
+
+for i = c_j: previous power of c_j + 1.
+
+So, the new maximum is the maximum of s_new, previous power of c_j + 1, and all other parties' previous power.
+
+To ensure that this maximum is s_new, we need:
+
+s_new >= (previous power of c_j + 1) and s_new >= all other parties' previous power.
+
+But how can we ensure that?
+
+But the other parties' previous power could be higher than s_new. For example, if there is another party with a previous power higher than s_new, then the new maximum would be that party's previous power.
+
+So, for the new maximum to be s_new, we need that s_new is greater than or equal to all other parties' previous power, and also s_new >= previous power of c_j + 1.
+
+But how to ensure that?
+
+This seems complicated, but perhaps we can model it as follows:
+
+For each turn j, the current_ruling is r_prev, and the previous power levels are known. We need to choose c_j (not r_prev) such that:
+
+s_new (the new power of p_j) >= all other parties' new power (which is their previous power, except for c_j which is previous power + 1).
+
+But how to compute this?
+
+Let me think of it in terms of the previous power levels.
+
+Let me denote:
+
+prev_power = [p1, p2, ..., pn], where pi is the power of party i before choosing c_j.
+
+When we choose c_j, the new power of c_j is prev_power[c_j-1] + 1.
+
+The new power of other parties is the same as prev_power.
+
+So, the new maximum is the maximum of:
+
+prev_power of p_j, prev_power of c_j + 1, and the other parties' prev_power.
+
+To ensure that this maximum is prev_power[p_j-1], we need:
+
+prev_power[p_j-1] >= (prev_power of c_j + 1) and prev_power[p_j-1] >= all other parties' prev_power.
+
+Wait, no. Because the other parties' prev_power could be higher than prev_power[p_j-1]. For example, if there is another party i (not p_j) with prev_power[i] > prev_power[p_j-1], then the new maximum would be that party's prev_power[i], which is higher than prev_power[p_j-1].
+
+So, the only way for the new maximum to be prev_power[p_j-1] is that:
+
+prev_power[p_j-1] >= all other parties' prev_power (after the change) and prev_power[p_j-1] >= (prev_power[c_j-1] + 1).
+
+But how can we ensure that all other parties' prev_power are <= prev_power[p_j-1]?
+
+This is only possible if, in the previous state, the power of all parties except p_j are <= prev_power[p_j-1], and the power of c_j is such that prev_power[c_j-1] + 1 <= prev_power[p_j-1].
+
+But this is not necessarily the case.
+
+So, for the new maximum to be prev_power[p_j-1], we must have:
+
+prev_power[p_j-1] >= max(prev_power of all other parties, prev_power[c_j-1] + 1).
+
+But how to find this?
+
+This seems like a dead end.
+
+Alternative Idea: Let's think of the problem in terms of the required p_j for the current turn. For each turn j, the required p_j is fixed. So, during turn j, the new_ruling must be p_j. So, the choice of c_j must be such that, after the increase, p_j is the party with the highest power.
+
+So, for each turn j, the possible choices of c_j are those that, when added to their power, make p_j the maximum.
+
+But how to find this?
+
+Let me think of the following:
+
+For the current turn j, the current_ruling is r_prev. The previous power levels are known. We need to choose c_j (not r_prev) such that after increasing c_j's power by 1, the new_ruling is p_j.
+
+Let me think of the possible scenarios:
+
+Scenario 1: The previous power of p_j is greater than or equal to the new power of c_j (i.e., prev_power[p_j-1] >= prev_power[c_j-1] + 1). In this case, the new_ruling could be p_j if all other parties' new power is <= prev_power[p_j-1].
+
+Scenario 2: The previous power of p_j is less than the new power of c_j. In this case, the new_ruling would be c_j, which is not what we want.
+
+So, for scenario 1 to hold, the new_ruling must be p_j, which requires that the new power of p_j is the maximum.
+
+But how to ensure that?
+
+Maybe the only way is to choose c_j such that the new power of p_j is the maximum.
+
+So, for the new_ruling to be p_j, the following must be true:
+
+After the choice of c_j, the power of p_j is the maximum.
+
+So, the power of p_j must be >= the new power of all other parties.
+
+So, for the other parties, their new power must be <= prev_power[p_j-1].
+
+But the new power of other parties is:
+
+For party i != c_j: prev_power[i].
+
+For party c_j: prev_power[c_j-1] + 1.
+
+So, the new power of other parties is:
+
+if i is not c_j, then prev_power[i].
+
+if i is c_j, then prev_power[c_j-1] + 1.
+
+So, to ensure that all of these are <= prev_power[p_j-1], we need:
+
+For all i != c_j: prev_power[i] <= prev_power[p_j-1].
+
+And for i = c_j: prev_power[c_j-1] + 1 <= prev_power[p_j-1].
+
+So, the conditions are:
+
+prev_power[p_j-1] >= prev_power[c_j-1] + 1 and prev_power[p_j-1] >= all other parties' prev_power.
+
+But how to find this?
+
+But this is possible only if the previous power of all other parties are <= prev_power[p_j-1], and the previous power of c_j is such that prev_power[c_j-1] + 1 <= prev_power[p_j-1].
+
+But how to find this?
+
+This seems like a possible approach. So, for each turn j, given the current_ruling r_prev and the previous power levels, we need to choose c_j (not r_prev) such that:
+
+1. prev_power[p_j-1] >= prev_power[c_j-1] + 1.
+
+2. All other parties' prev_power are <= prev_power[p_j-1].
+
+If these conditions are satisfied, then choosing c_j would make the new_ruling p_j.
+
+But how to ensure that the other parties' prev_power are <= prev_power[p_j-1]?
+
+This is only possible if, in the previous state, the power of all parties except p_j are <= prev_power[p_j-1].
+
+But this is a condition that depends on the previous state.
+
+So, for each turn j, given the previous state (current_ruling r_prev and previous power levels), we need to find a c_j (not r_prev) that satisfies these conditions.
+
+But how to find such a c_j?
+
+Let me think of the following steps for each turn j:
+
+1. For the current turn j, the current_ruling is r_prev.
+
+2. The previous power levels are known.
+
+3. We need to choose c_j (not r_prev) such that:
+
+   a. prev_power[p_j-1] >= prev_power[c_j-1] + 1.
+
+   b. All other parties' prev_power are <= prev_power[p_j-1].
+
+If these conditions are met, then choosing c_j would make the new_ruling p_j.
+
+But how to find such a c_j?
+
+Let me think of the following:
+
+For condition b, it's required that all other parties' prev_power are <= prev_power[p_j-1]. This means that in the previous state, the power of all parties except p_j are <= prev_power[p_j-1]. So, if the previous power of p_j is already the maximum, then this condition is satisfied.
+
+But if there are other parties with higher power, then this condition is not satisfied.
+
+But this seems to be a condition that can be checked.
+
+So, for each turn j, the steps are:
+
+- Check if the previous state has all parties' power <= prev_power[p_j-1]. If not, then there is no way to choose c_j to make the new_ruling p_j.
+
+- If this condition is met, then we need to choose c_j such that prev_power[c_j-1] + 1 <= prev_power[p_j-1].
+
+- Also, c_j must not be the current_ruling r_prev.
+
+So, the possible choices for c_j are those parties (excluding r_prev) where prev_power[c_j-1] + 1 <= prev_power[p_j-1].
+
+But how to find this?
+
+Let me think of the following:
+
+For the current turn j, the possible c_j are those parties (not r_prev) where their previous power is <= prev_power[p_j-1] - 1.
+
+Because prev_power[c_j-1] + 1 <= prev_power[p_j-1] => prev_power[c_j-1] <= prev_power[p_j-1] - 1.
+
+So, the c_j can be any party (not r_prev) with prev_power[i] <= prev_power[p_j-1] - 1.
+
+But also, the other parties' prev_power must be <= prev_power[p_j-1].
+
+So, if the previous power of all parties except p_j are <= prev_power[p_j-1], then the choice of c_j is any party (not r_prev) with prev_power[i] <= prev_power[p_j-1] - 1.
+
+But how to find this?
+
+But this seems to be the case. So, for the current turn j, if the previous state satisfies that all other parties' prev_power are <= prev_power[p_j-1], then we can choose any c_j (not r_prev) with prev_power[i] <= prev_power[p_j-1] - 1.
+
+But how to choose among them?
+
+The problem states that we need to choose the party that maximizes the score. So, for each such possible c_j, we should choose the one with the highest a_i,j (the score for choosing that party in this turn).
+
+So, for each turn j, the best choice of c_j is the one that has the maximum a_i,j, where i is not r_prev, and prev_power[i] <= prev_power[p_j-1] - 1.
+
+But if there are multiple such i, we can choose any of them.
+
+But how to handle this?
+
+So, the plan is:
+
+For each turn j:
+
+- Check if the current state (current_ruling r_prev and previous power levels) allows for the new_ruling to be p_j.
+
+To check this:
+
+- Check if all other parties' previous power are <= prev_power[p_j-1]. If not, then it's impossible to choose c_j, so return -1.
+
+- If yes, then we need to choose c_j (not r_prev) such that prev_power[c_j-1] + 1 <= prev_power[p_j-1].
+
+- The possible c_j are those parties (not r_prev) with prev_power[i] <= prev_power[p_j-1] - 1.
+
+- Among these, choose the one with the maximum a_i,j.
+
+If there are no such c_j, then it's impossible.
+
+But wait, what if there are multiple c_j that satisfy these conditions? We need to choose the one that gives the maximum score for this turn.
+
+So, for each turn j, the steps are:
+
+1. Check if all other parties' previous power are <= prev_power[p_j-1]. If not, then it's impossible.
+
+2. If yes, then find all parties (not r_prev) with prev_power[i] <= prev_power[p_j-1] - 1. Among these, choose the one with the maximum a_i,j.
+
+3. If there are multiple, choose any.
+
+But how to implement this?
+
+But how to track the previous power levels for each turn?
+
+This seems to require tracking the previous power levels for each turn, which is possible.
+
+So, the approach is to track the current_ruling and the power levels for each turn.
+
+Let me think of the initial state.
+
+Initially, the current_ruling is None. For the first turn, the current_ruling is None. So, during the first turn, the choice of c_j can be any party (since there's no ruling party). After choosing c_j, the new_ruling is the party with the highest power (which is c_j, since it's 1, and others are 0). So, for the first turn, the new_ruling is c_j, which must be equal to p_1.
+
+So, for the first turn, the required p_j is p_1. So, the choice of c_j must be p_1, and the new_ruling is p_1.
+
+But how to ensure that?
+
+So, for the first turn:
+
+- current_ruling is None.
+
+- previous power levels are [0, 0, ..., 0] (since no parties have been chosen before).
+
+- So, for the first turn, the required p_1 must be the new_ruling.
+
+So, the choice of c_1 is p_1. Because after choosing it, the power is 1, and the new_ruling is p_1.
+
+So, for the first turn, the choice is to select p_1.
+
+But what if there are other parties with power 0, and p_1 is not the one chosen?
+
+Wait, no. Because the first turn, the current_ruling is None. So, when choosing c_j, it can be any party. The new_ruling is the party with the highest power (which is the chosen party, since its power is 1, others are 0). So, the new_ruling is c_j.
+
+So, for the first turn, the required p_1 must be c_j. So, the choice is to select p_1.
+
+But what if there are multiple parties with power 1? No, because the first turn is the first choice, so only one party is chosen, and its power is 1.
+
+So, the first turn's choice is p_1.
+
+But what if p_1 is not the party that is chosen?
+
+Wait, no. Because for the first turn, the required new_ruling is p_1. So, the choice of c_1 must be p_1.
+
+So, for the first turn, the choice is p_1.
+
+So, the initial state is:
+
+current_ruling is None.
+
+power_levels is [0] * n.
+
+Then, for the first turn, we choose c_1 = p_1, and the new_ruling is p_1.
+
+So, this is valid.
+
+But what if p_1 is not the party that is chosen? Then, it's invalid.
+
+So, in the first turn, the choice must be p_1.
+
+So, the code must handle this.
+
+But how to handle this in general?
+
+So, the overall plan is:
+
+We need to simulate each turn step by step, keeping track of the current_ruling and the power_levels.
+
+For each turn j:
+
+- current_ruling is r_prev.
+
+- power_levels is a list of integers.
+
+- We need to choose c_j (not r_prev) such that after choosing c_j, the new_ruling is p_j.
+
+So, the steps for turn j are:
+
+1. Check if all other parties' power_levels are <= power_levels[p_j-1].
+
+   - If not, then it's impossible to choose c_j, so return -1.
+
+2. If yes, then find all parties (not r_prev) with power_levels[i] <= power_levels[p_j-1] - 1.
+
+   - Among these, choose the one with the maximum a_i,j.
+
+   - If there are multiple, choose any.
+
+3. If no such c_j exists, return -1.
+
+But how to implement this?
+
+But how to track the power_levels for each turn?
+
+Let's think of it as follows:
+
+We can maintain a list of power_levels for each party. For each turn, we can track the current_ruling and the power_levels.
+
+Let's think of the initial state:
+
+Initially, current_ruling is None.
+
+power_levels is [0] * n.
+
+For each turn j from 1 to m:
+
+   current_ruling is r_prev.
+
+   power_levels is [p_1, p_2, ..., p_n].
+
+   We need to choose c_j.
+
+   For the current turn j, the required p_j is given.
+
+   So, check if all parties' power_levels are <= power_levels[p_j-1], except for the party p_j.
+
+   Wait, no. The required condition is that after choosing c_j, the new_ruling is p_j. So, the new_ruling is p_j.
+
+   So, for the new_ruling to be p_j, the power_levels after choosing c_j must have p_j's power as the maximum.
+
+   So, the new_ruling is determined by the maximum of the power_levels after choosing c_j.
+
+   So, the condition is that after choosing c_j, the power_levels of p_j is >= all other parties' power_levels.
+
+   So, the new power_levels of p_j is power_levels[p_j-1] (if it's not c_j) or power_levels[p_j-1] + 1 (if c_j is p_j).
+
+   Wait, no. The new power_levels for p_j is:
+
+   if p_j is not c_j, then it's the previous power_levels[p_j-1].
+
+   if p_j is c_j, then it's previous power_levels[p_j-1] + 1.
+
+   So, the new power_levels for other parties is the same as before, except for c_j's power.
+
+   So, the condition is that the new power_levels of p_j is the maximum.
+
+   So, for the new_ruling to be p_j, the new power_levels of p_j must be >= all other parties' new power_levels.
+
+   So, the new power_levels of p_j is either:
+
+   if c_j is not p_j: previous power_levels[p_j-1]
+
+   if c_j is p_j: previous power_levels[p_j-1] + 1.
+
+   So, the new power_levels of p_j must be >= all other parties' new power_levels.
+
+   So, for the other parties, their new power_levels are:
+
+   for i != c_j: previous power_levels[i]
+
+   for i = c_j: previous power_levels[c_j-1] + 1.
+
+   So, the condition is:
+
+   (new_power_p_j) >= (previous power_levels[i] for i != c_j) and (new_power_p_j) >= (previous power_levels[c_j-1] + 1).
+
+   But how to check this?
+
+   This seems complicated, but perhaps the following:
+
+   For the current turn j, we need to choose c_j (not r_prev) such that:
+
+   new_power_p_j = max( previous_power_p_j, previous_power_c_j + 1, ... )
+
+   Wait, no. The new_power_p_j is the new power of p_j, which is:
+
+   if c_j is not p_j: previous_power_p_j.
+
+   if c_j is p_j: previous_power_p_j + 1.
+
+   And the new_power_p_j must be >= all other parties' new power_levels.
+
+   So, for all other parties i:
+
+   if i is not c_j: new_power_i = previous_power_i.
+
+   if i is c_j: new_power_i = previous_power_c_j + 1.
+
+   So, the new_power_p_j must be >= all of these.
+
+   So, the condition is:
+
+   (if c_j is not p_j: previous_power_p_j >= all previous_power_i for i != c_j and previous_power_i >= previous_power_p_j? No, no. Wait:
+
+   For the new_power_p_j to be >= all other parties' new power_levels, it must be that:
+
+   new_power_p_j >= previous_power_i for all i != c_j, and new_power_p_j >= previous_power_c_j + 1.
+
+   But new_power_p_j is:
+
+   if c_j is not p_j: previous_power_p_j.
+
+   if c_j is p_j: previous_power_p_j + 1.
+
+   So, the condition depends on whether c_j is p_j or not.
+
+   This seems very complex.
+
+   But perhaps we can find a way to model this.
+
+   Let's think of the following:
+
+   For the new_ruling to be p_j, the new_power_p_j must be >= the new_power of all other parties.
+
+   The new_power of other parties is:
+
+   For i != c_j: previous_power_i.
+
+   For i = c_j: previous_power_c_j + 1.
+
+   So, the new_power_p_j must be >= max( previous_power_i for i != c_j, previous_power_c_j + 1 )
+
+   But new_power_p_j is:
+
+   if c_j is not p_j: previous_power_p_j.
+
+   if c_j is p_j: previous_power_p_j + 1.
+
+   So, the condition is:
+
+   if c_j is not p_j:
+
+      previous_power_p_j >= max( previous_power_i for i != c_j, previous_power_c_j + 1 )
+
+   else:
+
+      previous_power_p_j + 1 >= max( previous_power_i for i != c_j, previous_power_c_j + 1 )
+
+   But how to check this?
+
+   This seems complicated, but perhaps we can find that the condition is:
+
+   previous_power_p_j >= previous_power_c_j + 1, and previous_power_p_j >= all other parties' previous power.
+
+   Because if previous_power_p_j >= previous_power_c_j + 1, and all other parties' previous power are <= previous_power_p_j, then the new_power_p_j is previous_power_p_j, and the new_power of other parties is <= previous_power_p_j.
+
+   So, this would ensure that the new_ruling is p_j.
+
+   But what if the other parties' previous power is higher than previous_power_p_j?
+
+   For example, if there is another party i with previous_power_i > previous_power_p_j, then the new_power of i is previous_power_i, which is higher than previous_power_p_j. So, the new_ruling would be i, not p_j.
+
+   So, the condition that all other parties' previous power are <= previous_power_p_j is necessary.
+
+   So, for the new_ruling to be p_j, it is necessary that all other parties' previous power are <= previous_power_p_j.
+
+   And, in addition, the new_power_p_j (which is previous_power_p_j if c_j is not p_j, or previous_power_p_j + 1 if c_j is p_j) must be >= the new_power_c_j (which is previous_power_c_j + 1 if c_j is p_j, or previous_power_c_j if c_j is not p_j).
+
+   Wait, no. If c_j is not p_j, then new_power_p_j is previous_power_p_j, and the other parties' new_power is their previous power. So, the new_power_p_j is previous_power_p_j, which must be >= all other parties' new_power.
+
+   So, for this to be true, previous_power_p_j must be >= all other parties' previous_power.
+
+   And, if c_j is p_j, then new_power_p_j is previous_power_p_j + 1, and the new_power_c_j is previous_power_c_j + 1. So, the new_power_p_j is previous_power_p_j + 1, which must be >= all other parties' new_power, which are their previous power.
+
+   So, in this case, the condition is that previous_power_p_j + 1 >= all other parties' previous power.
+
+   So, combining these conditions:
+
+   if c_j is not p_j:
+
+      previous_power_p_j >= all other parties' previous power.
+
+   if c_j is p_j:
+
+      previous_power_p_j + 1 >= all other parties' previous power.
+
+   But how to find this?
+
+   This seems complex, but perhaps the following:
+
+   For the new_ruling to be p_j, the following must be true:
+
+   previous_power_p_j >= all other parties' previous power.
+
+   And, if c_j is not p_j, then the new_power_p_j is previous_power_p_j, which is already >= all other parties' previous power. So, the condition is satisfied.
+
+   If c_j is p_j, then the new_power_p_j is previous_power_p_j + 1, which must be >= all other parties' previous power.
+
+   So, the condition is:
+
+   previous_power_p_j >= all other parties' previous power.
+
+   And, if c_j is p_j, then previous_power_p_j + 1 >= all other parties' previous power.
+
+   But this is redundant, because if previous_power_p_j >= all other parties' previous power, then previous_power_p_j + 1 is >= all other parties' previous power.
+
+   So, the condition is that previous_power_p_j >= all other parties' previous power.
+
+   And, if c_j is p_j, then the new_power_p_j is previous_power_p_j + 1, which is >= all other parties' previous power.
+
+   So, the condition is that previous_power_p_j >= all other parties' previous power.
+
+   So, for the new_ruling to be p_j, it is sufficient that previous_power_p_j >= all other parties' previous power.
+
+   And, the choice of c_j is such that c_j is not r_prev, and c_j is not p_j (if previous_power_p_j is the maximum, and c_j is p_j, then the new_ruling is p_j).
+
+   Wait, no. If previous_power_p_j is the maximum, and c_j is p_j, then after adding 1 to its power, the new_power_p_j is previous_power_p_j + 1, which is still the maximum. So, the new_ruling is p_j.
+
+   So, in this case, the choice of c_j is p_j.
+
+   So, the condition is that previous_power_p_j >= all other parties' previous power.
+
+   So, for the new_ruling to be p_j, it is sufficient that previous_power_p_j >= all other parties' previous power.
+
+   And, the choice of c_j is p_j (if it is not the current_ruling), or any other party (not current_ruling) with previous_power[i] <= previous_power_p_j - 1.
+
+   So, this is a simplification.
+
+   So, the steps for each turn j are:
+
+   1. Check if previous_power_p_j >= all other parties' previous power.
+
+   2. If not, then it's impossible to choose c_j, so return -1.
+
+   3. If yes, then choose c_j such that:
+
+      a. c_j is not the current_ruling.
+
+      b. c_j is chosen to maximize the score a_i,j.
+
+   So, the choice of c_j is any party (not current_ruling) with previous_power[i] <= previous_power_p_j - 1.
+
+   Wait, but if previous_power_p_j is the maximum, then all other parties' previous power are <= previous_power_p_j. So, for the new_ruling to be p_j, we can choose c_j as any party (not current_ruling), and the new_ruling will be p_j.
+
+   Because:
+
+   - If c_j is not p_j, then the new_power_p_j is previous_power_p_j, which is the maximum. So, the new_ruling is p_j.
+
+   - If c_j is p_j, then the new_power_p_j is previous_power_p_j + 1, which is still the maximum. So, the new_ruling is p_j.
+
+   So, in this case, any choice of c_j (not current_ruling) will result in new_ruling being p_j.
+
+   So, for this case, the choice of c_j can be any party (not current_ruling), and we should choose the one with the maximum a_i,j.
+
+   So, for this case, the choice of c_j is any party not r_prev, and we choose the one with the highest a_i,j.
+
+   So, the steps are:
+
+   For each turn j:
+
+   - Check if previous_power_p_j >= all other parties' previous power.
+
+   - If not, return -1.
+
+   - Else, choose any c_j (not r_prev) with the maximum a_i,j.
+
+   So, this simplifies the problem.
+
+   But wait, what if previous_power_p_j is not the maximum? For example, if previous_power_p_j is 2, and another party has 3. Then, the new_ruling would be the other party, even if we choose c_j as p_j.
+
+   But in this case, the condition is not satisfied, so the code would return -1.
+
+   So, this approach seems correct.
+
+   So, the steps are:
+
+   For each turn j:
+
+   - The current_ruling is r_prev.
+
+   - The previous power_levels are power_prev.
+
+   - The required p_j is given.
+
+   - Check if power_prev[p_j-1] >= all other parties' power_prev.
+
+   - If not, return -1.
+
+   - Else, choose c_j as any party (not r_prev) with the maximum a_i,j.
+
+   But how to implement this?
+
+   So, for each turn j, we need to:
+
+   - Check if the current power of p_j is the maximum.
+
+   - If yes, then choose any c_j (not r_prev) with maximum a_i,j.
+
+   So, for the first turn, the current_ruling is None.
+
+   The power_prev is all zeros.
+
+   So, for the first turn, p_1 is the required new_ruling. The power_prev[p_1-1] is 0. All other parties' power_prev are 0. So, 0 >= all others (0). So, it's valid.
+
+   Then, choose c_j as the party with maximum a_i,j (which is p_1, since it's the only possible choice).
+
+   Wait, no. For the first turn, the current_ruling is None. So, c_j can be any party. But the new_ruling must be p_1.
+
+   So, in this case, the new_ruling is the party with the highest power after choosing c_j. Since the power of c_j is 1, and others are 0, the new_ruling is c_j. So, for this to be p_1, the c_j must be p_1.
+
+   So, in this case, the choice of c_j is p_1.
+
+   But according to the previous logic, the code would choose any party (not r_prev) with maximum a_i,j. But in this case, the r_prev is None, so any party is allowed. But the new_ruling must be p_1.
+
+   So, in this case, the code would choose the party with maximum a_i,j (which may be any party, but the new_ruling must be p_1).
+
+   So, this suggests that the previous logic is incorrect.
+
+   So, there's a flaw in the previous reasoning.
+
+   So, what's the correct way to handle the first turn?
+
+   For the first turn, the current_ruling is None. So, the choice of c_j can be any party. After choosing c_j, the new_ruling is the party with the highest power, which is c_j. So, for the new_ruling to be p_1, the c_j must be p_1.
+
+   So, in this case, the code must choose c_j = p_1.
+
+   But according to the previous logic, if the power_prev[p_j-1] is 0, and all other parties' power_prev are 0, then the condition is satisfied. So, the code would choose any party (not r_prev) with maximum a_i,j. But in this case, the code would choose the party with the maximum a_i,j, which may not be p_1.
+
+   But in this case, the choice of c_j must be p_1.
+
+   So, this suggests that the previous logic is incorrect.
+
+   So, what's the correct way to handle this?
+
+   The problem is that the previous logic assumes that if the condition is satisfied, then any choice of c_j will work. But in the first turn, the choice of c_j must be p_1.
+
+   So, the previous logic is missing this.
+
+   So, the correct approach must account for the fact that the new_ruling is determined by the choice of c_j.
+
+   So, the correct steps are:
+
+   For each turn j:
+
+   - current_ruling is r_prev.
+
+   - power_prev is the current power levels.
+
+   - required_p is p_j.
+
+   - Check if the new_ruling can be required_p.
+
+   To do this:
+
+   - For the new_ruling to be required_p, the new power of required_p must be the maximum after choosing c_j.
+
+   So, the new power of required_p is:
+
+   if c_j is not required_p: power_prev[required_p-1].
+
+   if c_j is required_p: power_prev[required_p-1] + 1.
+
+   And the new_ruling is required_p if this new power is the maximum.
+
+   So, the new_ruling is required_p if:
+
+   (new power of required_p) >= (new power of all other parties).
+
+   So, the new power of required_p is either:
+
+   if c_j is not required_p: power_prev[required_p-1] >= all other parties' new power.
+
+   if c_j is required_p: power_prev[required_p-1] + 1 >= all other parties' new power.
+
+   But how to compute this?
+
+   This brings us back to the previous problem.
+
+   So, the correct way is to find for each turn j, the possible c_j that, after adding 1 to their power, makes the new_ruling required_p.
+
+   But how to do this efficiently?
+
+   Given the time constraints, perhaps the best approach is to simulate the process for each turn, keeping track of the current_ruling and power_levels.
+
+   For each turn j:
+
+   - current_ruling is r_prev.
+
+   - power_levels is a list of integers.
+
+   - required_p is p_j.
+
+   - We need to choose c_j (not r_prev) such that after choosing c_j, the new_ruling is required_p.
+
+   So, for each possible c_j (not r_prev), we can compute the new power_levels and determine if the new_ruling is required_p.
+
+   But with m up to 50 and n up to 50, this is feasible.
+
+   For example, for each turn j, we can try all possible c_j (not r_prev), and for each, compute the new power_levels, determine the new_ruling, and check if it is required_p. If so, we keep track of the c_j with the maximum score.
+
+   But with n=50 and m=50, this would be 50 * 50 = 2500 possibilities per turn, which is manageable.
+
+   So, the plan is:
+
+   For each turn j:
+
+   - current_ruling is r_prev.
+
+   - power_levels is a list of integers.
+
+   - required_p is p_j.
+
+   - Iterate over all possible c_j (not r_prev):
+
+      - new_power_cj = power_levels[c_j-1] + 1.
+
+      - new_power_levels = power_levels.copy()
+
+      - new_power_levels[c_j-1] = new_power_cj.
+
+      - new_ruling = find the party with the maximum new_power_levels.
+
+      - if new_ruling is required_p:
+
+          - record this c_j as a candidate.
+
+   - Among all candidates, select the one with the maximum a_i,j.
+
+   - If no candidates, return -1.
+
+   But how to implement this efficiently?
+
+   For each turn j, we can:
+
+   - For each possible c_j (not r_prev):
+
+      - compute new_power_levels.
+
+      - determine new_ruling.
+
+      - if new_ruling == required_p, add to the list of possible choices.
+
+   - Then, among the possible choices, select the one with the maximum a_i,j.
+
+   So, for each turn j, the code would iterate through all possible c_j (not r_prev), and for each, compute the new_ruling.
+
+   This is feasible for m=50 and n=50.
+
+   Now, the question is how to implement this.
+
+   Let's think of the code structure.
+
+   The code will read n and m, then the list p, then the n lines of a_i,j.
+
+   Then, for each turn j from 0 to m-1:
+
+      current_ruling is r_prev.
+
+      power_levels is a list of integers.
+
+      required_p is p[j].
+
+      possible_cj = list of possible choices.
+
+      for each possible c_j in 1..n:
+
+          if c_j == r_prev: continue.
+
+          new_power_levels = power_levels.copy()
+
+          new_power_levels[c_j-1] += 1
+
+          new_ruling = find the party with the maximum power in new_power_levels.
+
+          if new_ruling == required_p:
+
+              add c_j to possible_cj.
+
+      if possible_cj is empty: return -1.
+
+      else: select the c_j with maximum a[i][j], where i is c_j.
+
+      add this c_j to the result.
+
+      update power_levels to new_power_levels.
+
+      update current_ruling to new_ruling.
+
+   But wait, the new_ruling is determined by the new_power_levels. So, after choosing c_j, the new_ruling is determined.
+
+   So, for each turn, after choosing c_j, the new_ruling is the party with the maximum power in the new_power_levels.
+
+   So, the code for finding new_ruling is:
+
+   max_power = max(new_power_levels)
+
+   for i in range(n):
+
+       if new_power_levels[i] == max_power:
+
+           new_ruling = i+1
+
+   So, this is O(n) per turn.
+
+   So, for each turn, the code would:
+
+   - For each possible c_j (not r_prev):
+
+       - create a new_power_levels.
+
+       - compute new_ruling.
+
+       - if new_ruling == required_p, add to possible_cj.
+
+   Then, select the best c_j.
+
+   This approach is feasible.
+
+   Now, the problem is that for each turn, we need to track the current_ruling and the power_levels.
+
+   So, the initial state is:
+
+   current_ruling = None.
+
+   power_levels = [0] * n.
+
+   For each turn j in 0 to m-1:
+
+       required_p = p[j]
+
+       possible_cj = []
+
+       for c in 1..n:
+
+           if c == current_ruling: continue
+
+           new_power_levels = [x for x in power_levels]
+
+           new_power_levels[c-1] += 1
+
+           max_power = max(new_power_levels)
+
+           # find the party with max_power
+
+           new_ruling = None
+
+           for i in range(n):
+
+               if new_power_levels[i] == max_power:
+
+                   new_ruling = i+1
+
+                   break
+
+           if new_ruling == required_p:
+
+               possible_cj.append( (c, a[c-1][j]) )
+
+       if not possible_cj:
+
+           return -1
+
+       # select the best c_j with max a_i,j
+
+       best_c = None
+
+       best_score = -1
+
+       for c, score in possible_cj:
+
+           if score > best_score:
+
+               best_score = score
+
+               best_c = c
+
+       result.append(best_c)
+
+       # update power_levels and current_ruling
+
+       power_levels = new_power_levels
+
+       current_ruling = new_ruling
+
+   But this code has a problem: when we choose a c_j, the new_power_levels is created as a copy of the previous power_levels, and then the c_j's power is increased by 1.
+
+   But in the code above, the new_power_levels is a copy of the previous power_levels, and then the c_j's power is increased by 1.
+
+   However, the code for new_power_levels is not correct. Because for each turn, the power_levels is updated after choosing c_j.
+
+   So, the code for the new_power_levels is:
+
+   new_power_levels = [x for x in power_levels]
+
+   new_power_levels[c-1] += 1
+
+   So, this is correct.
+
+   But in the code, for each possible c_j, the new_power_levels is computed, and then the new_ruling is determined.
+
+   Once the best_c is selected, the power_levels is updated to new_power_levels, and the current_ruling is updated to new_ruling.
+
+   So, this seems correct.
+
+   Now, let's test this approach against the examples.
+
+   First example:
+
+   Input:
+
+   2 3
+
+   2 1 2
+
+   1 2 3
+
+   4 5 6
+
+   So, n=2, m=3.
+
+   p = [2, 1, 2]
+
+   The a matrix is:
+
+   party 1: [1, 2, 3]
+
+   party 2: [4,5,6]
+
+   Let's simulate the steps.
+
+   Initial state:
+
+   current_ruling = None.
+
+   power_levels = [0, 0].
+
+   Turn 1: required_p = 2.
+
+   possible_cj:
+
+   c can be 1 or 2.
+
+   For c=1:
+
+   new_power_levels = [0+1, 0] = [1, 0]
+
+   new_ruling is 1 (since 1 is the max).
+
+   required_p is 2. So, not equal.
+
+   So, not added.
+
+   For c=2:
+
+   new_power_levels = [0, 0+1] = [0, 1].
+
+   new_ruling is 2.
+
+   required_p is 2. So, added.
+
+   So, possible_cj is [(2, 4)].
+
+   best_c is 2, score 4.
+
+   So, result is [2].
+
+   Update power_levels to [0, 1], current_ruling is 2.
+
+   Turn 2: required_p is 1.
+
+   current_ruling is 2.
+
+   possible_cj: c can be 1 (since current_ruling is 2).
+
+   For c=1:
+
+   new_power_levels is [0+1, 1] = [1, 1].
+
+   new_ruling is 1 (since both are 1).
+
+   required_p is 1. So, yes.
+
+   So, added.
+
+   So, possible_cj is [(1, 2)].
+
+   best_c is 1, score 2.
+
+   result is [2, 1].
+
+   Update power_levels to [1, 1], current_ruling is 1.
+
+   Turn 3: required_p is 2.
+
+   current_ruling is 1.
+
+   possible_cj: c can be 2.
+
+   For c=2:
+
+   new_power_levels is [1, 1+1] = [1, 2].
+
+   new_ruling is 2.
+
+   required_p is 2. So, added.
+
+   So, possible_cj is [(2, 6)].
+
+   best_c is 2, score 6.
+
+   result is [2, 1, 2].
+
+   Which matches the example.
+
+   So, this approach works for the first example.
+
+   Second example:
+
+   Input:
+
+   3 5
+
+   1 1 1 2 1
+
+   1 1 1 1 1
+
+   10 5 7 8 15
+
+   7 10 9 8 15
+
+   Output: 1 3 2 2 1.
+
+   Let's see.
+
+   But it's better to trust that the code will handle it correctly.
+
+   Now, the code needs to handle this.
+
+   Now, the code for this approach would be:
+
+   Read n and m.
+
+   Read p as a list of integers.
+
+   Read n lines, each with m integers.
+
+   Initialize current_ruling as None.
+
+   power_levels = [0] * n.
+
+   result = []
+
+   for j in range(m):
+
+       required_p = p[j]
+
+       possible_cj = []
+
+       for c in range(1, n+1):
+
+           if c == current_ruling:
+
+               continue
+
+           new_power_levels = list(power_levels)
+
+           new_power_levels[c-1] += 1
+
+           # find new_ruling
+
+           max_power = max(new_power_levels)
+
+           new_ruling = None
+
+           for i in range(n):
+
+               if new_power_levels[i] == max_power:
+
+                   new_ruling = i+1
+
+                   break
+
+           if new_ruling == required_p:
+
+               possible_cj.append( (c, a[c-1][j]) )
+
+       if not possible_cj:
+
+           print(-1)
+
+           exit()
+
+       best_c = None
+
+       best_score = -1
+
+       for c, score in possible_cj:
+
+           if score > best_score:
+
+               best_score = score
+
+               best_c = c
+
+       result.append(best_c)
+
+       # update power_levels and current_ruling
+
+       power_levels = new_power_levels
+
+       current_ruling = new_ruling
+
+   print(' '.join(map(str, result)))
+
+   But wait, in the code, the new_power_levels is not stored, but for each possible c, the code creates a new_power_levels, and then for the next iteration, the power_levels is updated to this new_power_levels.
+
+   But in the code above, the code for the possible_cj is built by creating new_power_levels for each c, but in the code above, the code is not storing the new_power_levels. It is only used for the current turn's possible_cj.
+
+   So, in the code, for each possible c in the loop, the new_power_levels is created, and then the new_ruling is computed.
+
+   But in the code, the code is not storing the new_power_levels for the current turn. So, in the next iteration, the power_levels is updated to the new_power_levels of the current c.
+
+   So, the code is correct.
+
+   Now, the code needs to handle the case where the current_ruling is None (initial state).
+
+   For example, in the first turn, current_ruling is None, and the code loops through c in 1..n.
+
+   But in the code, for c == current_ruling, which is None, it's not possible, since c is 1..n.
+
+   So, the code for the first turn will loop through all c in 1..n, and for each, check if c == current_ruling (None), which is false. So, all c are allowed.
+
+   So, the code will correctly handle the first turn.
+
+   Now, the code needs to handle the case where the current_ruling is None.
+
+   But in the code, for the first turn, the current_ruling is None, and the loop for c in 1..n will check if c == current_ruling (None), which is false, so all c are allowed.
+
+   So, the code is correct.
+
+   Now, the code must be written in Python, and handle all cases.
+
+   Now, the code must also handle the case where the current_ruling is not None.
+
+   Now, the code must also handle the case where the new_ruling is not required_p, but the code checks for that.
+
+   So, the code seems correct.
+
+   Now, the code must be written.
+
+   Now, for the code:
+
+   Read n and m.
+
+   Then read m integers p_1 to p_m.
+
+   Then read n lines, each with m integers.
+
+   Then, for each turn j in 0..m-1:
+
+       required_p = p[j]
+
+       possible_cj = []
+
+       for c in 1..n:
+
+           if c == current_ruling: continue
+
+           new_power_levels = list(power_levels)
+
+           new_power_levels[c-1] += 1
+
+           max_power = max(new_power_levels)
+
+           new_ruling = find the party with max_power.
+
+           if new_ruling == required_p:
+
+               possible_cj.append( (c, a[c-1][j]) )
+
+       if not possible_cj: print -1 and exit.
+
+       select best c.
+
+   Now, in Python, the code would be:
+
+   But in Python, the initial power_levels is [0]*n.
+
+   Also, the current_ruling is initially None.
+
+   But in the code, for the first turn, when current_ruling is None, the code will loop through all c in 1..n, and for each, new_power_levels is created.
+
+   Now, the code must also handle the case where the current_ruling is None.
+
+   So, the code:
+
+   import sys
+
+   n, m = map(int, sys.stdin.readline().split())
+
+   p = list(map(int, sys.stdin.readline().split()))
+
+   a = []
+
+   for _ in range(n):
+
+       row = list(map(int, sys.stdin.readline().split()))
+
+       a.append(row)
+
+   current_ruling = None
+
+   power_levels = [0] * n
+
+   result = []
+
+   for j in range(m):
+
+       required_p = p[j]
+
+       possible_cj = []
+
+       for c in range(1, n+1):
+
+           if c == current_ruling:
+
+               continue
+
+           # create new_power_levels
+
+           new_power = list(power_levels)
+
+           new_power[c-1] += 1
+
+           # find new_ruling
+
+           max_power = max(new_power)
+
+           new_ruling = None
+
+           for i in range(n):
+
+               if new_power[i] == max_power:
+
+                   new_ruling = i+1
+
+                   break
+
+           if new_ruling == required_p:
+
+               possible_cj.append( (c, a[c-1][j]) )
+
+       if not possible_cj:
+
+           print(-1)
+
+           exit()
+
+       # select best c
+
+       best_c = None
+
+       best_score = -1
+
+       for c, score in possible_cj:
+
+           if score > best_score:
+
+               best_score = score
+
+               best_c = c
+
+       result.append(best_c)
+
+       # update power_levels and current_ruling
+
+       # but what is the new_power_levels? It's the new_power from the current c.
+
+       # wait, in the code above, the new_power is created for each c, but in the code, the new_power is not stored. So, in the next iteration, the power_levels is not updated.
+
+       # Ah, here's a problem!
+
+       # In the code, for the current c, the new_power is computed, but the code is not storing it. So, in the next iteration, the power_levels is not updated.
+
+       # So, the code is incorrect.
+
+       # Oh no! This is a critical error.
+
+       # The code as written will not update the power_levels correctly.
+
+       # Because for each possible c, the code creates a new_power, but the code does not store it for the next iteration.
+
+       # So, the code is incorrect.
+
+       # So, the code must store the new_power_levels for the current turn.
+
+       # So, in the code, for each possible c, the code must compute the new_power_levels, and then update the power_levels for the next turn.
+
+       # So, the code must store the new_power_levels for the current turn.
+
+       # But in the current code, the code is not storing it. It is only used for the current turn's possible_cj.
+
+       # So, the code is incorrect.
+
+       # So, the code must be modified.
+
+       # So, the code must, for each possible c, compute the new_power_levels, and then update the power_levels for the next turn.
+
+       # So, the code must store the new_power_levels for the current turn.
+
+       # So, the code must be modified.
+
+   So, the code must, for each possible c, compute the new_power_levels, and then, after selecting the best c, set the power_levels to the new_power_levels.
+
+   But in the code above, the code is not doing that.
+
+   So, the code is incorrect.
+
+   So, the correct code is:
+
+   For each possible c in the loop, the code computes the new_power_levels, and then, after selecting the best c, the power_levels is updated to this new_power_levels.
+
+   But in the code, for the next turn, the power_levels is not updated.
+
+   So, the code must, for each possible c, compute the new_power_levels, and then, after selecting the best c, set the power_levels to this new_power_levels.
+
+   So, the code should be:
+
+   for j in range(m):
+
+       required_p = p[j]
+
+       possible_cj = []
+
+       for c in 1..n:
+
+           if c == current_ruling: continue
+
+           new_power = list(power_levels)
+
+           new_power[c-1] += 1
+
+           ... compute new_ruling ...
+
+           if new_ruling == required_p:
+
+               possible_cj.append( (c, a[c-1][j]) )
+
+       if not possible_cj:
+
+           print(-1)
+
+           exit()
+
+       best_c = ... 
+
+       # now, update power_levels to the new_power_levels of the best_c.
+
+       # but how to track this?
+
+       # the problem is that the code needs to store the new_power_levels for the current turn.
+
+       # So, the code must track the new_power_levels for the current turn.
+
+       # So, for the current turn, the code must choose the best_c, and then update power_levels to the new_power_levels of that best_c.
+
+       # So, the code must store the new_power_levels for the current turn.
+
+   So, the code must, for each possible c, compute the new_power_levels, but then, after selecting the best_c, the code must store the new_power_levels as the new power_levels for the next turn.
+
+   So, the code must be modified as follows:
+
+   For each turn j:
+
+       possible_cj is a list of (c, score), where c is the chosen party.
+
+       best_c is selected.
+
+       then, the new_power_levels is the new_power_levels computed for this best_c.
+
+       and the power_levels is updated to this new_power_levels.
+
+       and the current_ruling is updated to new_ruling.
+
+   So, in the code, for each turn j, after selecting the best_c, the code must compute the new_power_levels for that c, and store it.
+
+   So, the code must be modified to:
+
+   for j in range(m):
+
+       required_p = p[j]
+
+       possible_cj = []
+
+       for c in 1..n:
+
+           if c == current_ruling: continue
+
+           new_power = list(power_levels)
+
+           new_power[c-1] += 1
+
+           ... compute new_ruling ...
+
+           if new_ruling == required_p:
+
+               possible_cj.append( (c, a[c-1][j]) )
+
+       if not possible_cj:
+
+           print(-1)
+
+           exit()
+
+       best_c = None
+
+       best_score = -1
+
+       for c, score in possible_cj:
+
+           if score > best_score:
+
+               best_score = score
+
+               best_c = c
+
+       # now, compute the new_power_levels for best_c
+
+       new_power = list(power_levels)
+
+       new_power[best_c-1] += 1
+
+       # wait, no. Because the new_power_levels for best_c is computed in the loop, but we need to store it.
+
+       # So, the code must compute the new_power_levels for best_c, and then set power_levels to it.
+
+       # So, the code must store the new_power_levels for the current turn.
+
+       # So, the code must compute the new_power_levels for best_c, and then set power_levels to it.
+
+       # But how to do this?
+
+       # For example, for the best_c, the new_power_levels is the one computed in the loop.
+
+       # So, the code must compute the new_power_levels for the best_c, and then store it.
+
+       # But in the code, for the best_c, the new_power_levels is computed during the loop.
+
+       # So, the code must store it.
+
+   So, the code is now:
+
+   for j in range(m):
+
+       required_p = p[j]
+
+       possible_cj = []
+
+       for c in 1..n:
+
+           if c == current_ruling: continue
+
+           new_power = list(power_levels)
+
+           new_power[c-1] += 1
+
+           max_power = max(new_power)
+
+           new_ruling = ... 
+
+           if new_ruling == required_p:
+
+               possible_cj.append( (c, a[c-1][j]) )
+
+       if not possible_cj:
+
+           print(-1)
+
+           exit()
+
+       best_c = None
+
+       best_score = -1
+
+       for c, score in possible_cj:
+
+           if score > best_score:
+
+               best_score = score
+
+               best_c = c
+
+       # Now, compute the new_power_levels for best_c
+
+       new_power = list(power_levels)
+
+       new_power[best_c-1] += 1
+
+       # Wait, no. Because the new_power_levels is the one computed during the loop for the best_c.
+
+       # But in the code above, the new_power is computed for the best_c, and then stored.
+
+       # So, the code must store the new_power_levels for the current turn.
+
+       # But how?
+
+       # The code must compute the new_power_levels for the best_c, and then set power_levels to it.
+
+       # But in the code, the new_power is computed during the loop, but it's not stored.
+
+       # So, the code must store the new_power_levels for the best_c.
+
+       # So, the code must do:
+
+       # compute the new_power_levels for the best_c, then set power_levels to it.
+
+       # But how?
+
+       # For example, in the code:
+
+       # for the best_c, the new_power_levels is the one computed during the loop.
+
+       # So, during the loop for the possible_cj, the code computes new_power for each c.
+
+       # But in the code, the possible_cj is built with the new_power for each c, but the code is not storing it.
+
+       # So, the code must store the new_power_levels for the best_c.
+
+       # So, the code must have:
+
+       # compute the new_power_levels for best_c, then set power_levels to it.
+
+       # So, in the code:
+
+       # after selecting best_c, the code must compute the new_power_levels for best_c.
+
+       # So, the code must:
+
+       # new_power = list(power_levels)
+
+       # new_power[best_c-1] += 1
+
+       # but this is not correct, because the new_power_levels is computed for the best_c.
+
+       # So, the code must compute the new_power_levels for the best_c, and then set power_levels to it.
+
+       # So, in the code:
+
+       new_power = list(power_levels)
+
+       new_power[best_c-1] += 1
+
+       power_levels = new_power
+
+       current_ruling = new_ruling
+
+   But this is not correct, because the new_power_levels for the best_c is computed during the loop, but the code is not storing it.
+
+   So, this is a critical error.
+
+   So, the code must, for each possible c, compute the new_power_levels, and then, after selecting the best_c, store the new_power_levels for the current turn.
+
+   So, the code must be modified to:
+
+   After selecting best_c, the code must compute the new_power_levels for best_c, and then set power_levels to it.
+
+   But how to compute it?
+
+   For example, during the loop for the possible_cj, the code computes the new_power_levels for the best_c, but it is not stored.
+
+   So, the code must store it.
+
+   So, the code must, after selecting best_c, compute the new_power_levels for best_c, and set power_levels to it.
+
+   So, in the code:
+
+   after selecting best_c, the code computes new_power_levels as:
+
+   new_power = list(power_levels)
+
+   new_power[best_c-1] += 1
+
+   power_levels = new_power
+
+   current_ruling = new_ruling
+
+   But this is not correct, because the new_power_levels for the best_c is computed during the loop.
+
+   So, the code must compute it during the loop.
+
+   But how to store it?
+
+   So, the code must, for each turn j, after selecting the best_c, compute the new_power_levels for the best_c, and set it as the new power_levels for the next turn.
+
+   So, the code must be modified as follows:
+
+   for j in range(m):
+
+       required_p = p[j]
+
+       possible_cj = []
+
+       for c in 1..n:
+
+           if c == current_ruling: continue
+
+           new_power = list(power_levels)
+
+           new_power[c-1] += 1
+
+           max_power = max(new_power)
+
+           new_ruling = ... 
+
+           if new_ruling == required_p:
+
+               possible_cj.append( (c, a[c-1][j]) )
+
+       if not possible_cj:
+
+           print(-1)
+
+           exit()
+
+       best_c = ... 
+
+       # now, compute new_power_levels for best_c
+
+       new_power = list(power_levels)
+
+       new_power[best_c-1] += 1
+
+       power_levels = new_power
+
+       current_ruling = new_ruling
+
+   But this is not correct, because the new_power_levels is computed for the best_c, but the code is not storing it. It is computed in the loop, but the code is not storing it.
+
+   So, the code must store the new_power_levels for the best_c.
+
+   So, the code must have:
+
+   for j in range(m):
+
+       required_p = p[j]
+
+       possible_cj = []
+
+       for c in 1..n:
+
+           if c == current_ruling: continue
+
+           new_power = list(power_levels)
+
+           new_power[c-1] += 1
+
+           max_power = max(new_power)
+
+           new_ruling = ... 
+
+           if new_ruling == required_p:
+
+               possible_cj.append( (c, a[c-1][j]) )
+
+       if not possible_cj:
+
+           print(-1)
+
+           exit()
+
+       best_c = None
+
+       best_score = -1
+
+       for c, score in possible_cj:
+
+           if score > best_score:
+
+               best_score = score
+
+               best_c = c
+
+       # now, compute the new_power_levels for best_c
+
+       # but how to do it?
+
+       # new_power_levels is the new_power_levels after choosing best_c.
+
+       # So, the code must create a new_power_levels for best_c.
+
+       # but in the loop, the code already computed new_power for best_c.
+
+       # So, the code must store it.
+
+       # So, the code must store the new_power_levels for the best_c.
+
+       # So, the code must do:
+
+       # new_power = list(power_levels)
+
+       # new_power[best_c-1] += 1
+
+       # power_levels = new_power
+
+       # current_ruling = new_ruling
+
+   But this is not correct, because the code is not storing the new_power_levels for the best_c. It is only storing it for the current turn.
+
+   So, the code must compute the new_power_levels for the best_c, and store it.
+
+   So, the code must:
+
+   after selecting best_c, the code computes new_power_levels for best_c, and sets power_levels to it.
+
+   So, the code must:
+
+   new_power = list(power_levels)
+
+   new_power[best_c-1] += 1
+
+   power_levels = new_power
+
+   current_ruling = new_ruling
+
+   But how to get new_ruling?
+
+   Because in the code, during the possible_cj loop, the code computed new_ruling for each possible c, and stored it in the possible_cj list.
+
+   So, the code must store the new_ruling for the best_c.
+
+   So, in the code, during the possible_cj loop, for each possible c, the code computes new_ruling, and stores it.
+
+   So, the code must have:
+
+   for j in range(m):
+
+       required_p = p[j]
+
+       possible_cj = []
+
+       for c in 1..n:
+
+           if c == current_ruling: continue
+
+           new_power = list(power_levels)
+
+           new_power[c-1] += 1
+
+           max_power = max(new_power)
+
+           new_ruling = ... 
+
+           if new_ruling == required_p:
+
+               possible_cj.append( (c, a[c-1][j], new_ruling) )
+
+       if not possible_cj:
+
+           print(-1)
+
+           exit()
+
+       best_c = ... 
+
+       # now, find the new_ruling for best_c
+
+       # but how to get it?
+
+       # the code must compute it.
+
+       # So, after selecting best_c, the code must compute new_power_levels for best_c, and new_ruling.
+
+       # So, the code must compute new_power_levels for best_c, and new_ruling.
+
+       # So, the code must:
+
+       new_power = list(power_levels)
+
+       new_power[best_c-1] += 1
+
+       max_power = max(new_power)
+
+       new_ruling = None
+
+       for i in range(n):
+
+           if new_power[i] == max_power:
+
+               new_ruling = i+1
+
+               break
+
+       power_levels = new_power
+
+       current_ruling = new_ruling
+
+   So, this is the correct way.
+
+   But in the code, the new_power is computed for the best_c, and stored.
+
+   So, the code must be modified to include this.
+
+   So, the final code is:
+
+   Read n, m.
+
+   Read p.
+
+   Read a.
+
+   current_ruling = None
+
+   power_levels = [0]*n
+
+   result = []
+
+   for j in range(m):
+
+       required_p = p[j]
+
+       possible_cj = []
+
+       for c in range(1, n+1):
+
+           if c == current_ruling:
+
+               continue
+
+           new_power = list(power_levels)
+
+           new_power[c-1] += 1
+
+           max_power = max(new_power)
+
+           new_ruling = None
+
+           for i in range(n):
+
+               if new_power[i] == max_power:
+
+                   new_ruling = i+1
+
+                   break
+
+           if new_ruling == required_p:
+
+               possible_cj.append( (c, a[c-1][j]) )
+
+       if not possible_cj:
+
+           print(-1)
+
+           exit()
+
+       best_c = None
+
+       best_score = -1
+
+       for c, score in possible_cj:
+
+           if score > best_score:
+
+               best_score = score
+
+               best_c = c
+
+       # Now, compute new_power_levels for best_c and new_ruling
+
+       new_power = list(power_levels)
+
+       new_power[best_c-1] += 1
+
+       max_power = max(new_power)
+
+       new_ruling = None
+
+       for i in range(n):
+
+           if new_power[i] == max_power:
+
+               new_ruling = i+1
+
+               break
+
+       power_levels = new_power
+
+       current_ruling = new_ruling
+
+       result.append(best_c)
+
+   print(' '.join(map(str, result)))
+
+   This code should handle the cases correctly.
+
+   Now, let's test this code against the first example.
+
+   For the first example:
+
+   After the first turn, the code appends 2 to result.
+
+   The power_levels is [0, 1], current_ruling is 2.
+
+   For the second turn, required_p is 1.
+
+   The code loops through c=1 and c=2.
+
+   c=1 is allowed (current_ruling is 2).
+
+   new_power = [0+1, 1] = [1, 1].
+
+   max_power is 1, new_ruling is 1 (since i=0 and i=1 have 1).
+
+   required_p is 1, so added.
+
+   c=2 is not allowed (current_ruling is 2).
+
+   So, possible_cj is [(1, 2)].
+
+   best_c is 1.
+
+   new_power is [1, 1] (since best_c is 1, new_power[0] += 1 → [1, 1].
+
+   current_ruling is 1.
+
+   For the third turn, required_p is 2.
+
+   current_ruling is 1.
+
+   possible_cj is c=2.
+
+   new_power is [1, 1+1=2].
+
+   max_power is 2, new_ruling is 2.
+
+   required_p is 2 → added.
+
+   best_c is 2.
+
+   So, the result is [2, 1, 2], which is correct.
+
+   So, this code should work.
+
+   Now, the code must handle the case where the current_ruling is None.
+
+   For example, in the first turn, the code loops through all c, and for each, computes new_power, and new_ruling.
+
+   So, the code should handle it.
+
+   Now, the code must also handle the case where there are multiple possible_cj, and the best one is chosen.
+
+   So, the code should work.
+
+   Now, the code must be written in Python.
+
+   Also, note that in Python, the list is mutable, and for each new_power, it is a copy.
+
+   Now, the code is written.
+
+   Now, the code must also handle the case where the new_ruling is not required_p, but the code checks for it.
+
+   So, the code should be correct.
+
+   Now, the final code is as follows.
+</think>
+
+```python
+import sys
+
+def main():
+    n, m = map(int, sys.stdin.readline().split())
+    p = list(map(int, sys.stdin.readline().split()))
+    a = []
+    for _ in range(n):
+        row = list(map(int, sys.stdin.readline().split()))
+        a.append(row)
+    
+    current_ruling = None
+    power_levels = [0] * n
+    result = []
+    
+    for j in range(m):
+        required_p = p[j]
+        possible_cj = []
+        for c in range(1, n + 1):
+            if c == current_ruling:
+                continue
+            new_power = list(power_levels)
+            new_power[c - 1] += 1
+            max_power = max(new_power)
+            new_ruling = None
+            for i in range(n):
+                if new_power[i] == max_power:
+                    new_ruling = i + 1
+                    break
+            if new_ruling == required_p:
+                possible_cj.append((c, a[c - 1][j]))
+        
+        if not possible_cj:
+            print(-1)
+            return
+        
+        best_c = None
+        best_score = -1
+        for c, score in possible_cj:
+            if score > best_score:
+                best_score = score
+                best_c = c
+        
+        # Update power_levels and current_ruling
+        new_power = list(power_levels)
+        new_power[best_c - 1] += 1
+        max_power = max(new_power)
+        new_ruling = None
+        for i in range(n):
+            if new_power[i] == max_power:
+                new_ruling = i + 1
+                break
+        power_levels = new_power
+        current_ruling = new_ruling
+        result.append(best_c)
+    
+    print(' '.join(map(str, result)))
+
+if __name__ == "__main__":
+    main()
+```

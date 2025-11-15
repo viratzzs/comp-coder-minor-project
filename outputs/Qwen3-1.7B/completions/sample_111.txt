@@ -1,0 +1,423 @@
+<think>
+Okay, let's tackle this problem. So, the task is to compute the expected value of the product of two randomly chosen balls from an array, and then output P * Q^{-1} mod 1e9+7. Hmm.
+
+First, I need to understand how to compute the expected value. The expected value is the sum of all possible products divided by the number of possible pairs. But since the pairs can be the same elements (like when there are duplicates), I need to account for all possible combinations, including when the two elements are the same.
+
+But wait, the problem says that the friend can pick two distinct balls, but they may have the same value. So, the pairs are all possible combinations of two elements, including when they are the same. So, the total number of pairs is n*(n-1) + n? Wait, no. Wait, when you choose two elements, the order doesn't matter. So the total number of pairs is C(n, 2) + n (if we consider pairs with same elements as possible). Wait, no. Wait, the problem says that the friend can pick two balls, which could be the same. Wait, but in the problem statement, it says "two elements from the box" but the same element can be picked twice? Or is it that the two elements must be distinct?
+
+Wait, the problem says: "the friend randomly picks two balls from the box (it could be two distinct balls, but they may have the same value)". So, the two balls can be the same. But when you pick two balls, they are distinct in the sense that they are different elements. So, for example, if there are two balls with the same value, then selecting the same ball twice is allowed. But in that case, the total number of pairs is n*(n) (since each of the n elements can be chosen twice, but since the order doesn't matter, perhaps we need to think in terms of combinations with replacement? Or combinations without replacement?
+
+Wait, the problem says that the friend picks two balls. So, for example, if there are n elements, the total number of possible pairs is n*(n) if the order matters, but if it's combinations (without order), then it's n*(n-1)/2. But the problem says that the friend could pick two distinct balls (so they are different elements) but they may have the same value. So, the selection is without replacement. So, the number of possible pairs is n*(n-1)/2. Wait, but in the first example, the input is 3 elements: 3, 2, 3. The number of pairs is 3, which is C(3, 2) = 3. Which matches the example. But in the second example, the input is 4 elements, and the number of pairs is 6. Which is C(4, 2) = 6. So the problem is considering pairs as combinations of two distinct elements. So the total number of possible pairs is C(n, 2), and each pair is considered once.
+
+But then, the problem says that the product is the same as the number that Sakurako guessed. But the problem is to compute the expected value of the product. So, the expected value is (sum of all products of pairs) divided by the number of pairs.
+
+So, the first step is to compute the sum of all products of pairs, then divide by the number of pairs (C(n,2)).
+
+But how to compute this sum efficiently, given that n can be up to 2e5 and t up to 1e4. So, for each test case, we need an O(n) or O(n log n) solution.
+
+But the problem is that for large n, we can't compute all pairs directly. For example, if n is 2e5, then n^2 is 4e10, which is impossible to compute directly. So we need a smarter approach.
+
+So, let's think about the sum of products of all pairs. Let's denote the array as a_1, a_2, ..., a_n.
+
+The sum of products of all pairs is equal to (sum a_i)^2 - sum a_i^2) / 2. Wait, let me think. Because (sum a_i)^2 = sum a_i^2 + 2 * sum_{i<j} a_i a_j. So, sum_{i<j} a_i a_j = [ (sum a_i)^2 - sum a_i^2 ] / 2.
+
+Yes. So, the sum of all products of pairs (without replacement) is [ (sum a_i)^2 - sum a_i^2 ] / 2. Then, the expected value is that divided by C(n, 2), which is n*(n-1)/2.
+
+So, the expected value is [ (sum a_i)^2 - sum a_i^2 ] / ( 2 * (n*(n-1)/2) ) ) = [ (sum a_i)^2 - sum a_i^2 ] / (n*(n-1)).
+
+Wait, let me compute that. The sum of products is S = [ (sum a_i)^2 - sum a_i^2 ] / 2. Then the expected value is S / (C(n, 2)) = [ (sum a_i)^2 - sum a_i^2 ] / ( 2 * C(n, 2) ). But C(n,2) is n(n-1)/2. So substituting:
+
+Expected value = [ (sum a_i)^2 - sum a_i^2 ] / ( 2 * (n(n-1)/2) ) ) = [ (sum a_i)^2 - sum a_i^2 ] / ( n(n-1) )
+
+So, the expected value is [ (sum a_i)^2 - sum a_i^2 ] / (n(n-1)).
+
+But wait, let's check with the first example. The first test case is 3 elements: 3, 2, 3. sum a_i is 8. sum a_i^2 is 9 + 4 + 9 = 22. So numerator is 8^2 - 22 = 64-22=42. denominator is 3*2=6. 42/6 = 7. Which matches the example. So yes, that's correct.
+
+Another example: the second test case. The array is [2,2,2,4]. sum a_i is 10. sum a_i^2 is 2^2 *3 +4^2 = 12 + 16 = 28. So numerator is 10^2 -28 = 100-28=72. denominator is 4*3=12. 72/12=6. Which matches the example.
+
+So the formula is correct. So, the problem reduces to computing this value.
+
+But how to compute this efficiently, considering that the numbers can be up to 1e9, and the sum can be up to 2e5 * 1e9 = 2e14, which is manageable in Python, but we need to compute the numerator and denominator modulo 1e9+7, but with the division involved.
+
+But wait, the problem says that the expected value is P/Q, where P and Q are non-negative integers, and Q is non-zero. Then, we need to output P * Q^{-1} mod 1e9+7.
+
+So, the problem is to compute ( (sum_a^2 - sum_a_sq) ) / (n*(n-1)) mod MOD, where MOD is 1e9+7.
+
+But division in modular arithmetic requires multiplying by the modular inverse. So, the steps are:
+
+For each test case:
+
+1. Compute sum_a = sum of all elements in the array.
+
+2. Compute sum_a_sq = sum of squares of all elements.
+
+3. Compute numerator = (sum_a^2 - sum_a_sq) mod MOD.
+
+4. Compute denominator = n*(n-1) mod MOD.
+
+5. Then, the result is (numerator * inverse(denominator)) mod MOD.
+
+But wait, the problem says that the expected value is P/Q, and we need to output P * Q^{-1} mod MOD. So, the numerator is (sum_a^2 - sum_a_sq), and denominator is n*(n-1). So, the result is (numerator) / (denominator) mod MOD.
+
+But since MOD is a prime (1e9+7 is a prime?), let's check. Yes, 1e9+7 is a known prime. So, the modular inverse exists for denominator as long as denominator is not zero mod MOD.
+
+But the problem says that the expected value is P/Q, so denominator can't be zero. But in the problem statement, the input is such that the sum of n across all test cases is up to 2e5, but for each test case, n is at least 2. So, for each test case, n is at least 2, so denominator is n*(n-1), which is at least 2*1=2. So, denominator is not zero mod MOD, since MOD is 1e9+7, which is larger than 2. So, the denominator is non-zero mod MOD.
+
+So, the steps are:
+
+Compute sum_a and sum_a_sq.
+
+Compute numerator = (sum_a^2 - sum_a_sq) mod MOD.
+
+Compute denominator = n*(n-1) mod MOD.
+
+Then compute the result as (numerator * inverse(denominator)) mod MOD.
+
+But how to compute the inverse of the denominator mod MOD?
+
+In Python, we can use pow(denominator, MOD-2, MOD), since MOD is prime.
+
+But wait, the denominator can be up to 2e5 * 2e5 = 4e10. So, when we compute denominator mod MOD, it's possible that denominator is 0 mod MOD? Well, since MOD is 1e9+7, which is about 1e9. So for n up to 2e5, n*(n-1) can be up to 2e5 * 2e5 = 4e10. So, when n is 2e5, n*(n-1) is 2e5 * 199999 = 3.99999e10. Which is way larger than MOD. So, when we compute denominator mod MOD, it's possible that denominator is 0 mod MOD. But since MOD is 1e9+7, which is about 1e9, for n up to 2e5, n*(n-1) can be up to 4e10, which is 40,000,000,000. So, MOD is 1e9+7, which is about 1e9. So, for n up to 2e5, n*(n-1) can be up to 4e10, which is 40,000,000,000. So, when n is 2e5, n*(n-1) is 2e5 * 2e5 = 4e10. So, 4e10 divided by MOD (1e9+7) is 4e10 / 1e9+7 ≈ 40. So, when n is 2e5, denominator is 4e10, which mod MOD is (4e10 mod MOD). But in any case, the denominator can be up to 4e10, but when modded by MOD, it's possible that it's zero. However, the problem says that the expected value is P/Q, and Q is non-zero. So, the denominator can't be zero mod MOD. But how?
+
+Wait, the denominator is n*(n-1). For example, if n is 1e9+7, then denominator is (1e9+7)*(1e9+6), which is a huge number. But mod MOD, since MOD is 1e9+7, then n mod MOD is 0, so denominator mod MOD is 0. But that would make the denominator zero mod MOD, which would make the inverse impossible. However, the problem says that the expected value is P/Q, which implies that Q is non-zero. So, in this case, when the denominator is zero mod MOD, then the denominator is zero, but that would mean that the expected value is (numerator) / 0, which is undefined. But according to the problem statement, it's guaranteed that the expected value has the form P/Q, so the denominator must be non-zero. But how can that be?
+
+Wait, perhaps the problem's constraints ensure that the denominator is non-zero. Let's think: For the denominator to be zero mod MOD, we need that n*(n-1) ≡ 0 mod MOD. Which would mean that MOD divides n*(n-1). But MOD is 1e9+7, which is a prime. So, MOD divides n*(n-1) if and only if MOD divides n or MOD divides (n-1). But since MOD is 1e9+7, which is a prime, and n can be up to 2e5. So, for example, if n is 1e9+7, then n mod MOD is zero, so n*(n-1) mod MOD is 0. But in that case, the denominator is zero mod MOD. However, in the problem statement, the input is such that the sum of n across all test cases is up to 2e5. So, for each test case, n is up to 2e5. So, for n up to 2e5, MOD is 1e9+7. So, MOD is larger than n. So, n is less than MOD, so n mod MOD is n, and n-1 mod MOD is n-1. So, for n up to 2e5, n*(n-1) mod MOD is non-zero. Because MOD is 1e9+7, which is larger than 2e5. So, for any n in the test case, n is less than MOD. Therefore, n and n-1 are less than MOD, so their product is also less than MOD^2. So, when MOD is 1e9+7, the product n*(n-1) is less than MOD^2, so mod MOD is the product itself. Therefore, the denominator is non-zero mod MOD.
+
+Therefore, the denominator is non-zero mod MOD, and we can safely compute the inverse.
+
+So, the steps for each test case are:
+
+Compute sum_a = sum of the array elements.
+
+Compute sum_a_sq = sum of squares of the array elements.
+
+Compute numerator = (sum_a^2 - sum_a_sq) mod MOD.
+
+Compute denominator = n*(n-1) mod MOD.
+
+Compute the result as (numerator * inverse(denominator)) mod MOD.
+
+But wait, what about when sum_a^2 - sum_a_sq is negative? For example, if sum_a^2 is less than sum_a_sq. But since the problem says that the expected value is P/Q, which is a real number, but when we take mod MOD, we need to compute the numerator as (sum_a^2 - sum_a_sq) mod MOD. However, since in the problem statement, the sum_a^2 - sum_a_sq can be negative, but when modded by MOD, it's handled correctly.
+
+But in Python, when you compute (sum_a^2 - sum_a_sq) mod MOD, it's possible that the result is negative. But in Python, the mod operator returns a non-negative result. So, for example, (a - b) % MOD will be correct.
+
+But how to compute sum_a^2 mod MOD? Well, sum_a can be up to 2e5 * 1e9 = 2e14. So, sum_a squared is up to 4e28, which is way larger than MOD. But in Python, integers can be arbitrarily big, so we can compute sum_a^2 as (sum_a * sum_a) mod MOD, but wait, no. Wait, the numerator is (sum_a^2 - sum_a_sq) mod MOD. So, sum_a^2 can be computed as (sum_a mod MOD)^2 mod MOD. But sum_a can be up to 2e5 * 1e9 = 2e14, which is 2e14. So, when we compute sum_a mod MOD, it's sum_a % MOD. Then, squaring it gives (sum_a^2) mod MOD. Similarly for sum_a_sq mod MOD.
+
+But wait, the problem is that sum_a^2 can be very large. However, since we are taking mod MOD, we can compute sum_a mod MOD, then square it, then subtract sum_a_sq mod MOD, then mod MOD again.
+
+So, for example, sum_a^2 mod MOD is (sum_a mod MOD)^2 mod MOD.
+
+But sum_a can be up to 2e14, which is manageable in Python as an integer.
+
+So, the steps for each test case are:
+
+Read n.
+
+Read the array.
+
+Compute sum_a as sum of array elements.
+
+Compute sum_a_sq as sum of squares of array elements.
+
+Compute numerator = (sum_a^2 - sum_a_sq) mod MOD.
+
+Compute denominator = n * (n-1) mod MOD.
+
+Then compute the result as (numerator * inverse(denominator)) mod MOD.
+
+But how to compute the inverse? Since MOD is a prime, we can compute it using pow(denominator, MOD-2, MOD).
+
+But wait, what if denominator is zero mod MOD? Well, as discussed before, it's impossible.
+
+So, the code structure would be:
+
+Read t test cases.
+
+For each test case:
+
+Read n.
+
+Read list of a_i.
+
+Compute sum_a = sum(a_i)
+
+sum_a_sq = sum( x*x for x in a_i )
+
+numerator = (sum_a * sum_a - sum_a_sq) % MOD
+
+denominator = n * (n-1) % MOD
+
+result = (numerator * pow(denominator, MOD-2, MOD)) % MOD
+
+print(result)
+
+Wait, but what if the numerator is negative? For example, if sum_a^2 is less than sum_a_sq. Then (sum_a^2 - sum_a_sq) would be negative. But when mod MOD is applied, it's handled correctly.
+
+But in Python, (sum_a^2 - sum_a_sq) can be negative, but when you take mod MOD, it's handled correctly.
+
+But let's think about the example where sum_a^2 - sum_a_sq is negative. For example, if the array is [1, 1], then sum_a is 2, sum_a_sq is 2. So numerator is 4-2 = 2. Which is positive. But if the array is [1, 0], sum_a is 1, sum_a_sq is 1. numerator is 1-1=0. So the result is 0 / (2*1) = 0. Which is correct.
+
+Another example: array [0, 0]. sum_a is 0, sum_a_sq is 0. numerator is 0-0=0. denominator is 2*1=2. result is 0/2=0. Which is correct.
+
+So, the code seems correct.
+
+But how to handle the sum_a and sum_a_sq when they are very large? For example, when n is 2e5 and each element is 1e9. sum_a is 2e5 * 1e9 = 2e14, which is manageable in Python.
+
+But when sum_a is very large, but we take mod MOD when computing (sum_a^2 - sum_a_sq) mod MOD. So, sum_a mod MOD is sum_a % MOD, then squared, then subtract sum_a_sq mod MOD, then mod MOD again.
+
+But in Python, sum_a can be up to 2e5 * 1e9 = 2e14. So, sum_a mod MOD is (sum_a % MOD). For example, if MOD is 1e9+7, then sum_a can be 2e14, which is 200000000000000, and sum_a mod MOD is 200000000000000 % (1e9+7). But in Python, this is manageable.
+
+So, the code can be written as:
+
+MOD = 10**9 +7
+
+t = int(input())
+
+for _ in range(t):
+
+    n = int(input())
+
+    a = list(map(int, input().split()))
+
+    sum_a = sum(a)
+
+    sum_a_sq = sum(x*x for x in a)
+
+    numerator = (sum_a * sum_a - sum_a_sq) % MOD
+
+    denominator = n * (n-1) % MOD
+
+    inv_denominator = pow(denominator, MOD-2, MOD)
+
+    result = (numerator * inv_denominator) % MOD
+
+    print(result)
+
+Wait, but what if the numerator is negative? For example, if sum_a^2 is 0, and sum_a_sq is 1, then numerator is -1 mod MOD. But in Python, (sum_a^2 - sum_a_sq) % MOD will be correct.
+
+But in the code above, the numerator is (sum_a^2 - sum_a_sq) mod MOD. So, for example, if sum_a^2 is 1, sum_a_sq is 2, then numerator is (1-2) = -1 mod MOD is MOD-1. Which is correct.
+
+So, the code is correct.
+
+But let's check the sample input.
+
+First sample:
+
+3
+
+3
+
+3 2 3
+
+sum_a = 3+2+3 = 8.
+
+sum_a_sq = 9 +4 +9 = 22.
+
+numerator = 64 -22 = 42. 42 mod MOD is 42.
+
+denominator = 3 * 2 = 6 mod MOD is 6.
+
+inv_denominator = 6^(MOD-2) mod MOD.
+
+But 6^{-1} mod MOD is 166666668, because 6 * 166666668 mod MOD is 1.
+
+So 42 * 166666668 mod MOD is 42 * 166666668 = 7, which is correct.
+
+So the code would output 7.
+
+Yes.
+
+Second sample:
+
+4
+
+2 2 2 4
+
+sum_a = 2+2+2+4 = 10.
+
+sum_a_sq = 4 +4 +4 +16 = 28.
+
+numerator = 100 -28 = 72 mod MOD is 72.
+
+denominator =4*3=12 mod MOD is 12.
+
+inv_denominator is 12^{-1} mod MOD. 12 * 83333334 = 1 mod MOD. So 72 * 83333334 = 6 mod MOD. Which is correct.
+
+Third sample:
+
+5
+
+1 2 3 4 5
+
+sum_a is 15.
+
+sum_a_sq is 1 +4 +9 +16 +25 = 55.
+
+numerator is 225 -55 = 170.
+
+denominator is 5*4=20.
+
+170 / 20 = 8.5. But the expected value is 500000012.
+
+Wait, what's 170 / 20 = 8.5. But the sample output is 500000012. Let's compute that.
+
+But 170 / 20 = 8.5. So, 8.5 mod MOD is 8.5 mod 1e9+7. But the sample output is 500000012.
+
+Wait, but how?
+
+Wait, the sample output for the third test case is 500000012. Let's compute:
+
+The expected value is (170) / 20 = 8.5.
+
+But 8.5 mod MOD is 8.5. But how is that represented as a fraction mod MOD?
+
+Wait, the problem says that the expected value is P/Q, and we need to output P * Q^{-1} mod MOD.
+
+So, in this case, P is 170, Q is 20. So, 170 / 20 = 17/2.
+
+So, 17/2 mod MOD. Let's compute 17 * inverse(2) mod MOD.
+
+Inverse of 2 mod MOD is 500000004 (since 2 * 500000004 = 1,000,000,008 mod MOD is 1).
+
+So 17 * 500000004 mod MOD is 17 * 500000004 = 8,500,000,068 mod MOD. MOD is 1e9+7 = 1,000,000,007. So 8,500,000,068 - 8*1e9+7 = 8,500,000,068 - 8,000,000,056 = 500,000,012. Which is the sample output.
+
+Yes. So the code would compute 170 / 20 mod MOD as 170 * inv(20) mod MOD.
+
+So, the code is correct.
+
+So, the code is as written above.
+
+Now, let's think about possible edge cases.
+
+Edge case 1: n=2, array [0,0]. sum_a is 0, sum_a_sq is 0. numerator is 0. denominator is 2*1=2. So the result is 0/2 = 0 mod MOD. Correct.
+
+Edge case 2: n=2, array [1, 2]. sum_a is 3. sum_a_sq is 5. numerator is 9-5=4. denominator is 2. 4/2 = 2. So output is 2 mod MOD.
+
+Another case: array [1, 1], n=2. sum_a is 2, sum_a_sq is 2. numerator is 4-2=2. denominator is 2. 2/2=1. So output is 1.
+
+Another case: array [1, 0], sum_a is 1, sum_a_sq is 1. numerator is 1-1=0. denominator is 2. result is 0.
+
+Another case: array [1, 1, 1], n=3. sum_a is 3, sum_a_sq is 3. numerator is 9-3=6. denominator is 3*2=6. 6/6=1. So output is 1.
+
+So, the code handles these cases.
+
+Now, the code needs to be written in Python, and read from stdin, and output to stdout.
+
+But for the sum_a and sum_a_sq, when n is 2e5, and each element is 1e9, the sum can be up to 2e5 * 1e9 = 2e14, which is manageable in Python.
+
+So, the code should be as follows:
+
+Read t test cases.
+
+For each test case:
+
+Read n, then read the list of a_i.
+
+Compute sum_a and sum_a_sq.
+
+Compute numerator as (sum_a^2 - sum_a_sq) mod MOD.
+
+Compute denominator as n*(n-1) mod MOD.
+
+Compute the inverse of denominator mod MOD.
+
+Multiply numerator and inverse, mod MOD.
+
+Print the result.
+
+So, the code in Python:
+
+But note that in Python, when you compute (sum_a * sum_a) - sum_a_sq, it can be a very big number. However, since we are modding by MOD, we can compute it as (sum_a * sum_a % MOD - sum_a_sq % MOD) % MOD.
+
+But in Python, the sum_a can be very large, but when we compute sum_a * sum_a, it's possible that it's larger than MOD. However, in Python, the modulo operation is handled correctly.
+
+But for example, sum_a is 1e9, MOD is 1e9+7. sum_a mod MOD is 1e9. sum_a * sum_a mod MOD is (1e9)^2 mod MOD. Which is 1e18 mod MOD. But in Python, that's handled correctly.
+
+But in the code, the sum_a is computed as sum of the array elements. So, for the code:
+
+sum_a = sum(a)
+
+sum_a_sq = sum(x*x for x in a)
+
+But for very large numbers, this is manageable.
+
+So, the code is:
+
+MOD = 10**9 +7
+
+t = int(input())
+
+for _ in range(t):
+
+    n = int(input())
+
+    a = list(map(int, input().split()))
+
+    sum_a = sum(a)
+
+    sum_a_sq = sum(x*x for x in a)
+
+    numerator = (sum_a * sum_a - sum_a_sq) % MOD
+
+    denominator = n * (n-1) % MOD
+
+    inv_denominator = pow(denominator, MOD-2, MOD)
+
+    result = (numerator * inv_denominator) % MOD
+
+    print(result)
+
+But wait, what about when the numerator is negative? For example, if sum_a^2 - sum_a_sq is negative. Let's say sum_a^2 is 0, sum_a_sq is 1. Then numerator is -1 mod MOD is MOD-1. Which is correct.
+
+But in Python, (sum_a * sum_a - sum_a_sq) % MOD will give the correct value.
+
+Yes.
+
+So, this code should work.
+
+Now, let's test the third sample input:
+
+Test case 3:
+
+5
+
+1 2 3 4 5
+
+sum_a = 15
+
+sum_a_sq = 1 +4+9+16+25 = 55
+
+numerator = 225 -55 = 170
+
+denominator =5*4=20
+
+inv_denominator = pow(20, MOD-2, MOD)
+
+170 * inv_denominator mod MOD is 170 * 500000004 mod MOD.
+
+Let's compute 170 * 500000004 = 8500000068.
+
+Now, MOD is 1e9+7 = 1000000007.
+
+So, 8500000068 - 8 * 1000000007 = 8500000068 - 8000000056 = 500000012. Which is the sample output.
+
+So, the code works.
+
+Thus, the code is correct.
+</think>
+
+```python
+MOD = 10**9 + 7
+
+t = int(input())
+for _ in range(t):
+    n = int(input())
+    a = list(map(int, input().split()))
+    sum_a = sum(a)
+    sum_a_sq = sum(x * x for x in a)
+    numerator = (sum_a * sum_a - sum_a_sq) % MOD
+    denominator = n * (n - 1) % MOD
+    inv_denominator = pow(denominator, MOD - 2, MOD)
+    result = (numerator * inv_denominator) % MOD
+    print(result)
+```

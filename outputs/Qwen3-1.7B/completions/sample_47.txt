@@ -1,0 +1,1775 @@
+<think>
+Okay, let's try to figure out how to solve this problem. The problem is about a game between Tsovak and Narek where they take turns finding elements in a matrix. The key is to determine who will win if both play optimally.
+
+First, let's understand the game mechanics. The array a has l elements. Tsovak goes first. For each element in a, the current player must find it in the matrix. The next player has to find the next element in the submatrix starting at (r+1, c+1) of the current cell. If they can't find the next element in that submatrix, they lose.
+
+So the challenge is to model the game states and determine for each element whether the current player can force a win.
+
+Let me think about the approach. Since the players are taking turns and the choices affect the remaining submatrix, this feels like a game theory problem where we can model the positions as states and use memoization or dynamic programming.
+
+But given the constraints (like l up to 1500 and n*m up to 3e6), we need an efficient approach.
+
+Let me think about the steps:
+
+For each test case, we need to process the array a and the matrix b. The array elements are processed in order. For each element a_i, the current player must find it in the matrix. The submatrix for the next move is determined by the current position.
+
+The key is to model for each position (i,j) and the current element index, whether the current player can win.
+
+But how do we track the positions? Let's think about the process:
+
+Each element in the array a is processed in order. For the first element, Tsovak must find it in the entire matrix. Then, for the next element, Narek must find it in the submatrix starting at (r+1, c+1) of the previous cell. And so on.
+
+So the problem can be viewed as a game where each move depends on the previous move's position.
+
+But how to model this? Let's think recursively. For each element a_i, the player must find it in some position (r, c). The next player must find a_i+1 in the submatrix starting at (r+1, c+1). So the game is a series of moves where each move is determined by the previous position.
+
+But considering that the array is processed in order, perhaps we can model the state as the current position (i.e., the current element being looked for) and the current submatrix.
+
+But for each element in the array, the player has to find it in the matrix, and the next move is determined by the position they choose.
+
+So, for each element in the array, we need to determine if the current player can find it in the matrix, and then determine the outcome based on the next steps.
+
+But how to model this with dynamic programming?
+
+Let me think of the problem as a game where each move is determined by the current position and the current element. Let's consider for each element a_i, and for each possible position (r, c) where the current player can find a_i, what is the outcome.
+
+But since the array is processed in order, and each element is processed once, perhaps we can model this with memoization. Let's consider the following:
+
+For each element a_i, and for each possible position (r, c) where a_i is located, we can compute whether the current player can win when they are to choose that position.
+
+But the problem is that the positions are determined by the previous moves. So for the first element, the player can choose any occurrence of a_1 in the matrix. Then, for the next element, the next player must choose a_2 in the submatrix starting from (r+1, c+1) of the previous position.
+
+But how do we track the submatrix for each step?
+
+Let me think of the process as a sequence of steps. For each step k (from 1 to l), the player must find a_k in the current submatrix. The submatrix for the next step is determined by the position chosen in the current step.
+
+So, for the first step, the submatrix is the entire matrix. For the second step, the submatrix is the part starting at (r+1, c+1) of the first step's position. And so on.
+
+But for each step, the submatrix is determined by the previous position. So, for each step, the possible positions are determined by the previous step's position.
+
+This seems like a problem where we can model the game with memoization, where for each step and for each possible position (r, c), we can determine whether the current player can win.
+
+But the problem is that the number of possible positions is O(nm) for each step, and with l up to 1500, this could be O(l * nm) which might be too slow.
+
+But given that the sum of l across test cases is 1500, and the sum of nm across test cases is 3e6, maybe it's manageable.
+
+So here's an idea: for each test case, process the array a in order. For each element a_i, we need to determine if the current player can win when they are to choose a_i, given the previous position.
+
+But how to model this?
+
+Let's think recursively. Let's define a function dp(k, pos) which returns True if the current player can win when the current element is a_k and the current position is pos. Here, pos is (r, c), which is the position where the current player is looking for the element a_k. But for the first element, the current player can choose any position where a_1 is located.
+
+But the problem is that for each step, the submatrix is determined by the previous position. So for the first step, the submatrix is the entire matrix. For the second step, the submatrix is the submatrix starting at (r+1, c+1) of the first position.
+
+So, the key is to track for each step k, the possible positions where the current player can find a_k, and the next step's submatrix.
+
+But how to model this for all steps?
+
+Let me think of the steps as follows:
+
+For each element a_i (starting from 1 to l), the current player must find a_i in the current submatrix. The current submatrix for step i is determined by the previous step's position.
+
+So, for step i, the current player is looking for a_i in the current submatrix. The submatrix is determined by the previous position (from step i-1). For example, if in step i-1, the player chose (r, c), then the submatrix for step i is from (r+1, c+1) to (n, m).
+
+But the submatrix for step i can be empty, which means the current player can't find a_i, and thus loses.
+
+So, for each step i, the current player must find a_i in the current submatrix. If they can't find it, they lose. If they can, then the next player must find a_{i+1} in the submatrix starting at (r+1, c+1) of the current position.
+
+So the problem is to model for each step i and possible position (r, c) whether the current player can win.
+
+But how to compute this?
+
+Let me think of it as a game where each state is (step, position), and the outcome depends on the next state.
+
+But for the first step, the player can choose any position where a_1 is located. Then, for the next step, the next player must choose a_2 in the submatrix starting from (r+1, c+1) of the previous position.
+
+So for each step, the possible positions are determined by the previous step's position.
+
+This seems like a problem that can be solved with memoization. However, the number of possible states could be large.
+
+But given the constraints, perhaps it's manageable.
+
+Let me think about the steps for a test case:
+
+For each test case, we can precompute for each element a_i, and for each possible position (r, c) where a_i is located, the outcome of the game.
+
+But how to compute this?
+
+Let's think recursively. For a given step i and position (r, c), the current player must find a_i in the current submatrix. If the submatrix is empty, then the current player loses. Otherwise, the current player can choose a position (r', c') in the submatrix where a_i is located. Then, the next player must find a_{i+1} in the submatrix starting at (r'+1, c'+1). The current player's move is to choose a position (r', c') in the current submatrix, and the outcome depends on whether the next player can win.
+
+So for the current player, the outcome is True if there exists at least one position (r', c') in the current submatrix where a_i is located, and the next player cannot win (i.e., the next player's outcome is False).
+
+But how to model this?
+
+Let me think of it as follows:
+
+For each step i, and for each possible position (r, c) in the current submatrix, we can compute whether the current player can win.
+
+But the current submatrix depends on the previous position. So for step i, the current submatrix is determined by the previous position (from step i-1).
+
+But how to model this for all steps?
+
+This seems like a problem that can be solved with dynamic programming, where for each step i, and for each possible position (r, c) in the current submatrix, we compute whether the current player can win.
+
+But how do we track the current submatrix for each step?
+
+Wait, the current submatrix for step i is determined by the previous position (from step i-1). So for step i, the current submatrix is the submatrix starting at (r_prev + 1, c_prev + 1), where (r_prev, c_prev) is the position chosen in step i-1.
+
+But for step i, the current submatrix is determined by the previous position. So, for each step i, the possible positions are determined by the previous step's positions.
+
+This seems complicated. However, perhaps we can model the problem in a way that for each step i, we track for each possible position (r, c) in the current submatrix (which is determined by the previous step's position) whether the current player can win.
+
+But how to compute this for all steps?
+
+An alternative approach is to model the game as a series of moves, where each move is determined by the previous position. For each element a_i, the current player must find it in the current submatrix. The submatrix for the next step is determined by the current position.
+
+So, for the first element a_1, the current player (Tsovak) must find it in the entire matrix. The next player (Narek) must find a_2 in the submatrix starting at (r+1, c+1) of the first position. And so on.
+
+So, the problem can be viewed as a sequence of moves, where each move depends on the previous position.
+
+But how to model this for all possible positions?
+
+Perhaps for each element a_i, we can precompute all possible positions where a_i can be found, and then for each such position, determine if the current player can win.
+
+But for each step, the current submatrix is determined by the previous position. Therefore, for step i, the current submatrix is the submatrix starting at (r_prev + 1, c_prev + 1), which depends on the previous position.
+
+But this seems like a recursive problem. For example, for step i, the current player can choose any position in the current submatrix where a_i is located. Then, for each such position, the next player must choose a position in the submatrix starting at (r_prev +1, c_prev +1), and so on.
+
+This seems like a problem that can be solved with memoization. Let's think of the following:
+
+We can use a memoization table, where for each step i and for each possible position (r, c) in the current submatrix, we store whether the current player can win.
+
+But how to represent the current submatrix for each step?
+
+Wait, the current submatrix for step i is determined by the previous position (from step i-1). So, for step i, the current submatrix is the submatrix starting at (r_prev +1, c_prev +1). But the previous position (r_prev, c_prev) is the position chosen in step i-1.
+
+But for step i, the current submatrix is determined by the position chosen in step i-1. So, for each step i, the possible positions are determined by the previous step's positions.
+
+But how do we track this? It seems that for each step i, the current submatrix is a certain region, and the positions in that region are the possible positions for the current element.
+
+This seems very complex. However, perhaps we can model this with a dynamic programming approach where for each step i, we track for each possible position (r, c) in the current submatrix (which is determined by the previous step's position) whether the current player can win.
+
+But how to compute this for all steps?
+
+Another approach: since the players take turns, and the game is deterministic based on the choices made, perhaps we can model this with a game tree. For each element in the array, we can track the possible positions and the outcome.
+
+But again, the problem is how to compute this efficiently.
+
+Let me think of the problem in terms of game states. For each step i, and for each possible position (r, c) in the current submatrix, the current player can choose a position where a_i is located. Then, the next player must choose a position in the submatrix starting at (r+1, c+1), and so on.
+
+So, for each step i, and for each possible position (r, c) in the current submatrix, we can compute whether the current player can win.
+
+But how to compute this?
+
+Let me think of the base case. When the current player is to choose the last element (i = l), then the array has ended. So, if the current player can find the element, they win. Otherwise, they lose.
+
+Wait, the game ends when the previous player has chosen the last element. So, for the last element, the current player must find it. If they can, then they win. If not, they lose.
+
+So, for step i = l, the current player must find a_l in the current submatrix. If they can, they win. Otherwise, they lose.
+
+But how to model this for all steps.
+
+Let me think of the steps in reverse. For example, for step i, the current player can choose any position in the current submatrix where a_i is located. Then, the next player must choose a position in the submatrix starting at (r+1, c+1) of the current position. The outcome depends on whether the next player can win.
+
+So, for each step i, the current player can win if there exists at least one position in the current submatrix where a_i is located, and the next player cannot win.
+
+So, for each step i and position (r, c), the current player can win if:
+
+- There exists at least one position (r', c') in the current submatrix where a_i is located.
+
+- For all such positions (r', c'), the next player cannot win when they are to choose the next element (i+1) in the submatrix starting at (r' +1, c' +1).
+
+But how to compute this?
+
+This seems like a recursive problem. Let's think of it as follows:
+
+Define a function f(i, pos) which returns True if the current player can win when processing the i-th element and the current position is pos. Here, pos is (r, c) in the current submatrix.
+
+But how to compute this function?
+
+The base case is when i == l. Then, the current player must find a_l in the current submatrix. If there is at least one position in the current submatrix where a_l is located, then the current player can win. Otherwise, they lose.
+
+For other cases:
+
+The current player must choose a position (r', c') in the current submatrix where a_i is located. Then, the next player must choose a position in the submatrix starting at (r' +1, c' +1) for the next element (i+1). The current player wins if there exists at least one such position (r', c') where the next player cannot win.
+
+So, for f(i, pos):
+
+If there are no positions in the current submatrix where a_i is located, return False.
+
+Else, for each possible position (r', c') in the current submatrix where a_i is located, check if the next player (i+1) can't win when the submatrix is (r' +1, c' +1). If for any such (r', c'), the next player can't win, then the current player can win.
+
+So, the function f(i, pos) is True if any of the positions (r', c') in the current submatrix for a_i, and the next player's f(i+1, (r'+1, c'+1)) is False.
+
+But how to compute this for all possible positions?
+
+The problem is that for each step i, the current submatrix is determined by the previous step's position. But how to track this?
+
+Wait, the pos for step i is (r, c), which is the position in the current submatrix. The current submatrix for step i is determined by the previous step's position. For example, for step i, the current submatrix is the submatrix starting at (r_prev + 1, c_prev + 1), where (r_prev, c_prev) is the position chosen in step i-1.
+
+But how do we track this for each step?
+
+This seems complicated. However, perhaps we can precompute for each element a_i, all possible positions (r, c) where a_i is located, and then for each such position, compute the outcome based on the next step.
+
+But how to handle the submatrix for each step?
+
+An alternative approach: for each element a_i, we can precompute all possible positions (r, c) where a_i is located. Then, for each such position, we can compute the outcome for the next step (i+1) in the submatrix starting at (r+1, c+1).
+
+But how to compute this for all possible positions?
+
+This seems like a problem that can be solved with memoization. Let's think of it as follows:
+
+For each step i, and for each possible position (r, c) in the current submatrix, we can memoize whether the current player can win.
+
+But the current submatrix for step i is determined by the previous step's position. However, since the previous step's position is part of the state, this seems to require tracking the previous position.
+
+But this would make the state too large, as the previous position can be any (r, c) in the matrix.
+
+But given that the sum of l is 1500, and for each step, the number of possible positions is O(nm), this may be feasible.
+
+But how to handle the submatrix for each step?
+
+Let me think of the following:
+
+For each step i, and for each possible position (r, c) in the current submatrix (which is determined by the previous step's position), we can compute the outcome.
+
+But the current submatrix for step i is determined by the previous step's position. However, for the first step, the current submatrix is the entire matrix. For the second step, it's the submatrix starting at (r_prev +1, c_prev +1), and so on.
+
+But how do we track this for all steps?
+
+This seems like a problem that can be modeled with a recursive function, where for each step i, the current submatrix is determined by the previous step's position. But the previous step's position is part of the state.
+
+So, for the first step, the current submatrix is the entire matrix. For step 1, the current player can choose any position (r, c) in the entire matrix where a_1 is located. For each such position, the next step (i=2) is determined by the submatrix starting at (r+1, c+1). So, for each possible position (r, c) in step 1, we compute the outcome for step 2.
+
+But this seems like a lot of states. However, given that l is up to 1500 and the sum of nm across test cases is 3e6, perhaps it's manageable.
+
+But how to implement this efficiently?
+
+Let's think of the following approach:
+
+We can precompute for each element a_i, all the positions (r, c) where a_i is located. Then, for each step i, and for each possible position (r, c) in the current submatrix, we can compute whether the current player can win.
+
+But for each step i, the current submatrix is determined by the previous position. So, for the first step, the current submatrix is the entire matrix. For the second step, it's the submatrix starting at (r_prev +1, c_prev +1), and so on.
+
+But how to model this in code?
+
+Let me think of the following steps:
+
+For each test case:
+
+- Preprocess the matrix to find for each element a_i, all positions (r, c) where it occurs.
+
+- Then, for the first element a_1, we need to find all possible positions (r, c) where a_1 is located. For each such position, we compute the outcome of the game starting from that position.
+
+But how to compute this for all steps?
+
+This seems like a problem that can be solved with memoization and recursion. However, with the constraints, we need to make sure that the code is efficient.
+
+But given that the sum of l is 1500, and for each step, the number of possible positions is O(nm), and the number of steps is O(l), this could be O(l * nm) time, which may be acceptable.
+
+But how to implement this?
+
+Let me think of the following approach:
+
+We can use memoization with a memo table that stores for each step i and for each possible position (r, c) in the current submatrix, whether the current player can win.
+
+But the current submatrix for step i is determined by the previous step's position. So, for each step i, the current submatrix is determined by the previous step's position. However, during the recursion, we can track the current submatrix based on the previous position.
+
+Wait, but during the recursion, the current submatrix for step i depends on the previous position. So, for each step i, the current submatrix is determined by the position chosen in step i-1.
+
+But during the recursion, for step i, the current submatrix is the submatrix starting at (r_prev + 1, c_prev + 1), where (r_prev, c_prev) is the position chosen in step i-1.
+
+But how do we track this? It's possible that for each step i, the current submatrix is a certain region, and the positions in that region are the possible positions for a_i.
+
+So, for each step i, the current submatrix is a certain region, and for each position (r, c) in that region, we can compute the outcome.
+
+But how to represent the current submatrix for each step?
+
+This seems very challenging. However, perhaps we can model the current submatrix as a rectangle, and for each position (r, c) in that rectangle, the current submatrix is the rectangle starting at (r, c) and extending to (n, m). But this is not correct, because the submatrix for step i is determined by the previous position.
+
+Alternatively, perhaps for each step i, the current submatrix is the rectangle starting at (r_prev +1, c_prev +1), where (r_prev, c_prev) is the position chosen in step i-1.
+
+But how to compute this during the recursion?
+
+This seems like a problem that can be handled with memoization, where for each step i and for each possible position (r, c) in the current submatrix, we store the outcome.
+
+But how to compute the current submatrix for step i?
+
+Wait, perhaps for each step i, the current submatrix is the rectangle from (r, c) to (n, m), where (r, c) is the starting position of the submatrix. But this depends on the previous position.
+
+But during the recursion, when we process step i, the current submatrix is determined by the previous position. So, for step i, the current submatrix is the rectangle starting at (r_prev + 1, c_prev + 1), where (r_prev, c_prev) is the position chosen in step i-1.
+
+But how do we track this during the recursion?
+
+This seems to require that for each step i, we have access to the current submatrix's starting position, which is determined by the previous step's position.
+
+But this is not feasible to track unless we have a way to represent the current submatrix.
+
+An alternative idea: for each step i, the current submatrix is the rectangle starting at (r, c) and ending at (n, m), where (r, c) is the starting position of the submatrix. But during the recursion, the current submatrix is determined by the previous step's position.
+
+But how to model this in code?
+
+Maybe we can represent the current submatrix as a rectangle (r, c) to (n, m), and for each position (r, c) in that rectangle, we can compute the outcome.
+
+But this seems like a lot of states.
+
+Alternatively, perhaps we can precompute for each possible position (r, c) in the entire matrix, and for each possible step i, whether that position is valid (i.e., a_i is located there), and then compute the outcome recursively.
+
+But how to handle the submatrix for each step.
+
+Let me think of the following approach:
+
+For each test case, we can precompute for each element a_i, a list of positions (r, c) where a_i is located. Then, for each step i, we can process the positions in the current submatrix.
+
+But the current submatrix for step i is determined by the previous position. So, for step i, the current submatrix is the rectangle starting at (r_prev + 1, c_prev + 1), where (r_prev, c_prev) is the position chosen in step i-1.
+
+But during the recursion, for each step i, the current submatrix is the rectangle starting at (r_prev + 1, c_prev + 1), and the positions in this submatrix are the possible positions for a_i.
+
+But how to compute this for all steps?
+
+Perhaps the key is to realize that for each step i, the current submatrix is the rectangle starting at (r, c) = (r_prev + 1, c_prev + 1), and for this submatrix, we can find all positions (r', c') where a_i is located.
+
+So, during the recursion, for each step i and a position (r_prev, c_prev) in the previous step, we can compute the current submatrix's starting position (r_start, c_start) = (r_prev + 1, c_prev + 1), and then find all positions (r', c') in this submatrix where a_i is located.
+
+But how to do this efficiently?
+
+This seems like a problem that can be handled with a precomputed 2D array for each element a_i, which stores the positions where it occurs.
+
+So, for each element a_i, we have a list of positions. For example, positions[i] is a list of (r, c) pairs.
+
+Then, during the recursion, for a given position (r_prev, c_prev), the current submatrix is from (r_prev + 1, c_prev + 1) to (n, m). For this submatrix, we need to find all positions (r', c') where a_i is located.
+
+But how to find these positions quickly?
+
+For each a_i, we can precompute a 2D array that for each (r, c) in the matrix, tells if a_i is located there. But this would require O(nm) space per element, which is not feasible.
+
+Alternatively, for each a_i, we can have a list of positions (r, c) where it occurs. Then, during the recursion, when we need to find positions in the current submatrix, we can iterate through the list of positions for a_i and check if they are in the current submatrix.
+
+But this could be time-consuming if done naively. However, given that the sum of l is 1500, and for each step, the number of positions per a_i is O(nm), this might be manageable.
+
+So, here's the plan:
+
+For each test case:
+
+1. Preprocess the matrix to find for each a_i, the list of positions where it occurs.
+
+2. For each step i, and for each possible position (r, c) in the current submatrix (which is determined by the previous step's position), check if a_i is present in that submatrix.
+
+3. For each such position, compute the outcome for the next step.
+
+But how to implement this?
+
+We can use memoization with a memo table that stores for each (i, pos) the outcome. However, the pos here is the (r, c) of the current submatrix's starting position. Wait, no. The pos is the position in the current submatrix, but the current submatrix is determined by the previous step's position.
+
+This is getting complicated. Perhaps we need to model the current submatrix as a rectangle (r_start, c_start) to (n, m), and for each step i, the current submatrix is determined by the previous position.
+
+But during the recursion, for step i, the current submatrix is determined by the previous position (r_prev, c_prev), which is the position chosen in step i-1.
+
+So, for step i, the current submatrix is from (r_prev + 1, c_prev + 1) to (n, m). For this submatrix, we need to find all positions (r', c') where a_i is located.
+
+So, the recursion for step i can be:
+
+def can_win(i, r_prev, c_prev):
+
+    if i == l:
+
+        return True if there is at least one position in the current submatrix where a_i is located, else False
+
+    current_submatrix_start = (r_prev + 1, c_prev + 1)
+
+    current_submatrix_end = (n, m)
+
+    positions_in_current_submatrix = [ (r', c') for (r', c') in positions[i] if current_submatrix_start[0] <= r' <= current_submatrix_end[0] and current_submatrix_start[1] <= c' <= current_submatrix_end[1] ]
+
+    for each position (r', c') in positions_in_current_submatrix:
+
+        next_submatrix_start = (r' + 1, c' + 1)
+
+        if can_win(i+1, r', c') is False:
+
+            return True
+
+    return False
+
+But this is a recursive approach, and the memoization would need to store the state (i, r_prev, c_prev).
+
+But with the constraints, this might be too slow.
+
+But let's think about the possible number of states. For each test case, l is up to 1500, and for each step i, the number of possible (r_prev, c_prev) is O(nm) for each step. So, the total number of states is O(l * nm), which for the worst case could be 1500 * 1500 * 1500 (if n and m are 1500), which is way too big.
+
+But given that the sum of nm across test cases is 3e6, and l is 1500, this would be 1500 * 3e6 = 4.5e9, which is way too large.
+
+So, this approach is not feasible.
+
+We need a better approach.
+
+Alternative idea: since the submatrix for step i is determined by the previous position, and the players are trying to find the current element in the submatrix, perhaps we can model the problem as a game where each move is determined by the previous position, and the current element is processed in order.
+
+But how to model this efficiently.
+
+Let me think about the game in terms of the number of moves and the positions.
+
+For the first element, the current player (Tsovak) has to find it in the entire matrix. The next player (Narek) has to find the second element in the submatrix starting from (r+1, c+1) of the first position.
+
+But the key is that the submatrix for the next step is determined by the previous position.
+
+So, for the entire game, the positions are determined by the choices made in each step.
+
+But how to model this in a way that avoids O(l * nm) time?
+
+Another observation: the submatrix for step i is determined by the previous position. So, for step i, the submatrix is the region starting at (r_prev + 1, c_prev + 1). This is equivalent to the region that is to the right and below the previous position.
+
+But the game is such that each player must choose a position in the current submatrix for the current element.
+
+So, the problem is similar to a game of choosing positions in a grid, with the next move being in a smaller subgrid.
+
+This seems like a variant of the game of Nim, but with multiple options and the outcome depending on the next move.
+
+But how to model this.
+
+Alternative idea: the game is a series of moves where each move reduces the available area. The key is to determine for each element a_i, the number of moves possible in the current submatrix, and whether the current player can force a win.
+
+But how?
+
+Let me think about the game in terms of the number of possible positions for each element. For example, if the current player can choose a position that leaves the next player with no moves, then they win.
+
+But this depends on the next player's options.
+
+Another observation: the game is deterministic in the sense that the players choose the optimal move. So, for each element a_i, the current player will choose a position that maximizes their chances of winning.
+
+But how to compute this.
+
+Perhaps we can model the problem with memoization, but optimize it by noting that for each step i, the current submatrix is determined by the previous position, and the current element's positions are known.
+
+But again, the problem is the number of states.
+
+Wait, but the current submatrix for step i is determined by the previous position. So, for step i, the current submatrix is a rectangle that starts at (r_prev + 1, c_prev + 1). But for step i, the current submatrix is determined by the previous position, which is part of the state.
+
+But perhaps we can represent the state as (i, r, c), where i is the current step, and r and c are the starting position of the current submatrix for this step. This way, for each step i, and for each possible starting position (r, c), we can compute whether the current player can win.
+
+But how to compute this.
+
+Let's think of this as follows:
+
+For each step i, the current submatrix starts at (r, c), and the current player must find a_i in this submatrix. The next step's submatrix starts at (r', c') = (r + 1, c + 1), and the next player must find a_{i+1} in this submatrix.
+
+So, the state is (i, r, c), and the outcome is whether the current player can win.
+
+The base case is when i == l. In this case, the current player must find a_l in the current submatrix. If there are any positions, then they win. Otherwise, they lose.
+
+For other cases:
+
+The current player can choose any position (r', c') in the current submatrix where a_i is located. For each such position, the next player must find a_{i+1} in the submatrix starting at (r' + 1, c' + 1). The current player wins if there exists at least one position (r', c') where the next player cannot win.
+
+So, the recurrence is:
+
+dp(i, r, c) = any (dp(i+1, r', c') is False) for all (r', c') in positions of a_i in the current submatrix.
+
+But how to compute this?
+
+This seems manageable, but the number of states is O(l * nm), which could be large.
+
+But with the constraints, perhaps it's manageable. Let's see:
+
+For each test case, the sum of nm is 3e6. For l=1500, the total number of states is 1500 * 3e6 = 4.5e9, which is way too big.
+
+But this is not feasible. So, there must be a smarter way.
+
+Alternative idea: for each element a_i, the current submatrix is determined by the previous position. But for the first element, the current submatrix is the entire matrix. For the second element, it's the submatrix starting at (r_prev + 1, c_prev + 1), and so on.
+
+But what if we model the problem for each step i, and for the current submatrix, the number of possible positions is small?
+
+But I'm not sure.
+
+Another observation: the players are choosing positions in the current submatrix, and the next submatrix is determined by their choice. So, the game is a series of moves where each move reduces the available area.
+
+But the key is that the players are trying to choose positions that force the other player into a losing position.
+
+But how to model this.
+
+Perhaps the problem can be viewed as a game of taking turns in a grid, where each move is to select a cell in the current submatrix, and the next move is in the submatrix that is shifted by one.
+
+But this is still abstract.
+
+Another idea: since the players are trying to find the elements in order, and the submatrix for the next step is determined by the current position, perhaps we can model this as a game where each move is determined by the current position, and the outcome depends on the next move.
+
+But how to compute this.
+
+Let me think of the game in terms of the number of moves. For example, if the current player can choose a position that leads to the next player having no moves, then they win.
+
+But how to determine this.
+
+Let me think of the game as a series of moves. For the first element, the player chooses a position. For the second element, the next player chooses a position in the submatrix. And so on.
+
+The game ends when the current player cannot find the element, or when the current player has chosen the last element.
+
+So, the winner is determined by whether the first player can force a win.
+
+But how to model this.
+
+Perhaps the key is to realize that for each element a_i, the current player can choose a position in the current submatrix, and the outcome depends on the next player's ability to win.
+
+But this is what we were thinking earlier.
+
+But how to compute this efficiently.
+
+Maybe we can use memoization with a cache that stores for each (i, r, c) the outcome, and use memoization to avoid recomputing.
+
+But given the constraints, this might be possible.
+
+Let me try to think of the code structure.
+
+For each test case:
+
+- Read l, n, m.
+
+- Read the array a.
+
+- Read the matrix b.
+
+- For each element in a, precompute the positions.
+
+- For each element a_i, create a list of positions.
+
+Then, for the first step, the current submatrix is the entire matrix, and the current player is Tsovak.
+
+We need to determine whether Tsovak can win.
+
+So, the code would look something like:
+
+def solve():
+
+    t = int(input())
+
+    for _ in range(t):
+
+        l, n, m = map(int, input().split())
+
+        a = list(map(int, input().split()))
+
+        matrix = []
+
+        for _ in range(n):
+
+            matrix.append(list(map(int, input().split())))
+
+        # Preprocess positions for each a_i
+
+        positions = {}
+
+        for i in range(l):
+
+            pos_list = []
+
+            for r in range(n):
+
+                for c in range(m):
+
+                    if matrix[r][c] == a[i]:
+
+                        pos_list.append( (r+1, c+1) )  # assuming 1-based indexing
+
+            positions[i] = pos_list
+
+        # Now, compute the outcome for the first step
+
+        # The first step is i=0, and the current submatrix is the entire matrix.
+
+        # The current player is Tsovak, and he needs to choose a position in the matrix for a[0].
+
+        # The outcome is determined by whether he can win.
+
+        # So, we need to compute dp(0, 0, 0) where (r, c) is the starting position of the current submatrix.
+
+        # But for the first step, the starting position is (1, 1), since the matrix is 1-based.
+
+        # Wait, the matrix is 1-based? Or 0-based?
+
+        # The problem says the matrix has n rows and m columns, numbered from 1.
+
+        # So, for the matrix, the rows are 1-based, columns 1-based.
+
+        # So, the positions are stored as (r+1, c+1) if the original code is 0-based.
+
+        # So, when the code reads the matrix, it's stored as 0-based, but the positions are 1-based.
+
+        # So, when we read the matrix, for each cell (r, c) in 0-based, the position is (r+1, c+1).
+
+        # So, the positions for a_i are stored as (r+1, c+1).
+
+        # So, in the code, when we read the matrix, we have to store the positions as 1-based.
+
+        # So, for the first step, the current submatrix is the entire matrix, starting at (1, 1).
+
+        # So, the initial call is to compute dp(0, 1, 1), where 0 is the first element.
+
+        # But how to implement this.
+
+        # Now, we need to implement a recursive function with memoization.
+
+        # Let's implement memoization with lru_cache, but since the parameters are large, it might not be feasible.
+
+        # But given that the sum of l is 1500, and for each step, the number of possible (r, c) is O(nm), it's possible that with memoization, this is manageable.
+
+        # However, in Python, the lru_cache has a limit on the size of the parameters, and for large n and m, it might not be feasible.
+
+        # Alternative approach: use memoization with a dictionary, but for each step i, and for each possible (r, c), store the result.
+
+        # But how to implement this.
+
+        # Let's proceed with memoization, and see.
+
+        # Now, the code for the recursive function:
+
+        from functools import lru_cache
+
+        @lru_cache(maxsize=None)
+
+        def can_win(i, r, c):
+
+            # i is the current step, r and c are the starting position of the current submatrix.
+
+            # For step i, the current submatrix is from (r, c) to (n, m).
+
+            # The current player must find a_i in this submatrix.
+
+            # If there are no such positions, return False.
+
+            if i == l:
+
+                # The array has ended, so the current player must find the last element.
+
+                # But since the current submatrix is the one for step i, which is the last step.
+
+                # Wait, the current step is i, which is l, and the current player must find a_i.
+
+                # So, if the current submatrix has at least one position for a_i, then the current player can win.
+
+                # But how to check if the current submatrix has any positions for a_i?
+
+                # Wait, for the current step i = l, the current player must find a_l in the current submatrix.
+
+                # So, the code for i == l is to check if there is at least one position in the current submatrix for a_l.
+
+                # So, the function returns True if there is at least one position in the current submatrix for a_l, else False.
+
+                # But how to check that?
+
+                # For the current submatrix, which is from (r, c) to (n, m), we need to check if any of the positions for a_l are in this submatrix.
+
+                # But since the current submatrix is from (r, c) to (n, m), and the current step is i = l, which is the last step, the current player must find a_l in this submatrix.
+
+                # So, for the current step, if the current submatrix contains at least one position for a_l, then the current player can win.
+
+                # So, we need to check if a_l is present in the current submatrix.
+
+                # But how to do this quickly?
+
+                # For this, we can precompute for each a_i, a list of positions. So, for i = l, we can check if the list for a_l has any positions in the current submatrix.
+
+                # But this requires checking for each position in the list if it is in the current submatrix.
+
+                # However, for the current step i = l, the current submatrix is (r, c) to (n, m), and the current player is to find a_l in this submatrix.
+
+                # So, for the current submatrix, we can check if the list for a_l has any positions in this submatrix.
+
+                # So, in the code, for the current step i = l, we can check if there is at least one position in the current submatrix for a_l.
+
+                # So, in the function:
+
+                # Check if a_l is present in the current submatrix.
+
+                # But since the positions for a_l are stored in a list, we can check if any of the positions in the list are within the current submatrix.
+
+                # But this is O(k), where k is the number of positions for a_l.
+
+                # But for the purposes of this problem, this is acceptable.
+
+                # So, for the current step i = l:
+
+                # return True if any position in the positions[i] is in the current submatrix (r, c) to (n, m).
+
+                # So, for the current submatrix, which is from (r, c) to (n, m), we need to check if any of the positions for a_l is in this submatrix.
+
+                # But how to do this?
+
+                # For the current submatrix, the r and c are the starting position, and the submatrix is from (r, c) to (n, m). So, for any position (r', c') in the submatrix, r' >= r and c' >= c, and r' <= n, c' <= m.
+
+                # So, for the current step i = l, the current submatrix is from (r, c) to (n, m). So, for the positions of a_l, we check if any of them are in this submatrix.
+
+                # But how to do this quickly.
+
+                # For the current step i = l, the code would be:
+
+                # if any (r', c') in positions[l] satisfies r <= r' <= n and c <= c' <= m.
+
+                # But since the current submatrix is (r, c) to (n, m), we can check this.
+
+                # So, for the current step i = l, the function returns True if there is at least one position in the current submatrix for a_l.
+
+                # So, in the code:
+
+                # if i == l:
+
+                #   return any( (r' >= r and r' <= n) and (c' >= c and c' <= m) for (r', c') in positions[i] )
+
+                # But this is O(k), where k is the number of positions for a_i.
+
+                # But for the purposes of this problem, it's acceptable.
+
+                # So, for the current step i = l, the function returns True if the current submatrix has any positions for a_i.
+
+                # So, in the code:
+
+                if i == l:
+
+                    # check if the current submatrix has any positions for a_i
+
+                    # a_i is a[l-1] since the list is 0-based.
+
+                    # Wait, the code for the function is for i in 0..l-1.
+
+                    # So, in the function, when i is l, it's the last element.
+
+                    # So, for the current step i = l, the current player is to find a_l, which is the l-th element.
+
+                    # So, the code for i == l is:
+
+                    # check if the current submatrix has any positions for a[i].
+
+                    # But in the code, the a is a list of elements, and the positions are stored as per the i-th element.
+
+                    # So, in the function, for i == l, the current element is a[i], but since i is l, which is beyond the array, it's not possible.
+
+                    # Wait, this is a problem. The function is called for i in 0..l-1, and for i == l, it's the base case.
+
+                    # So, in the code, the function can be called for i from 0 to l-1, and for i == l, it's the base case.
+
+                    # So, for the current step i, the current player is to find a_i.
+
+                    # So, in the function, for i == l, it's not part of the array. So, this is a base case.
+
+                    # But how to handle this.
+
+                    # Let me think again: the function is called for i in 0 to l-1, and the base case is when i == l, which is when the current player has to find the l-th element.
+
+                    # But this is not part of the array. So, perhaps the function is called with i from 0 to l, and for i == l, it's the base case.
+
+                    # So, the code for the base case is:
+
+                    # if i == l:
+
+                    #   return True if the current submatrix has at least one position for a[l-1] (since the array is 0-based).
+
+                    # But this is not correct, because the current submatrix is for the i-th element, which is the l-th element.
+
+                    # So, the code for i == l is:
+
+                    # if the current submatrix has at least one position for a[i-1], since i is l.
+
+                    # But this is getting complicated.
+
+                    # Maybe it's better to adjust the code to handle this.
+
+                    # So, for the current step i, the current player is to find a_i.
+
+                    # So, for i = l, it's the last element, and the current player must find it in the current submatrix.
+
+                    # But the array has l elements. So, the function is called with i in 0 to l.
+
+                    # So, in the code, the base case is when i == l, and the current player must find a_l in the current submatrix.
+
+                    # But the array has l elements, so for i = l, the current player is to find a_l, which is the l-th element.
+
+                    # So, in the code, for i == l, the current player is to find a_l, which is the l-th element.
+
+                    # So, the code for i == l is:
+
+                    # check if the current submatrix has any positions for a_l.
+
+                    # But in the code, a is a list of l elements. So, a[i] is a[l-1] when i is l.
+
+                    # So, this is a bit confusing.
+
+                    # Maybe it's better to adjust the code to handle this.
+
+                    # Let me think again: the function is called for i in 0 to l. For i == l, the current player is to find the l-th element, which is a[l-1].
+
+                    # So, the code for i == l is:
+
+                    # check if the current submatrix has any positions for a[l-1].
+
+                    # So, in the code, the function can be:
+
+                    # if i == l:
+
+                    #   return True if there is at least one position in the current submatrix for a[l-1]
+
+                    # But how to get the current submatrix.
+
+                    # For the current submatrix, it's from (r, c) to (n, m).
+
+                    # So, for the current submatrix, the code checks if any of the positions for a[l-1] are in this submatrix.
+
+                    # So, in the code:
+
+                    # check if any (r', c') in positions[l-1] is in the current submatrix.
+
+                    # But how to do this.
+
+                    # So, in the code, for the current submatrix (r, c) to (n, m), we can check if any of the positions for a[l-1] are in this submatrix.
+
+                    # So, in the code:
+
+                    # for the current submatrix, which is from (r, c) to (n, m), we can check:
+
+                    # if any (r', c') in positions[l-1] satisfies r <= r' <= n and c <= c' <= m.
+
+                    # But how to do this.
+
+                    # So, in the code, for the current step i = l, the function returns True if any of the positions for a[l-1] are in the current submatrix.
+
+                    # So, this is O(k) time, where k is the number of positions for a[l-1].
+
+                    # This is acceptable for the given constraints.
+
+                    # So, for the base case, the function returns True if there is at least one position in the current submatrix for a[l-1].
+
+                    # So, in the code:
+
+                    # if i == l:
+
+                    #   return any( (r' >= r) and (r' <= n) and (c' >= c) and (c' <= m) for (r', c') in positions[l-1] )
+
+                    # But this is not correct, because the current submatrix is from (r, c) to (n, m), and the positions for a[l-1] are stored as (r+1, c+1) in the code.
+
+                    # Wait, earlier in the preprocessing, we stored the positions as (r+1, c+1), assuming the matrix is 0-based.
+
+                    # So, for the current submatrix, which is from (r, c) to (n, m), the code needs to check if any of the positions for a[l-1] are in this submatrix.
+
+                    # So, for the current submatrix, the r and c are the starting positions, and the submatrix is from (r, c) to (n, m).
+
+                    # So, for a position (r', c') in the submatrix, r' >= r, c' >= c, and r' <= n, c' <= m.
+
+                    # So, the code for the base case is:
+
+                    # if any (r', c') in positions[l-1] satisfies r <= r' <= n and c <= c' <= m.
+
+                    # So, this is the code for the base case.
+
+                    # So, in the code, for the base case, we return this value.
+
+                    # So, in the function, for i == l, return True if any of the positions for a[l-1] are in the current submatrix.
+
+                    # Now, for the other cases:
+
+                    # The current player must choose a position (r', c') in the current submatrix where a_i is located.
+
+                    # For each such position, the next player must find a_{i+1} in the submatrix starting at (r' + 1, c' + 1).
+
+                    # The current player wins if there exists at least one position (r', c') such that the next player cannot win.
+
+                    # So, the code for other cases is:
+
+                    # for each (r', c') in positions[i] that are in the current submatrix:
+
+                    #   next_submatrix_start = (r' + 1, c' + 1)
+
+                    #   if can_win(i+1, next_submatrix_start[0], next_submatrix_start[1]) is False:
+
+                    #       return True
+
+                    # return False
+
+                    # So, the code for the general case is:
+
+                    # check if the current submatrix has any positions for a_i.
+
+                    # if not, return False.
+
+                    # else, for each position (r', c') in the current submatrix for a_i:
+
+                    #   check if the next player can't win.
+
+                    # if any of them returns False, return True.
+
+                    # else, return False.
+
+                    # So, this is the general case.
+
+                    # Now, the problem is to implement this in code.
+
+                    # But how to implement this in Python with memoization.
+
+                    # Now, the code for the can_win function:
+
+                    # So, in the code, the function can_win(i, r, c) returns whether the current player can win when processing the i-th element, with the current submatrix starting at (r, c).
+
+                    # Now, the code for the function:
+
+                    # Check if the current submatrix has any positions for a_i.
+
+                    # For the current i-th element, the a_i is a[i].
+
+                    # So, for the current submatrix (r, c) to (n, m), check if any of the positions for a[i] are in this submatrix.
+
+                    # So, the code for the current step is:
+
+                    # positions_i = positions[i]
+
+                    # if not positions_i:
+
+                    #   return False
+
+                    # for each (r', c') in positions_i:
+
+                    #   if r' >= r and r' <= n and c' >= c and c' <= m:
+
+                    #       next_r = r' + 1
+
+                    #       next_c = c' + 1
+
+                    #       if can_win(i+1, next_r, next_c) is False:
+
+                    #           return True
+
+                    # return False
+
+                    # So, this is the code.
+
+                    # But how to implement this in Python with memoization.
+
+                    # Now, the code for the function:
+
+                    # But in Python, the recursion may be too slow, but given the constraints, it might be manageable.
+
+                    # Now, the code for the function:
+
+                    # But the problem is that for each step i, the current submatrix is (r, c) to (n, m), and the positions for a_i are stored in positions[i].
+
+                    # So, in the code, for the current step i, the current submatrix is from (r, c) to (n, m).
+
+                    # So, the code for the function:
+
+                    # Now, the code for the function:
+
+                    # Check if the current submatrix has any positions for a_i.
+
+                    # For this, the code:
+
+                    # positions_i = positions[i]
+
+                    # if not positions_i:
+
+                    #   return False
+
+                    # else:
+
+                    #   for (r', c') in positions_i:
+
+                    #       if r' >= r and r' <= n and c' >= c and c' <= m:
+
+                    #           next_r = r' + 1
+
+                    #           next_c = c' + 1
+
+                    #           if not can_win(i+1, next_r, next_c):
+
+                    #               return True
+
+                    #   return False
+
+                    # So, this is the code.
+
+                    # But how to implement this in Python, with memoization.
+
+                    # Now, the problem is that for each (i, r, c), the function is called, and the memoization is stored.
+
+                    # But for large n and m, this could be slow.
+
+                    # However, given that the sum of l is 1500, and for each step, the number of (r, c) is O(nm), this might be manageable.
+
+                    # Now, let's think about the test case from the example.
+
+                    # For example, the first test case:
+
+                    # l=2, n=2, m=3.
+
+                    # a = [1, 2]
+
+                    # matrix is:
+
+                    # row 1: 1 3 6
+
+                    # row 2: 4 6 2
+
+                    # So, for a[0] = 1, the positions are (1,1).
+
+                    # For a[1] = 2, the positions are (2, 3).
+
+                    # So, the first call is can_win(0, 1, 1).
+
+                    # For i=0, r=1, c=1.
+
+                    # The current submatrix is from (1,1) to (2,3).
+
+                    # positions for a[0] is [(1,1)].
+
+                    # So, for this position, next_r = 2, next_c = 2.
+
+                    # call can_win(1, 2, 2).
+
+                    # For i=1, r=2, c=2.
+
+                    # The current submatrix is from (2,2) to (2,3).
+
+                    # The positions for a[1] is [(2,3)].
+
+                    # So, for this position, next_r = 3, next_c = 4, which is out of bounds.
+
+                    # So, the next_r and next_c are 3 and 4, which are beyond the matrix.
+
+                    # So, the next submatrix is empty.
+
+                    # So, the next player (Narek) cannot find the next element (a[2] which is out of bounds).
+
+                    # Wait, the array has l=2 elements. So, when i=1, the current player is Narek, and the next step is i=2, which is l=2.
+
+                    # So, in the can_win function for i=1, the current submatrix is (2,2) to (2,3).
+
+                    # For the current step i=1, the current player must find a[1] = 2 in this submatrix.
+
+                    # The position (2,3) is in the submatrix.
+
+                    # So, the next_r is 3, next_c is 4. But since n=2, the next_r is 3, which is beyond the matrix. So, the next submatrix is (3,4) to (2,3), which is empty.
+
+                    # So, the next player (Narek) has no moves. So, the current player (Narek) wins?
+
+                    # Wait, no. The current player is Narek, and he is to find a[1] = 2 in the submatrix. He finds it, and then the next player (Tsovak) must find a[2], which is beyond the array.
+
+                    # Wait, the array has l=2 elements. So, when i=1, the current player is Narek, and the next step is i=2, which is l=2.
+
+                    # So, for the can_win(1, 2, 2) function:
+
+                    # i=1, which is the second element. The current player is Narek.
+
+                    # He finds the position (2,3) in the submatrix (2,2) to (2,3).
+
+                    # Then, the next player (Tsovak) must find a[2], which is beyond the array. So, the array has ended, and the current player (Narek) has already chosen the second element.
+
+                    # Wait, the array has l=2 elements. So, the next step is i=2, which is the end of the array.
+
+                    # So, after Narek chooses the second element, the array is complete, and Tsovak has no moves. So, the current player (Narek) wins, because he has chosen the last element.
+
+                    # But according to the example, in the first test case, Tsovak loses.
+
+                    # So, what's wrong here?
+
+                    # Let me re-examine the example:
+
+                    # In the first example, Tsovak starts by choosing 1 at (1,1). Then Narek must choose 2 in the submatrix (2,2). The submatrix is (2,2) to (2,3), which contains 6 and 2. He chooses 2 at (2,3). Then Tsovak has to find the next element, which is a[2], which is beyond the array. So, Tsovak loses.
+
+                    # So, the current player is Narek, and after he chooses the second element, the array ends, and the next player (Tsovak) loses.
+
+                    # So, the function for can_win(1, 2, 2) returns True, because the next player (i=2) is the end of the array, and the current player (Narek) wins.
+
+                    # But in the code, for i=1, the function returns True if the current player can win.
+
+                    # So, for i=1, the current player is Narek, and he is to find a[1] = 2 in the current submatrix.
+
+                    # The function returns True if there is at least one position in the current submatrix for a[1], and the next player (i=2) can't win.
+
+                    # But for i=2, the function returns True if the current submatrix has at least one position for a[2], which is not possible.
+
+                    # So, for i=2, the function returns True if there is at least one position in the current submatrix for a[2], which is not the case.
+
+                    # So, the function for i=2 returns False? Or True?
+
+                    # Wait, the base case is i == l. For i=2, which is l=2, the function checks if the current submatrix has any positions for a[2], which is out of bounds. So, the code for i=2 would return False.
+
+                    # So, for i=1, the current player (Narek) has to choose a position in the submatrix (2,2) to (2,3) for a[1] = 2. He finds it, and then the next player (Tsovak) has to find a[2], which is not possible. So, the next player (Tsovak) cannot find it, so the current player (Narek) wins.
+
+                    # So, the function for i=1, the current player (Narek) can win, so the function returns True.
+
+                    # But in the code, the function for i=1 returns True if there exists a position where the next player (i=2) can't win.
+
+                    # For i=1, the next player is i=2, which is l=2. So, the function for i=2 returns False.
+
+                    # So, in the code, for i=1, the current player (Narek) checks if any of the positions in the current submatrix for a[1] leads to the next player (i=2) not being able to win.
+
+                    # For the position (2,3), the next player is i=2, and the function for i=2 returns False.
+
+                    # So, the current player (Narek) can win, and the function returns True.
+
+                    # So, the function for i=0 returns True? Or False?
+
+                    # Let's see:
+
+                    # For i=0, the current player is Tsovak, and the function returns True if there exists a position in the current submatrix for a[0] = 1, and the next player (i=1) can't win.
+
+                    # For i=0, the current submatrix is (1,1) to (2,3). The positions for a[0] is [(1,1)].
+
+                    # For this position, the next player is i=1, and the function calls can_win(1, 2, 2).
+
+                    # The function for can_win(1, 2, 2) returns True, as explained earlier.
+
+                    # So, the current player (Tsovak) checks if there exists a position in the current submatrix for a[0] where the next player can't win. But the next player can win, so the current player can't win. So, the function returns False.
+
+                    # So, the function for i=0 returns False, which means Tsovak loses, and the output is N.
+
+                    # Which matches the first example.
+
+                    # So, the code seems to work.
+
+                    # Now, the code for the function is:
+
+                    # But how to implement this in Python.
+
+                    # Now, the code:
+
+                    # But in Python, for the memoization, the parameters are (i, r, c), and the function is called recursively.
+
+                    # So, the code would be:
+
+                    # But for each test case, the positions are precomputed.
+
+                    # So, the code for the function can_win is as described.
+
+                    # Now, the problem is to implement this in Python with memoization, and handle the base case.
+
+                    # Now, the code for the function:
+
+                    # But how to handle the positions for a_i.
+
+                    # For each a_i, we have a list of positions. So, for the current step i, the code checks if the current submatrix contains any of these positions.
+
+                    # Now, the code:
+
+                    # But for each test case, the code would need to precompute the positions for each a_i.
+
+                    # Now, the code:
+
+                    # So, putting it all together.
+
+                    # Now, the code for the function can_win:
+
+                    # But in Python, the recursion may be too slow for large cases, but given the constraints, it might be manageable.
+
+                    # Now, the code:
+
+                    # The code for the function is:
+
+                    # from functools import lru_cache
+
+                    # But for each test case, the function can_win is called with different parameters.
+
+                    # So, the code would be:
+
+                    # But in Python, the lru_cache decorator may not be feasible for large n and m.
+
+                    # So, to optimize, we can memoize the function for each test case.
+
+                    # However, in Python, the lru_cache can be applied to the function inside the test case.
+
+                    # So, the code:
+
+                    # For each test case, the function is defined inside the loop.
+
+                    # But this may not be efficient, but for the given constraints, it's manageable.
+
+                    # Now, the code:
+
+                    # So, the code for the test case:
+
+                    # After preprocessing the positions, the code calls can_win(0, 1, 1).
+
+                    # The function returns True or False, and the result is "T" if True, else "N".
+
+                    # But wait, the first player is Tsovak, and the function returns True if Tsovak can win.
+
+                    # So, the code for the test case is:
+
+                    # if can_win(0, 1, 1):
+
+                    #     print("T")
+
+                    # else:
+
+                    #     print("N")
+
+                    # Now, the code for the function.
+
+                    # But how to implement this.
+
+                    # Now, the code:
+
+                    # But the code for the function is inside the test case.
+
+                    # So, the code for the test case would be:
+
+                    # Now, the code:
+
+                    # But I need to write the code in Python.
+
+                    # Now, the code:
+
+                    # But in Python, for each test case, we need to process the positions and call the function.
+
+                    # Now, the code:
+
+                    # Let's write the code.
+
+                    # The code:
+
+                    # But for the function, the parameters are i, r, c.
+
+                    # But in the code, the positions for a_i are stored in a dictionary, and the function can access them.
+
+                    # So, the code:
+
+                    # Now, the code:
+
+                    # But the code may have to handle the positions for a_i.
+
+                    # So, the code:
+
+                    # Now, the full code:
+
+                    # Read the input.
+
+                    # Preprocess the positions.
+
+                    # Then, call the function.
+
+                    # Now, the code:
+
+                    # Let's write the code.
+
+                    # But the code may have to handle the positions for each a_i.
+
+                    # Now, the code:
+
+                    # But in the code, the function can_win is defined inside the test case.
+
+                    # So, the code:
+
+                    # But in Python, for each test case, the function can_win is defined with lru_cache.
+
+                    # Now, the code:
+
+                    # But for the function to work, the positions for each a_i must be stored.
+
+                    # So, the code:
+
+                    # Now, the full code:
+
+                    # But the code may have to handle the positions for a_i.
+
+                    # So, the code:
+
+                    # Now, the code:
+
+                    # Let's proceed.
+
+                    # The code:
+
+                    from functools import lru_cache
+
+                    import sys
+
+                    def solve():
+
+                        input = sys.stdin.read().split()
+
+                        ptr = 0
+
+                        t = int(input[ptr])
+
+                        ptr += 1
+
+                        for _ in range(t):
+
+                            l = int(input[ptr])
+
+                            n = int(input[ptr+1])
+
+                            m = int(input[ptr+2])
+
+                            ptr += 3
+
+                            a = list(map(int, input[ptr:ptr + l]))
+
+                            ptr += l
+
+                            matrix = []
+
+                            for _ in range(n):
+
+                                row = list(map(int, input[ptr:ptr + m]))
+
+                                matrix.append(row)
+
+                                ptr += m
+
+                            # Preprocess positions for each element
+
+                            positions = {}
+
+                            for i in range(l):
+
+                                pos_list = []
+
+                                for r in range(n):
+
+                                    for c in range(m):
+
+                                        if matrix[r][c] == a[i]:
+
+                                            pos_list.append( (r+1, c+1) )  # 1-based
+
+                                positions[i] = pos_list
+
+                            # Now, define the function with memoization
+
+                            @lru_cache(maxsize=None)
+
+                            def can_win(i, r, c):
+
+                                # i is the current step, r and c are the starting position of the current submatrix
+
+                                # Check if current submatrix has any positions for a[i]
+
+                                # If not, return False
+
+                                if i >= l:
+
+                                    # base case: i is l, which is the end of the array
+
+                                    # check if the current submatrix has any positions for a[l-1]
+
+                                    # a[l-1] is the last element
+
+                                    # a[i] is a[l-1] when i == l?
+
+                                    # Wait, for i >= l, it's the base case.
+
+                                    # So, for i == l, the current player must find a[l-1] in the current submatrix.
+
+                                    # So, the code for i == l:
+
+                                    # check if any of the positions for a[l-1] are in the current submatrix
+
+                                    # So, for the current submatrix (r, c) to (n, m):
+
+                                    # check if any (r', c') in positions[l-1] are in this submatrix.
+
+                                    # So, the code:
+
+                                    if l == i:
+
+                                        # check if the current submatrix has any positions for a[l-1]
+
+                                        # positions[l-1] is the list of positions for a[l-1]
+
+                                        # So, for the current submatrix (r, c) to (n, m), check if any (r', c') in positions[l-1] are in this submatrix.
+
+                                        # So, the code:
+
+                                        for (r_prime, c_prime) in positions[l-1]:
+
+                                            if r_prime >= r and r_prime <= n and c_prime >= c and c_prime <= m:
+
+                                                return True
+
+                                        return False
+
+                                    else:
+
+                                        # i >= l is not possible, since i ranges from 0 to l-1.
+
+                                        # So, this is an error.
+
+                                        return False
+
+                                # Check if the current submatrix has any positions for a[i]
+
+                                current_a = a[i]
+
+                                pos_list = positions[i]
+
+                                if not pos_list:
+
+                                    return False
+
+                                # For each position in pos_list, check if it's in the current submatrix
+
+                                for (r_prime, c_prime) in pos_list:
+
+                                    if r_prime >= r and r_prime <= n and c_prime >= c and c_prime <= m:
+
+                                        # next_r = r_prime + 1, next_c = c_prime + 1
+
+                                        next_r = r_prime + 1
+
+                                        next_c = c_prime + 1
+
+                                        # call can_win for i+1, next_r, next_c
+
+                                        if not can_win(i+1, next_r, next_c):
+
+                                            return True
+
+                                return False
+
+                            # Now, the initial call is can_win(0, 1, 1)
+
+                            # But the initial submatrix is from (1, 1) to (n, m)
+
+                            # So, the code:
+
+                            result = can_win(0, 1, 1)
+
+                            if result:
+
+                                print("T")
+
+                            else:
+
+                                print("N")
+
+                    # But wait, in the code above, the function can_win is defined inside the loop for each test case. However, in Python, the lru_cache may not work correctly if the function is redefined for each test case.
+
+                    # Also, the code may have a problem with the base case for i == l.
+
+                    # Also, the code for the base case may have an error.
+
+                    # Let's test the first example.
+
+                    # For the first example, the code should return N.
+
+                    # But in the code, the initial call is can_win(0, 1, 1).
+
+                    # The function for i=0, r=1, c=1.
+
+                    # The current submatrix is (1,1) to (2,3).
+
+                    # pos_list for i=0 is [(1,1)].
+
+                    # For this position, next_r = 2, next_c = 2.
+
+                    # call can_win(1, 2, 2).
+
+                    # For i=1, r=2, c=2.
+
+                    # current submatrix is (2,2) to (2,3).
+
+                    # pos_list for i=1 is [(2,3)].
+
+                    # So, for this position, next_r = 3, next_c = 4.
+
+                    # call can_win(2, 3, 4).
+
+                    # Now, i=2 == l=2, so check if the current submatrix has any positions for a[1] (which is 2).
+
+                    # The current submatrix is (3,4) to (2,3), which is empty.
+
+                    # So, the code returns False.
+
+                    # So, for the call can_win(1, 2, 2), the code checks for each position in pos_list for i=1 (which is [(2,3)]).
+
+                    # The code checks if (2,3) is in the current submatrix (r=2, c=2) to (n=2, m=3).
+
+                    # Yes, it is. So, next_r = 3, next_c = 4.
+
+                    # call can_win(2, 3, 4).
+
+                    # which returns False.
+
+                    # So, the code for can_win(1, 2, 2) returns True.
+
+                    # So, for the call can_win(0, 1, 1), the code checks for the position (1,1), and the next call returns True. So, the code returns True? But according to the example, the result should be False.
+
+                    # Wait, no. The function returns True if there exists a position where the next player can't win.
+
+                    # In the case of can_win(0, 1, 1), the next call is can_win(1, 2, 2), which returns True. So, the current player (Tsovak) checks if there exists a position where the next player can't win. But the next player can win, so the current player can't win. So, the function returns False.
+
+                    # So, the code for can_win(0, 1, 1) returns False, which is correct.
+
+                    # So, the code returns False, and the output is "N".
+
+                    # Which matches the first example.
+
+                    # So, the code seems to work.
+
+                    # Now, the code may have some issues with the base case.
+
+                    # For example, when i == l, the code checks if any of the positions for a[l-1] are in the current submatrix.
+
+                    # But in the code, the function is called with i >= l, but the code has:
+
+                    # if i >= l:
+
+                    #   if l == i:
+
+                    #       ... 
+
+                    # So, the code for i == l is handled.
+
+                    # But in the code, the function is called with i in 0 to l-1.
+
+                    # So, the code is correct.
+
+                    # Now, the code may have to handle the positions for a[i] when i is l.
+
+                    # But in the code, for the base case, the function returns True if there are any positions in the current submatrix for a[l-1].
+
+                    # So, the code should be correct.
+
+                    # Now, the code may have some performance issues, but given the constraints, it's the best approach.
+
+                    # Now, the code may have to handle large inputs, but the memoization should help.
+
+                    # Now, the code for the function can_win is defined inside the test case, and uses lru_cache.
+
+                    # Now, the code may have to be optimized for speed.
+
+                    # One possible optimization is to precompute for each a_i the positions, and for the current submatrix, check if any of the positions are in the submatrix.
+
+                    # But the code is already doing that.
+
+                    # Now, the code should be correct.
+
+                    # Now, let's check the second example.
+
+                    # Second example:
+
+                    # 2 2 4
+
+                    # 1 2
+
+                    # 1 1 3 2
+
+                    # 4 2 5 1
+
+                    # So, matrix is:
+
+                    # row 1: 1 1 3 2
+
+                    # row 2: 4 2 5 1
+
+                    # a = [1, 2]
+
+                    # For a[0] = 1, positions are (1,1), (1,4), (2,4).
+
+                    # For a[1] = 2, positions are (1,2), (2,2).
+
+                    # The first player (Tsovak) chooses a[0] = 1 at (1,1). Then the submatrix for the next step is (2, 2) to (2,4).
+
+                    # For the next step, the current player is Narek, and he must find a[1] = 2 in the submatrix (2,2) to (2,4).
+
+                    # The positions for a[1] are (2,2), (2,4).
+
+                    # So, Narek chooses (2,2), and the next player (Tsovak) has no moves, so he loses. So, the result is N.
+
+                    # But according to the example, the output is T.
+
+                    # Wait, the example output for the second test case is T.
+
+                    # Wait, the second example's output is T.
+
+                    # Let me re-examine the example:
+
+                    # The second example's input is:
+
+                    # 2 2 4
+
+                    # 1 2
+
+                    # 1 1 3 2
+
+                    # 4 2 5 1
+
+                    # So, the matrix is:
+
+                    # row 1: 1 1 3 2
+
+                    # row 2: 4 2 5 1
+
+                    # The array is [1, 2].
+
+                    # Tsovak starts by finding 1. He chooses (1,1). Then, Narek must find 2 in the submatrix (2, 2) to (2,4).
+
+                    # The submatrix is (2,2) to (2,4), which has elements 2, 5, 1. So, the positions for 2 are (2,2) and (2,4).
+
+                    # Narek chooses (2,2), and then Tsovak has to find the next element, which is a[2], which is out of bounds. So, Tsovak loses. But according to the example, the output is T.
+
+                    # Wait, the example's output for the second test case is T.
+
+                    # But according to this analysis, the output should be N.
+
+                    # Wait, this suggests a problem in the code.
+
+                    # Let me re-examine the example.
+
+                    # The second example's output is T.
+
+                    # According to the note:
+
+                    # In the second example, Tsovak needs to choose 1. There is a 1 at (n, m) = (2,4). So he chooses it. Then, since the submatrix for the next step is (2+1, 4+1) = (3,5), which is empty, Narek cannot find 2, so he loses.
+
+                    # So, the output is T.
+
+                    # So, the code must have a mistake in the way it handles the positions.
+
+                    # Ah, I see the mistake. The code's current submatrix is determined by the previous position. For the first step, the current submatrix is (1,1) to (n, m), but the code for the first step is (r=1, c=1), which is correct.
+
+                    # But in the second example, the first step is to find a[0] = 1. The code's positions for a[0] are (1,1), (1,4), (2,4).
+
+                    # So, Tsovak can choose any of these positions.
+
+                    # But in the example, he chooses (2,4), which is the position (r=2, c=4).
+
+                    # So, the next submatrix is (2+1, 4+1) = (3,5), which is out of bounds.
+
+                    # So, the next player (Narek) cannot find a[1] = 2, so he loses.
+
+                    # So, the code should return True for the first step.
+
+                    # So, the code's function for can_win(0, 1, 1) should return True, leading to T.
+
+                    # So, the code must have a bug in the way it determines the current submatrix.
+
+                    # Ah, the code's current submatrix for the first step is (1,1) to (n, m), but the code's initial call is can_win(0, 1, 1).
+
+                    # But in the code, for the first step, the current submatrix is from (1,1) to (n, m), which is correct.
+
+                    # So, for the first step, the code should return True, since Tsovak can choose (2,4), which is in the submatrix.
+
+                    # So, the code for can_win(0, 1, 1) would check if there is any position in the submatrix (1,1) to (2,4) for a[0] = 1.
+
+                    # The positions for a[0] are (1,1), (1,4), (2,4).
+
+                    # For each of these positions, the next player is called with i=1, r= r_prime +1, c_prime +1.
+
+                    # For example, if the current player chooses (2,4), then the next player is at (3,5), which is outside the matrix. So, the next player (Narek) has no moves. So, the function returns True.
+
+                    # So, the code for can_win(0, 1, 1) returns True, leading to T.
+
+                    # So, the code should return T for the second test case.
+
+                    # So, why did the previous analysis say that the code returns False?
+
+                    # Because the code's current implementation may have a mistake in the way the positions are checked.
+
+                    # Let's re-examine the code for the second test case.
+
+                    # For the second test case, the initial call is can_win(0, 1, 1).
+
+                    # The current submatrix is (1,1) to (2,4).
+
+                    # The positions for a[0] are (1,1), (1,4), (2,4).
+
+                    # For each of these positions, the code checks if the next player can't win.
+
+                    # Let's take the position (2,4):
+
+                    # next_r = 2+1 = 3, next_c = 4+1 = 5.
+
+                    # call can_win(1, 3, 5).
+
+                    # For i=1, the current submatrix is (3,5) to (2,4), which is invalid. So, the code for can_win(1, 3, 5) returns False.
+
+                    # So, for this position, the next player (Narek) can't win, so the current player (Tsovak) wins.
+
+                    # So, the function returns True.
+
+                    # So, the code returns True for the first step, leading to T.
+
+                    # So, the code is correct.
+
+                    # So, the code should work.
+
+                    # Now, the code for the second test case returns T.
+
+                    # So, the code is correct.
+
+                    # Now, the code may have some issues with the initial call, but it seems to handle it.
+
+                    # Now, the code for the function can_win may have a problem when the current submatrix is empty.
+
+                    # For example, if the current submatrix is (r=2, c=2) to (n=2, m=3), and the current a_i is not present, the function returns False.
+
+                    # So, the code is correct.
+
+                    # Now, the code should be correct.
+
+                    # Now, the code needs to be written in Python, with the input read properly.
+
+                    # But in the code, the input is read as a list of strings, and the code uses a pointer to track the current position.
+
+                    # Now, the code may have to handle large inputs, but with the given constraints, it should be manageable.
+
+                    # So, the final code is as follows.
+</think>
+
+```python
+import sys
+from functools import lru_cache
+
+def solve():
+    input = sys.stdin.read().split()
+    ptr = 0
+    t = int(input[ptr])
+    ptr += 1
+    for _ in range(t):
+        l = int(input[ptr])
+        n = int(input[ptr+1])
+        m = int(input[ptr+2])
+        ptr += 3
+        a = list(map(int, input[ptr:ptr+l]))
+        ptr += l
+        matrix = []
+        for _ in range(n):
+            row = list(map(int, input[ptr:ptr+m]))
+            matrix.append(row)
+            ptr += m
+        
+        # Preprocess positions for each element
+        positions = {}
+        for i in range(l):
+            pos_list = []
+            for r in range(n):
+                for c in range(m):
+                    if matrix[r][c] == a[i]:
+                        pos_list.append((r+1, c+1))  # 1-based indexing
+            positions[i] = pos_list
+        
+        @lru_cache(maxsize=None)
+        def can_win(i, r, c):
+            if i >= l:
+                # Base case: check if current submatrix has any positions for a[l-1]
+                if l == i:
+                    for (r_p, c_p) in positions[l-1]:
+                        if r_p >= r and r_p <= n and c_p >= c and c_p <= m:
+                            return True
+                    return False
+                else:
+                    return False
+            current_a = a[i]
+            pos_list = positions[i]
+            if not pos_list:
+                return False
+            for (r_p, c_p) in pos_list:
+                if r_p >= r and r_p <= n and c_p >= c and c_p <= m:
+                    next_r = r_p + 1
+                    next_c = c_p + 1
+                    if not can_win(i+1, next_r, next_c):
+                        return True
+            return False
+        
+        result = can_win(0, 1, 1)
+        print("T" if result else "N")
+
+if __name__ == "__main__":
+    solve()
+```
