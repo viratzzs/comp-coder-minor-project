@@ -1,6 +1,12 @@
 # Comp Coder v1
 This repository contains the code for training a competitive programming llm using distillation from Deepseek R1. the base model used is qwen3-1.7B and the distillation is done by performing Supervised Fine Tuning(SFT) on 5 responses per problem by the larger R1 model. The dataset is https://huggingface.co/datasets/open-r1/codeforces-cots and we are using the python subset which contains a total of nearly 10k training samples.
 
+## Run UI
+1. Do `uv sync`
+2. Setup ngrok auth token in environment.
+3. Launch `server.py` on a machine with GPU.
+4. Run `streamlit run ui/app.py`
+
 ## TODO 
 ### Training stuff (SFT distillation)
 - Use codeforces-cots dataset.
